@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <meta name="description" content="Read Genesis through Malachi in the KJV with Bible-wide cross-references, word meanings, and historical commentary.">
+  <title>Genesis–Malachi | Old Testament Study</title>
+  <link rel="stylesheet" href="styles.css?v=16">
+  <link rel="stylesheet" href="nt.css?v=10">
+<link rel="stylesheet" href="growth.css?v=18"><link rel="stylesheet" href="search.css?v=19"><link rel="stylesheet" href="footnotes.css?v=20"><link rel="stylesheet" href="translations.css?v=21"></head>
+<body>
+  <a class="skip-link" href="#reader">Skip to chapter</a>
+  <header class="topbar">
+    <div class="brand">
+      <button type="button" class="icon-button mobile-only" id="menuButton" aria-label="Open book list" aria-expanded="false"><span></span><span></span><span></span></button>
+      <div class="mark" aria-hidden="true">✦</div>
+      <div><div class="brand-title">Old Testament Study</div><div class="brand-subtitle">Genesis through Malachi · KJV</div></div>
+    </div>
+    <div class="nt-top-links"><a class="top-link" href="new-testament.html">New Testament</a><a class="top-link" href="index.html">Gospels</a></div>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Old Testament books">
+      <div class="sidebar-head"><label class="search-wrap" for="bookSearch"><span aria-hidden="true">⌕</span><input id="bookSearch" type="search" placeholder="Find a book" autocomplete="off"></label><div class="results-meta">39 books · 929 chapters</div></div>
+      <nav class="event-list" id="bookList"></nav>
+    </aside>
+    <button type="button" class="scrim" id="scrim" aria-label="Close book list"></button>
+    <main class="reader" id="reader" tabindex="-1">
+      <div class="reader-inner"><a class="scripture-search-link" href="search.html">⌕ Search verses & chapters</a>
+        <div class="event-kicker">The Old Testament</div>
+        <div class="event-heading-row"><div><div class="event-number" id="chapterCount"></div><h1 id="chapterTitle"></h1></div></div>
+        <p class="event-summary">Read the KJV text, related verses from both Testaments, word meanings, and historical commentary.</p>
+        <div class="chapter-controls"><label for="chapterSelect">Chapter</label><select id="chapterSelect"></select></div>
+        <p class="nt-instructions">Tap a gold verse number for cross-references from the whole Bible. Tap an underlined word for its modern meaning. <button type="button" id="glossaryOpen">Search word meanings</button> <button type="button" id="sharePassage" class="share-passage">Share this chapter</button></p>
+        <section class="event-visuals" id="chapterVisuals" aria-label="Illustrations and study maps" hidden></section><p class="swipe-hint">Swipe left for the next chapter, or right for the previous one.</p>
+        <section class="nt-scripture" id="chapterVerses" aria-label="Scripture text"></section>
+        <section class="nt-commentary" aria-label="Historical commentary">
+          <h2>Historical commentary</h2>
+          <div id="henryCommentary"></div>
+          
+          <p class="commentary-disclaimer">These writers offer interpretations; their words are separate from the Bible text.</p>
+        </section>
+        <nav class="event-nav" aria-label="Move between chapters"><button type="button" class="nav-button" id="previousChapter">← <span>Previous chapter</span></button><button type="button" class="nav-button next" id="nextChapter"><span>Next chapter</span> →</button></nav>
+      </div>
+    </main>
+  </div>
+  <div class="word-panel" id="wordPanel" role="dialog" aria-label="Word meaning" hidden>
+    <button type="button" class="word-close" id="wordClose" aria-label="Close word meaning">×</button>
+    <div class="word-panel-label">Modern-English word guide</div>
+    <label class="word-search-label" for="wordSearch">Find a word</label>
+    <input id="wordSearch" type="search" placeholder="Search the glossary" autocomplete="off">
+    <div class="word-suggestions" id="wordSuggestions"></div><h2 id="wordTitle"></h2><p id="wordMeaning"></p>
+    <small>Definitions are reading aids; meaning can vary by context. The Scripture text remains unchanged.</small>
+  </div>
+  <dialog class="verse-dialog" id="verseDialog" aria-labelledby="verseTitle">
+    <div class="verse-dialog-head"><h2 id="verseTitle"></h2><button type="button" id="verseClose" aria-label="Close cross-references">×</button></div>
+    <p class="verse-dialog-text" id="verseText"></p><div id="verseBack"></div>
+    <h3 id="verseRelatedHeading">Cross-references</h3><div class="verse-related" id="verseRelated"></div>
+    <button type="button" class="verse-more" id="verseMore" hidden>Show all references</button>
+    <p class="verse-source">KJV text · Related passages may quote, explain, or echo this verse. <a href="https://github.com/josephilipraja/bible-cross-reference-json" target="_blank" rel="noopener noreferrer">Reference index</a> · <a href="https://github.com/aruljohn/Bible-kjv" target="_blank" rel="noopener noreferrer">KJV text source</a></p>
+  </dialog>
+  <dialog class="visual-dialog" id="ntVisualDialog" aria-labelledby="ntVisualTitle"><div class="visual-dialog-head"><div><div class="visual-kicker" id="ntVisualKicker"></div><h2 id="ntVisualTitle"></h2></div><button type="button" id="ntVisualClose" aria-label="Close visual">×</button></div><div id="ntVisualBody"></div><p class="visual-caption" id="ntVisualCaption"></p></dialog>
+  <dialog class="study-tools-dialog" id="studyToolsDialog" aria-labelledby="studyToolsTitle"><div class="study-tools-head"><div><div class="visual-kicker">Verse tools</div><h2 id="studyToolsTitle">Highlight or share</h2></div><button type="button" id="studyToolsClose" aria-label="Close verse tools">×</button></div><p id="studyToolsReference" class="study-tools-reference"></p><section class="study-context" id="studyVerseContext"><h3 id="studyContextTitle"></h3><p id="studyContextText"></p><div id="studyContextLinks" class="study-context-links"></div><small>Context notes are reading aids; the Scripture text remains unchanged.</small></section><fieldset class="highlight-palette" id="highlightPalette"><legend>Choose a highlight color</legend><button type="button" data-highlight-color="yellow" aria-label="Yellow"></button><button type="button" data-highlight-color="green" aria-label="Green"></button><button type="button" data-highlight-color="blue" aria-label="Blue"></button><button type="button" data-highlight-color="pink" aria-label="Pink"></button><button type="button" data-highlight-color="purple" aria-label="Purple"></button></fieldset><div class="study-tool-actions"><button type="button" id="shareVerse">Share verse</button><button type="button" id="removeHighlight" hidden>Remove highlight</button></div><p id="studyToolsStatus" class="study-tools-status" role="status" hidden></p></dialog>
+  <script src="glossary.js?v=5"></script>
+  <script src="verse-names.js?v=8"></script>
+  <script src="nt-bible-1.js?v=10"></script><script src="nt-bible-2.js?v=10"></script><script src="nt-bible-3.js?v=10"></script>
+  <script src="nt-bible-4.js?v=10"></script><script src="nt-bible-5.js?v=10"></script><script src="nt-bible-6.js?v=10"></script>
+  <script src="ot-books.js?v=16"></script>
+  <script src="ot-bible-1.js?v=16"></script><script src="ot-bible-2.js?v=16"></script><script src="ot-bible-3.js?v=16"></script><script src="ot-bible-4.js?v=16"></script>
+  <script src="ot-bible-5.js?v=16"></script><script src="ot-bible-6.js?v=16"></script><script src="ot-bible-7.js?v=16"></script><script src="ot-bible-8.js?v=16"></script>
+  <script src="verse-refs.js?v=8"></script><script src="nt-refs.js?v=10"></script>
+  <script src="ot-refs-1.js?v=16"></script><script src="ot-refs-2.js?v=16"></script><script src="ot-refs-3.js?v=16"></script><script src="ot-refs-4.js?v=16"></script>
+  <script src="ot-refs-5.js?v=16"></script><script src="ot-refs-6.js?v=16"></script><script src="ot-refs-7.js?v=16"></script><script src="ot-refs-8.js?v=16"></script>
+  <script src="ot-commentary-1.js?v=16"></script><script src="ot-commentary-2.js?v=16"></script><script src="ot-commentary-3.js?v=16"></script><script src="ot-commentary-4.js?v=16"></script>
+  <script src="ot-commentary-5.js?v=16"></script><script src="ot-commentary-6.js?v=16"></script><script src="ot-commentary-7.js?v=16"></script><script src="ot-commentary-8.js?v=16"></script>
+  <script src="ot-images.js?v=16"></script><script src="ot-visuals.js?v=16"></script><script src="swipe.js?v=13"></script><script src="verse-context.js?v=15"></script><script src="study-tools.js?v=21"></script><script src="translation-WEB.js?v=21"></script><script src="translation-ASV.js?v=21"></script><script src="translations.js?v=22"></script><script src="ot-reader.js?v=16"></script>
+<script src="growth.js?v=21"></script><script src="footnotes-data.js?v=21"></script><script src="footnotes.js?v=22"></script></body>
+</html>

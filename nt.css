@@ -1,0 +1,25 @@
+.top-link { display: inline-flex; align-items: center; padding: .45rem .7rem; border: 1px solid rgba(227,197,126,.65); border-radius: .45rem; color: #ffe2a1; font-size: .86rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.top-link:hover, .top-link:focus-visible { background: rgba(255,255,255,.12); }
+.nt-top-links { display: flex; gap: .35rem; flex-shrink: 0; }
+.chapter-controls { display: flex; align-items: center; gap: .75rem; margin: 0 0 1rem; }
+.chapter-controls label { color: var(--navy-900); font-weight: 700; }
+.chapter-controls select { min-width: 10rem; padding: .55rem .65rem; border: 1px solid #b9c8d7; border-radius: .45rem; background: white; color: var(--ink); }
+.nt-instructions { margin: 0 0 1.25rem; color: var(--navy-700); font-size: .92rem; }
+.nt-instructions button { padding: 0; border: 0; background: none; color: var(--navy-900); font-weight: 700; text-decoration: underline; cursor: pointer; }
+.nt-scripture { padding: clamp(1rem,3vw,1.8rem); border: 1px solid var(--line); border-radius: .7rem; background: white; }
+.nt-verse { margin: 0 0 .85rem; color: #222a38; font: 1.1rem/1.72 Georgia, "Times New Roman", serif; }
+.nt-verse:last-child { margin-bottom: 0; }
+.nt-verse .verse-number { margin-right: .25rem; vertical-align: baseline; font-size: .74rem; }
+.nt-commentary { margin-top: 1.35rem; padding: clamp(1rem,3vw,1.6rem); border: 1px solid var(--line); border-top: 3px solid var(--gold-500); border-radius: .7rem; background: white; }
+.nt-commentary h2 { margin: 0 0 1rem; color: var(--navy-900); font: 700 1.35rem Georgia, serif; }
+.nt-author { margin: 1rem 0 .55rem; color: var(--navy-900); font: 700 1.06rem Georgia, serif; }
+.nt-author small { display: block; color: var(--muted); font: .85rem/1.5 system-ui, sans-serif; }
+.nt-section { padding: .7rem 0; border-top: 1px solid var(--line); }
+.nt-section summary { color: var(--navy-700); font-weight: 700; cursor: pointer; }
+.nt-section p, #calvinCommentary p { margin: .65rem 0; white-space: pre-line; font: 1rem/1.65 Georgia, serif; }
+#calvinCommentary { margin-top: 1.25rem; padding-top: .45rem; border-top: 2px solid var(--line); }
+#calvinCommentary[hidden] { display: none; }
+.source-link { color: var(--navy-700); font-size: .9rem; font-weight: 650; }
+.verse-more { margin-top: .75rem; padding: .55rem .75rem; border: 1px solid #b9c8d7; border-radius: .4rem; background: var(--surface-blue); color: var(--navy-900); cursor: pointer; }
+.verse-more[hidden] { display: none; }
+@media (max-width: 620px) { .topbar .brand-title { font-size: .86rem; } .topbar .brand-subtitle { font-size: .63rem; } .top-link { padding: .35rem .45rem; font-size: .72rem; } .reader-inner { padding-top: 1.4rem; } .nt-verse { font-size: 1.04rem; } }
