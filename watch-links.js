@@ -113,7 +113,7 @@
   };
 
   var CSS = [
-    '.watch-banner{margin:14px 0 4px;padding:12px 14px;border:1px solid #d5aa57;border-radius:10px;background:#10243f;color:#f5ecd7}',
+    '.watch-banner{margin:14px 0 22px;padding:12px 14px;border:1px solid #d5aa57;border-radius:10px;background:#10243f;color:#f5ecd7;position:relative;clear:both}',
     '.watch-banner .watch-kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#d5aa57;margin-bottom:8px;font-weight:700}',
     '.watch-banner a.watch-link{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);margin-top:6px;font-weight:600;line-height:1.3}',
     '.watch-banner a.watch-link:hover{background:rgba(255,255,255,.14)}',
@@ -161,7 +161,12 @@
       if (old) old.remove();
       return;
     }
-    var anchor = document.getElementById('eventSummary');
+    /* The reader's .word-help and .swipe-hint use negative top margins that tuck
+       them under the event summary — inserting the banner before them lets that
+       pull drag them over the banner. Anchor AFTER the hint instead. */
+    var anchor = document.querySelector('.swipe-hint') ||
+      document.querySelector('.word-help') ||
+      document.getElementById('eventSummary');
     if (!anchor || !anchor.parentNode) return;
     var banner = old || document.createElement('div');
     banner.id = 'watchBanner';
@@ -173,7 +178,7 @@
     });
     html += '<div class="watch-channel">A Christvision Messages film on YouTube</div>';
     banner.innerHTML = html;
-    if (!old) anchor.parentNode.insertBefore(banner, anchor.nextSibling);
+    anchor.parentNode.insertBefore(banner, anchor.nextSibling);
   }
 
   function init() {
