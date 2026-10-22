@@ -47,7 +47,7 @@
     if (m === 11) return { mode: d <= 25 ? 'live' : 'after', today: Math.min(d, 25), year: y };
     if (m === 0) return { mode: 'after', today: 25, year: y - 1 };
     var dec1 = new Date(y, 11, 1);
-    var days = Math.ceil((dec1 - new Date(y, m, d)) / 86400000);
+    var days = Math.round((dec1 - new Date(y, m, d)) / 86400000);
     return { mode: 'before', today: 0, year: y, until: days };
   }
 
