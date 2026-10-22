@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <meta name="description" content="Listening journeys through the Gospel Harmony — the life of Christ, His miracles, parables, Holy Week and resurrection, read aloud from the King James Version, with a sleep timer.">
+  <title>Listening Journeys — Comparative Gospel Harmony</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2310243f'/%3E%3Cpath d='M14 16h15c4 0 7 3 7 7v27c-2-3-5-4-9-4H14V16zm36 0H35c-4 0-7 3-7 7v27c2-3 5-4 9-4h13V16z' fill='%23d5aa57'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    .listen-wrap{max-width:56rem;margin:0 auto;padding:18px 16px 48px}
+    .path-card{border:1px solid #d7e0ea;border-radius:12px;background:#fff;padding:14px 16px;margin:0 0 12px}
+    .path-card h3{margin:0 0 3px;font:700 1.08rem/1.3 Georgia,serif;color:#10243f}
+    .path-desc{margin:0;color:#33475e;font-size:.95rem}
+    .path-meta{margin:5px 0 10px;color:#4e5a6e;font-size:.85rem}
+    .aj-btn{display:inline-block;padding:8px 14px;border-radius:8px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:.9rem;cursor:pointer}
+    .aj-btn.gold{background:#d5aa57;border-color:#d5aa57;color:#10243f}
+    .aj-btn[disabled]{opacity:.55;cursor:default}
+    #ajPlayer{position:sticky;top:0;z-index:5;background:#10243f;color:#fff;border-radius:12px;padding:14px 16px;margin:0 0 18px;box-shadow:0 4px 18px rgba(16,36,63,.3)}
+    #ajPlayer .np-kicker{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#d5aa57;font-weight:700}
+    #nowTitle{font:700 1.05rem/1.35 Georgia,serif;margin:4px 0 1px}
+    #nowRef{font-size:.85rem;color:#b9c8d7}
+    .aj-controls{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+    .aj-controls button{width:2.6rem;height:2.6rem;border-radius:50%;border:none;background:#d5aa57;color:#10243f;font-size:1.05rem;cursor:pointer}
+    .aj-controls button.small{width:2.1rem;height:2.1rem;font-size:.85rem;background:#24466e;color:#fff}
+    #ajProgress{flex:1 1 12rem;accent-color:#d5aa57}
+    #ajTime{font-size:.82rem;color:#b9c8d7;min-width:6.5rem}
+    .aj-sleep{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.88rem;flex-wrap:wrap}
+    .aj-sleep select{padding:6px 8px;border-radius:7px;border:1px solid #24466e;background:#fff;color:#10243f}
+    #sleepLabel{color:#d5aa57;font-size:.85rem}
+    .queue-row{display:flex;gap:10px;width:100%;text-align:left;border:1px solid #d7e0ea;background:#fff;border-radius:9px;padding:9px 12px;margin:0 0 7px;cursor:pointer;font-size:.92rem;color:#33475e}
+    .queue-row.current{border-color:#d5aa57;background:#fdf6dd;font-weight:700;color:#10243f}
+    .queue-row .q-dur{margin-left:auto;color:#4e5a6e;font-weight:400}
+    .offline-box{border:1px dashed #7a5c14;border-radius:10px;background:#fdf6dd;padding:13px 15px;margin:22px 0}
+    .offline-box p{margin:0 0 9px;font-size:.93rem;color:#4e3f10}
+    #offlineStatus{font-size:.88rem;color:#33475e;margin-top:8px}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">✦</div>
+      <div>
+        <div class="brand-title">Comparative Gospel Harmony</div>
+        <div class="brand-subtitle">King James Version</div>
+      </div>
+    </div>
+    <nav><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">← Back to the harmony</a></nav>
+  </header>
+
+  <main class="listen-wrap">
+    <div style="font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#7a5c14;font-weight:700">🎧 Listen</div>
+    <h1 style="font:700 1.9rem/1.25 Georgia,serif;color:#10243f;margin:6px 0 8px">Listening Journeys</h1>
+    <p style="font-size:1rem;line-height:1.55;color:#33475e;max-width:44rem">
+      The harmony read aloud, arranged into journeys that play straight through — for the car, the kitchen,
+      a walk, or the last minutes before sleep. Choose a path, press play, and listen; set the
+      <strong>sleep timer</strong> and the reading will fade and pause on its own.
+    </p>
+
+    <section id="ajPlayer" aria-label="Audio journey player">
+      <div class="np-kicker" id="nowPath">Choose a journey below</div>
+      <div id="nowTitle">Nothing playing yet</div>
+      <div id="nowRef"></div>
+      <audio id="ajAudio" preload="none"></audio>
+      <div class="aj-controls">
+        <button type="button" id="prevTrack" class="small" aria-label="Previous reading">⏮</button>
+        <button type="button" id="playPause" aria-label="Play or pause">▶</button>
+        <button type="button" id="nextTrack" class="small" aria-label="Next reading">⏭</button>
+        <input type="range" id="ajProgress" min="0" max="100" value="0" aria-label="Seek">
+        <span id="ajTime">0:00 / 0:00</span>
+      </div>
+      <div class="aj-sleep">
+        <label for="sleepSelect">🌙 Sleep timer</label>
+        <select id="sleepSelect">
+          <option value="0">Off</option>
+          <option value="15">15 minutes</option>
+          <option value="30">30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+        </select>
+        <span id="sleepLabel"></span>
+      </div>
+    </section>
+
+    <div id="pathList"></div>
+
+    <h2 style="font:700 1.25rem Georgia,serif;color:#10243f;margin:24px 0 8px">Up next in this journey</h2>
+    <div id="queueList"><p style="color:#4e5a6e;font-size:.93rem">Choose a journey above and its readings will line up here. Tap any reading to jump straight to it.</p></div>
+
+    <div class="offline-box">
+      <p><strong>📴 Listen with no signal.</strong> Save all 185 readings (about 236 MB) to this device once, and every journey plays offline afterwards — on the plane, in the village, anywhere.</p>
+      <button type="button" id="offlineBtn" class="aj-btn">⬇ Save all audio for offline</button>
+      <div id="offlineStatus"></div>
+    </div>
+
+    <p style="font-size:.9rem;color:#33475e">Also see: <a href="journey.html">🕊 The Life of Christ in 30 Days</a> · <a href="advent.html">🎄 The Advent Journey</a> · <a href="index.html">📖 The Harmony</a></p>
+    <p style="font-size:.85rem;color:#4e5a6e">A Christvision Messages resource.</p>
+  </main>
+
+  <script src="audio-journeys.js?v=1"></script>
+  <script src="pwa.js?v=1"></script>
+</body>
+</html>
