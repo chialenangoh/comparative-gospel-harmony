@@ -24,6 +24,7 @@
     '.acct-btn{padding:7px 13px;border-radius:8px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:.86rem;cursor:pointer}',
     '.acct-btn.gold{background:#d5aa57;border-color:#d5aa57;color:#10243f}',
     '.acct-btn.ghost{background:transparent;color:#10243f}',
+    '.acct-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #d5aa57;flex:none}',
     '#acctDialog,#resetDialog{border:none;border-radius:14px;padding:0;max-width:24rem;width:calc(100% - 32px);box-shadow:0 18px 50px rgba(16,36,63,.35)}',
     '#acctDialog::backdrop,#resetDialog::backdrop{background:rgba(16,36,63,.55)}',
     '.acct-form{padding:20px 20px 16px}',
@@ -116,11 +117,30 @@
     var span = document.createElement('span');
     span.className = 'grow';
     if (user) {
-      span.textContent = '👤 Signed in as ' + user.email + ' — your streak and progress sync across devices.';
+      var av = document.createElement('img');
+      av.className = 'acct-avatar'; av.alt = 'Your profile photo'; av.width = 30; av.height = 30;
+      var avUrl = user.user_metadata && user.user_metadata.avatar_url;
+      if (avUrl) { av.src = avUrl; av.addEventListener('error', function () { av.style.display = 'none'; }); }
+      else { av.style.display = 'none'; }
+      span.textContent = 'Signed in as ' + user.email + ' — your streak and progress sync across devices.';
+      var photo = document.createElement('button');
+      photo.type = 'button'; photo.className = 'acct-btn ghost'; photo.textContent = '📷 Photo';
+      photo.title = 'Add or change your profile photo';
+      var file = document.createElement('input');
+      file.type = 'file'; file.accept = 'image/*'; file.style.display = 'none';
+      file.addEventListener('change', function () { if (file.files && file.files[0]) uploadAvatar(file.files[0]); });
+      photo.addEventListener('click', function () { file.click(); });
+      bar.appendChild(av); bar.appendChild(span); bar.appendChild(photo); bar.appendChild(file);
+      if (avUrl) {
+        var rm = document.createElement('button');
+        rm.type = 'button'; rm.className = 'acct-btn ghost'; rm.textContent = 'Remove photo';
+        rm.addEventListener('click', function () { removeAvatar(); });
+        bar.appendChild(rm);
+      }
       var out = document.createElement('button');
       out.type = 'button'; out.className = 'acct-btn ghost'; out.textContent = 'Sign out';
       out.addEventListener('click', function () { sb.auth.signOut(); });
-      bar.appendChild(span); bar.appendChild(out);
+      bar.appendChild(out);
     } else {
       span.innerHTML = '👤 <strong>Save your streak.</strong> Create a free account and your journey progress follows you to any device. Optional — everything works without one.';
       var inB = document.createElement('button');
@@ -131,6 +151,52 @@
       upB.addEventListener('click', function () { openDialog(); });
       bar.appendChild(span); bar.appendChild(inB); bar.appendChild(upB);
     }
+  }
+
+  /* ---------- Profile photo ---------- */
+  function uploadAvatar(fileObj) {
+    if (!user || !sb) return;
+    setStatus('Preparing your photo…');
+    var url = URL.createObjectURL(fileObj);
+    var img = new Image();
+    img.onload = function () {
+      URL.revokeObjectURL(url);
+      var size = 256, c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      var ctx = c.getContext('2d');
+      var side = Math.min(img.width, img.height);
+      ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+      c.toBlob(function (blob) {
+        if (!blob) { setStatus('That photo could not be prepared — try another image.', true); return; }
+        var path = user.id + '/avatar.jpg';
+        sb.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
+          .then(function (res) {
+            if (res.error) throw res.error;
+            var pub = sb.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+            return sb.auth.updateUser({ data: { avatar_url: pub } });
+          })
+          .then(function (res) {
+            if (res && res.error) throw res.error;
+            if (res && res.data && res.data.user) user = res.data.user;
+            setStatus('Profile photo updated.');
+            renderBar();
+          })
+          .catch(function () { setStatus('Photo upload failed — check your connection and try again.', true); });
+      }, 'image/jpeg', 0.85);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); setStatus('That file is not an image — choose a photo.', true); };
+    img.src = url;
+  }
+  function removeAvatar() {
+    if (!user || !sb) return;
+    sb.storage.from('avatars').remove([user.id + '/avatar.jpg'])
+      .then(function () { return sb.auth.updateUser({ data: { avatar_url: null } }); })
+      .then(function (res) {
+        if (res && res.data && res.data.user) user = res.data.user;
+        setStatus('Profile photo removed.');
+        renderBar();
+      })
+      .catch(function () { setStatus('Could not remove the photo — try again.', true); });
   }
 
   function setStatus(msg, isErr) {

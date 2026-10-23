@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://comparative-gospel-harmony.onrender.com/sitemap.xml
