@@ -365,11 +365,25 @@
     } catch (e) {}
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     buildUI();
+    function refreshUser() {
+      // The stored session's user is a snapshot from sign-in time: if the
+      // profile photo (or any metadata) changed on another device since,
+      // fetch the fresh user so this device shows it too.
+      sb.auth.getUser().then(function (res) {
+        var fresh = res && res.data && res.data.user;
+        if (fresh && user && fresh.id === user.id) {
+          var before = JSON.stringify(user.user_metadata || {});
+          user = fresh;
+          if (JSON.stringify(user.user_metadata || {}) !== before) renderBar();
+        }
+      }).catch(function () {});
+    }
     sb.auth.getSession().then(function (res) {
       var session = res && res.data && res.data.session;
       if (session && session.user) {
         user = session.user;
         renderBar();
+        refreshUser();
         pullMergePush().then(startSync);
       }
     });
@@ -380,6 +394,7 @@
         user = session.user;
         if (event === 'SIGNED_IN') justSignedIn = true;
         renderBar();
+        refreshUser();
         if (isNew) pullMergePush().then(startSync);
       } else {
         user = null;
