@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swipe self-test — Gospel Harmony</title>
+  <style>
+    body{font-family:system-ui,sans-serif;margin:24px;color:#10243f}
+    #stage{border:2px dashed #b9c8d7;border-radius:12px;padding:36px 16px;text-align:center;margin:16px 0;background:#fbfcfe}
+    #result{white-space:pre-wrap;font:14px/1.6 ui-monospace,monospace;background:#10243f;color:#d5aa57;border-radius:10px;padding:14px 16px}
+    button{padding:8px 14px}
+  </style>
+</head>
+<body>
+  <h1>Swipe navigation — self-test</h1>
+  <p>This page loads the site's real <strong>swipe-nav.js</strong> and fires synthetic touch gestures at it:
+     a left swipe (should go Next), a right swipe (Previous), a vertical scroll and a tap (both should do nothing).</p>
+  <div>
+    <button id="previousEvent" data-id="prev">← Previous</button>
+    <span id="counter" style="font-weight:700;margin:0 12px">Event shown: 10</span>
+    <button id="nextEvent" data-id="next">Next →</button>
+  </div>
+  <div id="stage">Gesture target — swipes land here</div>
+  <div id="result">Running…</div>
+
+  <script src="swipe-nav.js?v=1"></script>
+  <script>
+    (function () {
+      var shown = 10;
+      var lines = [];
+      var stage = document.getElementById('stage');
+      document.getElementById('nextEvent').addEventListener('click', function () { shown++; draw(); });
+      document.getElementById('previousEvent').addEventListener('click', function () { shown--; draw(); });
+      function draw() { document.getElementById('counter').textContent = 'Event shown: ' + shown; }
+
+      function touch(type, x, y) {
+        var t = new Touch({ identifier: 1, target: stage, clientX: x, clientY: y });
+        var ev = new TouchEvent(type, {
+          bubbles: true, cancelable: true, composed: true,
+          touches: type === 'touchend' ? [] : [t],
+          changedTouches: [t], targetTouches: type === 'touchend' ? [] : [t]
+        });
+        stage.dispatchEvent(ev);
+      }
+      function swipe(x1, y1, x2, y2) { touch('touchstart', x1, y1); touch('touchend', x2, y2); }
+      function check(name, expected) {
+        var ok = shown === expected;
+        lines.push((ok ? 'PASS' : 'FAIL') + ' — ' + name + ' → event ' + shown + ' (expected ' + expected + ')');
+        return ok;
+      }
+
+      setTimeout(function () {
+        var all = true;
+        swipe(600, 300, 300, 310); all = check('Left swipe = next event', 11) && all;
+        swipe(300, 300, 620, 295); all = check('Right swipe = previous event', 10) && all;
+        swipe(400, 200, 410, 520); all = check('Vertical scroll = no navigation', 10) && all;
+        swipe(420, 300, 423, 302); all = check('Tap = no navigation', 10) && all;
+        swipe(600, 300, 200, 390); all = check('Diagonal-ish left swipe (dx 400, dy 90) = next', 11) && all;
+        lines.push(all ? '\nVERDICT: ALL SWIPE TESTS PASSED' : '\nVERDICT: SOME TESTS FAILED');
+        document.getElementById('result').textContent = lines.join('\n');
+        document.title = all ? 'SWIPE TEST PASSED' : 'SWIPE TEST FAILED';
+      }, 500);
+    })();
+  </script>
+</body>
+</html>
