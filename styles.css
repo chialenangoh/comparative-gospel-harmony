@@ -350,3 +350,8 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
 .study-context-links button strong { display: block; color: var(--navy-900); font-size: .83rem; }
 .study-context-links button span { display: block; margin-top: .1rem; font: .83rem/1.4 Georgia,serif; }
 .study-context-links a { color: var(--navy-700); font-size: .83rem; }
+
+/* Brand logo (2026-10-23): real logo mark in the header, visible on phones too
+   (the old text ✦ mark was display:none under 900px). */
+.mark-img { width: 2.6rem; height: 2.6rem; flex: none; border-radius: 50%; }
+@media (max-width: 900px) { .mark-img { width: 2.3rem; height: 2.3rem; } }
