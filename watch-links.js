@@ -140,8 +140,8 @@
     '.watch-banner a.watch-link:hover{background:rgba(255,255,255,.14)}',
     '.watch-banner .watch-play{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#c0392b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}',
     '.watch-banner .watch-channel{font-size:12px;color:#cdbf9f;margin-top:8px}',
-    '.watch-film-strip{position:fixed;top:4.5rem;left:0;right:0;z-index:49;display:block;text-align:center;padding:8px 12px;background:#10243f;color:#f5ecd7;text-decoration:none;font-weight:600;font-size:14px;border-bottom:2px solid #d5aa57}',
-    '@media (max-width:900px){.watch-film-strip{top:4.25rem}}',
+    '.watch-film-strip{position:fixed;top:4.5rem;left:0;right:0;z-index:49;display:block;text-align:center;padding:8px 12px;background:#10243f;color:#f5ecd7;text-decoration:none;font-weight:600;font-size:14px;border-bottom:2px solid #d5aa57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '@media (max-width:900px){.watch-film-strip{top:4.25rem;font-size:13px}}',
     '.watch-film-strip:hover{background:#1a3357}',
     '.watch-film-strip .watch-play-inline{color:#e74c3c;margin-right:6px}'
   ].join('\n');
