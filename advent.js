@@ -9,7 +9,7 @@
   var KEY = 'gh-advent-v1';
 
   var CSS = [
-    '.adv-wrap{max-width:56rem;margin:0 auto;padding:18px 16px 48px}',
+    '.adv-wrap{max-width:56rem;margin:0 auto;padding:104px 16px 48px}',
     '.adv-stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 18px}',
     '.adv-stat{flex:1 1 9rem;border:1px solid #b9c8d7;border-radius:10px;background:#fff;padding:12px 14px;text-align:center}',
     '.adv-stat .n{font:700 1.4rem Georgia,serif;color:#10243f}',

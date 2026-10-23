@@ -21,7 +21,7 @@
     '.jp-btn[disabled]{opacity:.55;cursor:default}',
     '.journey-daybar{margin:0 0 14px;padding:12px 14px;border:1px dashed #7a5c14;border-radius:10px;background:#fdf6dd;clear:both;font-size:.94rem;color:#4e3f10}',
     '.journey-daybar .jp-btn{margin-left:10px}',
-    '.journey-wrap{max-width:56rem;margin:0 auto;padding:18px 16px 48px}',
+    '.journey-wrap{max-width:56rem;margin:0 auto;padding:104px 16px 48px}',
     '.journey-stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 20px}',
     '.journey-stat{flex:1 1 9rem;border:1px solid #b9c8d7;border-radius:10px;background:#fff;padding:12px 14px;text-align:center}',
     '.journey-stat .n{font:700 1.5rem Georgia,serif;color:#10243f}',
