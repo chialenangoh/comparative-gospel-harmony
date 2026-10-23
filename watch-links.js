@@ -17,6 +17,9 @@
       { label: 'THE BIRTH OF JESUS CHRIST — A Christmas Story of Hope and Redemption', url: 'https://www.youtube.com/watch?v=QywHE30bAtQ' },
       { label: 'Fewer Than Half Believe the Virgin Birth?', url: 'https://www.youtube.com/shorts/wxgoEdirJDY' }
     ],
+    '14': [
+      { label: 'King or Rival King — The Wise Men and King Herod', url: 'https://www.youtube.com/shorts/Z0EEHXxFiKI' }
+    ],
     '17': [
       { label: "What Was Jesus' Childhood Like? The Hidden Years in Nazareth", url: 'https://www.youtube.com/shorts/GfO4RXrNBUE' },
       { label: 'The Untold Truth About Mary Raising Jesus', url: 'https://www.youtube.com/shorts/ru9n0H1u5Xw' }
@@ -30,6 +33,9 @@
     ],
     '22': [
       { label: "Why Didn't John the Baptist Perform Any Miracles?", url: 'https://www.youtube.com/shorts/TWnqZT5a4yo' }
+    ],
+    '24': [
+      { label: 'THE RIGHT BAPTISM — Jesus Baptized by John', url: 'https://www.youtube.com/shorts/di-ldYqlQWw' }
     ],
     '25': [
       { label: 'WHY JESUS WAS TEMPTED — 40 Days in the Wilderness', url: 'https://www.youtube.com/watch?v=dS54wLeAXSg' },
@@ -46,6 +52,9 @@
     ],
     '61': [
       { label: 'The Sin God Will NEVER Forgive — Matthew 12 Explained', url: 'https://www.youtube.com/shorts/1X0tSJDmTyo' }
+    ],
+    '65': [
+      { label: 'Did Jesus Calm the Storm?', url: 'https://www.youtube.com/shorts/CueToJ0q9z4' }
     ],
     '66': [
       { label: 'The Madman of Gadara — What Happened to the Demons?', url: 'https://www.youtube.com/shorts/pH4xPhZuwPA' }
@@ -71,6 +80,9 @@
     ],
     '85': [
       { label: 'They Saw Jesus Change Before Their Eyes — The Transfiguration', url: 'https://www.youtube.com/shorts/HfBy8SWp7cY' }
+    ],
+    '89': [
+      { label: 'Jesus Paid the Temple Tax With a Coin From a Fish\'s Mouth', url: 'https://www.youtube.com/shorts/Kny7v0j3-Lk' }
     ],
     '96': [
       { label: 'Where Did Jesus Learn Without School? John 7:15 Explained', url: 'https://www.youtube.com/shorts/MAW1yv6vjJw' }
@@ -101,8 +113,17 @@
     '163': [
       { label: "They Forced Him to Carry Jesus' Cross — Simon of Cyrene", url: 'https://www.youtube.com/shorts/idrzQn6QpPg' }
     ],
+    '164': [
+      { label: 'The Suffering and Glory of Jesus Christ', url: 'https://www.youtube.com/shorts/EWbNR11iE00' }
+    ],
     '165': [
       { label: 'The Mystery of the Ninth Hour', url: 'https://www.youtube.com/shorts/dOLbYwrfA7A' }
+    ],
+    '166': [
+      { label: '5 Things That Happened When Jesus Died', url: 'https://www.youtube.com/shorts/tUY6hgfHN_c' }
+    ],
+    '167': [
+      { label: 'What Happened to the Roman Soldier Who Pierced Jesus?', url: 'https://www.youtube.com/shorts/dbcRA8k9vek' }
     ],
     '170': [
       { label: "They Found a Marble Circle at Jesus' Tomb!", url: 'https://www.youtube.com/shorts/Os_gTYEaEn4' }
