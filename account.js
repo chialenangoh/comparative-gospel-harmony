@@ -267,6 +267,17 @@
   /* ---------- boot ---------- */
   function init() {
     if (!window.supabase || !window.supabase.createClient) return; // CDN unavailable: site unaffected
+    // The reader rewrites location.hash to the current event on load, which
+    // would destroy an auth link's tokens before the client can read them.
+    // The pages stash any auth fragment in <head> before that happens;
+    // restore it now so sign-in / recovery links are honoured.
+    try {
+      var st = sessionStorage.getItem('gh-auth-hash');
+      if (st) {
+        sessionStorage.removeItem('gh-auth-hash');
+        history.replaceState(null, '', window.location.pathname + window.location.search + st);
+      }
+    } catch (e) {}
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     buildUI();
     sb.auth.getSession().then(function (res) {
