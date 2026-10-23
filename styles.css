@@ -355,3 +355,12 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
    (the old text ✦ mark was display:none under 900px). */
 .mark-img { width: 2.6rem; height: 2.6rem; flex: none; border-radius: 50%; }
 @media (max-width: 900px) { .mark-img { width: 2.3rem; height: 2.3rem; } }
+
+/* Film-strip offset (2026-10-23): the "Watch the film" strip is fixed under the
+   header, so the reader shell needs its height added to the top offset — in-flow
+   it silently pushed all content down and left a blank gap under the header. */
+.app-shell.has-strip { padding-top: calc(4.5rem + 39px); }
+@media (max-width: 900px) {
+  .app-shell.has-strip { padding-top: calc(4.25rem + 39px); }
+  .reader-inner { padding-top: 1rem; }
+}
