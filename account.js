@@ -24,7 +24,12 @@
     '.acct-btn{padding:7px 13px;border-radius:8px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:.86rem;cursor:pointer}',
     '.acct-btn.gold{background:#d5aa57;border-color:#d5aa57;color:#10243f}',
     '.acct-btn.ghost{background:transparent;color:#10243f}',
-    '.acct-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #d5aa57;flex:none}',
+    '.acct-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #d5aa57;flex:none;cursor:pointer}',
+    '.acct-avatar-empty{background:#eef2f7;font-size:16px;padding:0;line-height:1}',
+    '.acct-avwrap{position:relative;display:inline-flex;flex:none}',
+    '.acct-avmenu{position:absolute;top:38px;left:0;z-index:60;background:#fff;border:1px solid rgba(16,36,63,.25);border-radius:10px;box-shadow:0 10px 30px rgba(16,36,63,.25);padding:6px;display:flex;flex-direction:column;gap:4px;min-width:160px}',
+    '.acct-avmenu[hidden]{display:none}',
+    '.acct-avmenu .acct-btn{text-align:left}',
     '#acctDialog,#resetDialog{border:none;border-radius:14px;padding:0;max-width:24rem;width:calc(100% - 32px);box-shadow:0 18px 50px rgba(16,36,63,.35)}',
     '#acctDialog::backdrop,#resetDialog::backdrop{background:rgba(16,36,63,.55)}',
     '.acct-form{padding:20px 20px 16px}',
@@ -117,26 +122,40 @@
     var span = document.createElement('span');
     span.className = 'grow';
     if (user) {
-      var av = document.createElement('img');
-      av.className = 'acct-avatar'; av.alt = 'Your profile photo'; av.width = 30; av.height = 30;
       var avUrl = user.user_metadata && user.user_metadata.avatar_url;
-      if (avUrl) { av.src = avUrl; av.addEventListener('error', function () { av.style.display = 'none'; }); }
+      var wrap = document.createElement('span');
+      wrap.className = 'acct-avwrap';
+      var av = document.createElement('img');
+      av.className = 'acct-avatar'; av.alt = 'Your profile photo — tap for photo options'; av.width = 30; av.height = 30;
+      av.title = 'Profile photo — tap for options';
+      if (avUrl) { av.src = avUrl; av.addEventListener('error', function () { av.style.display = 'none'; avBtn.style.display = ''; }); }
       else { av.style.display = 'none'; }
-      span.textContent = 'Signed in as ' + user.email + ' — your streak and progress sync across devices.';
+      var avBtn = document.createElement('button');
+      avBtn.type = 'button'; avBtn.className = 'acct-avatar acct-avatar-empty'; avBtn.textContent = '👤';
+      avBtn.title = 'Profile photo — tap for options';
+      if (avUrl) avBtn.style.display = 'none';
+      var menu = document.createElement('div');
+      menu.className = 'acct-avmenu'; menu.hidden = true;
       var photo = document.createElement('button');
-      photo.type = 'button'; photo.className = 'acct-btn ghost'; photo.textContent = '📷 Photo';
-      photo.title = 'Add or change your profile photo';
+      photo.type = 'button'; photo.className = 'acct-btn ghost'; photo.textContent = avUrl ? '📷 Change photo' : '📷 Add photo';
       var file = document.createElement('input');
       file.type = 'file'; file.accept = 'image/*'; file.style.display = 'none';
-      file.addEventListener('change', function () { if (file.files && file.files[0]) uploadAvatar(file.files[0]); });
+      file.addEventListener('change', function () { if (file.files && file.files[0]) { menu.hidden = true; uploadAvatar(file.files[0]); } });
       photo.addEventListener('click', function () { file.click(); });
-      bar.appendChild(av); bar.appendChild(span); bar.appendChild(photo); bar.appendChild(file);
+      menu.appendChild(photo); menu.appendChild(file);
       if (avUrl) {
         var rm = document.createElement('button');
         rm.type = 'button'; rm.className = 'acct-btn ghost'; rm.textContent = 'Remove photo';
-        rm.addEventListener('click', function () { removeAvatar(); });
-        bar.appendChild(rm);
+        rm.addEventListener('click', function () { menu.hidden = true; removeAvatar(); });
+        menu.appendChild(rm);
       }
+      function toggleMenu() { menu.hidden = !menu.hidden; }
+      av.addEventListener('click', toggleMenu);
+      avBtn.addEventListener('click', toggleMenu);
+      document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) menu.hidden = true; });
+      wrap.appendChild(av); wrap.appendChild(avBtn); wrap.appendChild(menu);
+      span.textContent = 'Signed in as ' + user.email + ' — your streak and progress sync across devices.';
+      bar.appendChild(wrap); bar.appendChild(span);
       var out = document.createElement('button');
       out.type = 'button'; out.className = 'acct-btn ghost'; out.textContent = 'Sign out';
       out.addEventListener('click', function () { sb.auth.signOut(); });
