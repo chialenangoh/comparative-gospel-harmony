@@ -24,8 +24,8 @@
     '.acct-btn{padding:7px 13px;border-radius:8px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:.86rem;cursor:pointer}',
     '.acct-btn.gold{background:#d5aa57;border-color:#d5aa57;color:#10243f}',
     '.acct-btn.ghost{background:transparent;color:#10243f}',
-    '#acctDialog{border:none;border-radius:14px;padding:0;max-width:24rem;width:calc(100% - 32px);box-shadow:0 18px 50px rgba(16,36,63,.35)}',
-    '#acctDialog::backdrop{background:rgba(16,36,63,.55)}',
+    '#acctDialog,#resetDialog{border:none;border-radius:14px;padding:0;max-width:24rem;width:calc(100% - 32px);box-shadow:0 18px 50px rgba(16,36,63,.35)}',
+    '#acctDialog::backdrop,#resetDialog::backdrop{background:rgba(16,36,63,.55)}',
     '.acct-form{padding:20px 20px 16px}',
     '.acct-form h3{margin:0 0 4px;font:700 1.2rem Georgia,serif;color:#10243f}',
     '.acct-form p.sub{margin:0 0 12px;font-size:.88rem;color:#4e5a6e}',
@@ -184,6 +184,40 @@
       '</form>';
     document.body.appendChild(d);
 
+    var rd = document.createElement('dialog');
+    rd.id = 'resetDialog';
+    rd.innerHTML =
+      '<form class="acct-form" method="dialog">' +
+      '<h3>Set a new password</h3>' +
+      '<p class="sub">You followed a password-reset link. Choose a new password for your Gospel Harmony account.</p>' +
+      '<label for="resetPass1">New password</label>' +
+      '<input id="resetPass1" type="password" autocomplete="new-password">' +
+      '<label for="resetPass2">Type it again</label>' +
+      '<input id="resetPass2" type="password" autocomplete="new-password">' +
+      '<div class="acct-row">' +
+      '<button type="button" class="acct-btn gold" id="resetSave">Set new password</button>' +
+      '<button type="button" class="acct-btn ghost" id="resetClose">Cancel</button>' +
+      '</div>' +
+      '<div id="resetStatus" class="acct-status" role="status"></div>' +
+      '</form>';
+    document.body.appendChild(rd);
+    document.getElementById('resetClose').addEventListener('click', function () { rd.close(); });
+    document.getElementById('resetSave').addEventListener('click', function () {
+      var st = document.getElementById('resetStatus');
+      var p1 = document.getElementById('resetPass1').value;
+      var p2 = document.getElementById('resetPass2').value;
+      var say = function (m, err) { if (st) { st.textContent = m; st.className = 'acct-status' + (err ? ' err' : ''); } };
+      if (!p1 || p1.length < 6) { say('Password must be at least 6 characters.', true); return; }
+      if (p1 !== p2) { say('The two passwords do not match.', true); return; }
+      say('Saving…');
+      sb.auth.updateUser({ password: p1 }).then(function (res) {
+        if (res.error) { say(res.error.message, true); return; }
+        say('Password updated — you are signed in.');
+        try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+        setTimeout(function () { rd.close(); }, 900);
+      });
+    });
+
     var email = function () { return document.getElementById('acctEmail').value.trim(); };
     var pass = function () { return document.getElementById('acctPass').value; };
     var redirect = window.location.origin + window.location.pathname;
@@ -225,6 +259,11 @@
     renderBar();
   }
 
+  function openResetDialog() {
+    var rd = document.getElementById('resetDialog');
+    if (rd && rd.showModal && !rd.open) { try { rd.showModal(); } catch (e) {} }
+  }
+
   /* ---------- boot ---------- */
   function init() {
     if (!window.supabase || !window.supabase.createClient) return; // CDN unavailable: site unaffected
@@ -239,6 +278,7 @@
       }
     });
     sb.auth.onAuthStateChange(function (event, session) {
+      if (event === 'PASSWORD_RECOVERY') openResetDialog();
       if (session && session.user) {
         var isNew = !user || user.id !== session.user.id;
         user = session.user;
