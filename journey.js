@@ -66,6 +66,38 @@
 
   function save(st) {
     try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
+    cloudPush(st);
+  }
+
+  /* ---------- account sync (via gh-sync.js; silent when signed out) ---------- */
+  var pushTimer = null;
+  function cloudPush(st) {
+    if (!window.GHSync || !GHSync.signedIn()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(function () {
+      try { GHSync.save('journey:progress', 'journey', { start: st.start, done: st.done, days: st.days }).catch(function () {}); } catch (e) {}
+    }, 600);
+  }
+
+  function cloudPull() {
+    if (!window.GHSync || !GHSync.signedIn()) return;
+    GHSync.load('journey:progress').then(function (rec) {
+      if (!rec || !rec.value) { cloudPush(load()); return; }
+      var c = rec.value, st = load(), changed = false;
+      Object.keys(c.done || {}).forEach(function (k) { if (!st.done[k]) { st.done[k] = true; changed = true; } });
+      Object.keys(c.days || {}).forEach(function (k) { if (!st.days[k]) { st.days[k] = true; changed = true; } });
+      if (c.start && (!st.start || c.start < st.start)) { st.start = c.start; changed = true; }
+      if (changed) {
+        try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {}
+        if (document.getElementById('journeyList')) renderJourneyPage();
+        else {
+          var pill = document.getElementById('journeyPill');
+          if (pill) { pill.remove(); renderPill(); }
+          renderDayBar();
+        }
+      }
+      cloudPush(st);
+    }).catch(function () {});
   }
 
   function streakOf(st) {
@@ -217,9 +249,10 @@
 
   function init() {
     addStyle();
-    if (document.getElementById('journeyList')) { renderJourneyPage(); return; }
+    if (document.getElementById('journeyList')) { renderJourneyPage(); cloudPull(); return; }
     renderPill();
     renderDayBar();
+    cloudPull();
     var target = document.getElementById('eventNumber');
     if (target && window.MutationObserver) {
       var obs = new MutationObserver(function () { renderDayBar(); });

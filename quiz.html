@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <meta name="description" content="How well do you know the life of Christ? Take the 20-question Life of Christ Quiz from the Comparative Gospel Harmony — every answer links back to the event in the four Gospels.">
+  <title>Life of Christ Quiz — Comparative Gospel Harmony</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="styles.css?v=18">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Comparative Gospel Harmony">
+  <meta property="og:title" content="Life of Christ Quiz — How well do you know His story?">
+  <meta property="og:description" content="20 questions from the birth, ministry, cross and resurrection of Jesus — every answer links to the event in the Comparative Gospel Harmony.">
+  <meta property="og:url" content="https://comparative-gospel-harmony.onrender.com/quiz.html">
+  <meta property="og:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Life of Christ Quiz — Comparative Gospel Harmony">
+  <meta name="twitter:description" content="20 questions on the life of Christ. Take it and challenge a friend.">
+  <meta name="twitter:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+  <style>
+    .quiz-wrap{max-width:44rem;margin:0 auto;padding:18px 16px 48px}
+    .quiz-kicker{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#7a5c14;font-weight:700}
+    .quiz-wrap h1{font:700 1.9rem/1.25 Georgia,serif;color:#10243f;margin:6px 0 8px}
+    .quiz-intro{font-size:1rem;line-height:1.55;color:#33475e}
+    .quiz-best{font-weight:700;color:#7a5c14;margin:10px 0}
+    .quiz-btn{display:inline-block;padding:12px 22px;border-radius:10px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none}
+    .quiz-btn.gold{background:#d5aa57;border-color:#d5aa57;color:#10243f}
+    .quiz-btn.ghost{background:#fff;color:#10243f}
+    .quiz-meta{display:flex;justify-content:space-between;font-weight:700;color:#4e5a6e;margin:8px 0}
+    .quiz-bar{height:10px;background:#e4eaf1;border-radius:99px;overflow:hidden;margin-bottom:18px}
+    .quiz-bar i{display:block;height:100%;background:#d5aa57;width:0;transition:width .3s}
+    .quiz-q{font:700 1.3rem/1.4 Georgia,serif;color:#10243f;margin:0 0 16px}
+    .quiz-opts{display:grid;gap:10px}
+    .quiz-opt{padding:14px 16px;border:1px solid #b9c8d7;border-radius:10px;background:#fff;font-size:1rem;font-weight:600;color:#10243f;text-align:left;cursor:pointer}
+    .quiz-opt:hover:not([disabled]){background:#eef2f7}
+    .quiz-opt.right{background:#e4f3e8;border-color:#2e7d46;color:#14532d}
+    .quiz-opt.wrong{background:#fbe9e7;border-color:#c0392b;color:#7c2318}
+    .quiz-feedback{margin-top:16px;line-height:1.55;color:#33475e}
+    .quiz-good{font-weight:700;color:#14532d;font-size:1.05rem}
+    .quiz-bad{font-weight:700;color:#7c2318;font-size:1.05rem}
+    .quiz-ref{color:#7a5c14;font-weight:600}
+    .quiz-read{font-weight:700;color:#10243f}
+    .quiz-next{margin-top:14px}
+    .quiz-final{font:700 3rem Georgia,serif;color:#10243f;text-align:center;margin:10px 0 4px}
+    .quiz-final-note{text-align:center;color:#33475e;line-height:1.55;max-width:34rem;margin:0 auto 16px}
+    .quiz-card{display:block;max-width:320px;width:100%;margin:0 auto 14px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+    .quiz-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+    .quiz-note{text-align:center;color:#0d6e36;font-weight:600;margin-top:10px}
+    .quiz-links{text-align:center;margin-top:22px;line-height:1.7;color:#5a6b7d}
+    .quiz-links a{color:#10243f;font-weight:700}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="mark-img" src="logo.svg" alt="Comparative Gospel Harmony logo" width="42" height="42">
+      <div>
+        <div class="brand-title">Comparative Gospel Harmony</div>
+        <div class="brand-subtitle">King James Version</div>
+      </div>
+    </div>
+    <nav><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">← Back to the harmony</a></nav>
+  </header>
+
+  <main class="quiz-wrap">
+    <section id="quizStart">
+      <div class="quiz-kicker">🧠 Test your knowledge</div>
+      <h1>The Life of Christ Quiz</h1>
+      <p class="quiz-intro">Twenty questions from the birth, ministry, cross and resurrection of Jesus — drawn from the 185 events of the Comparative Gospel Harmony. After each answer you'll see the Scripture behind it and a link to read the event in all four Gospels.</p>
+      <p class="quiz-best" id="quizBest"></p>
+      <button type="button" class="quiz-btn gold" id="quizStartBtn">Start the quiz →</button>
+      <p class="quiz-links">Prefer to walk the story first? Take the <a href="journey.html">30-Day Life of Christ Journey</a> or <a href="films.html">watch the films</a>.</p>
+    </section>
+
+    <section id="quizPlay" hidden>
+      <div class="quiz-meta"><span id="quizProgress">Question 1 of 20</span><span id="quizScore">Score: 0</span></div>
+      <div class="quiz-bar"><i id="quizBarFill"></i></div>
+      <h2 class="quiz-q" id="quizQ"></h2>
+      <div class="quiz-opts" id="quizOptions"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button type="button" class="quiz-btn quiz-next" id="quizNext" hidden>Next question →</button>
+    </section>
+
+    <section id="quizEnd" hidden>
+      <div class="quiz-kicker" style="text-align:center">🏁 Your result</div>
+      <div class="quiz-final" id="quizFinalScore">0 of 20</div>
+      <p class="quiz-final-note" id="quizFinalNote"></p>
+      <img class="quiz-card" id="quizCardImg" alt="Your Life of Christ Quiz score card">
+      <div class="quiz-actions">
+        <button type="button" class="quiz-btn gold" id="quizShare">📤 Share my score</button>
+        <button type="button" class="quiz-btn ghost" id="quizRetake">↻ Retake the quiz</button>
+      </div>
+      <p class="quiz-note" id="quizShareNote"></p>
+      <p class="quiz-links">Keep going: <a href="index.html">read the Harmony</a> · <a href="journey.html">30-Day Journey</a> · <a href="films.html">watch the films</a><br>A Christvision Messages presentation</p>
+    </section>
+  </main>
+
+  <script src="gh-sync.js?v=1"></script><script src="quiz.js?v=1"></script>
+</body>
+</html>
