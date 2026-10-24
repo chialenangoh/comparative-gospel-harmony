@@ -25,7 +25,8 @@
     '.votd-modal-box{background:#fff;border-radius:12px;padding:14px;max-width:420px;width:100%;text-align:center}',
     '.votd-modal-box img{max-width:100%;max-height:62vh;border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.35)}',
     '.votd-modal-actions{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}',
-    '.votd-modal-actions .votd-btn{border-color:#10243f}'
+    '.votd-modal-actions .votd-btn{border-color:#10243f}',
+    '.votd-note{margin-top:10px;font-size:.85rem;color:#5a4632;min-height:1em}'
   ].join('\n');
 
   function addStyle() {
@@ -128,12 +129,17 @@
     modal.className = 'votd-modal';
     modal.innerHTML = '<div class="votd-modal-box">' +
       '<img alt="Verse card">' +
+      '<div class="votd-note" role="status"></div>' +
       '<div class="votd-modal-actions">' +
       '<button class="votd-btn" data-act="share">Share</button>' +
       '<button class="votd-btn ghost" data-act="download" style="color:#10243f">Download</button>' +
       '<button class="votd-btn ghost" data-act="close" style="color:#10243f">Close</button>' +
       '</div></div>';
     modal.querySelector('img').src = cv.toDataURL('image/png');
+    var cardFile = null;
+    if (cv.toBlob) { cv.toBlob(function (b) { if (b) { try { cardFile = new File([b], 'verse-card.png', { type: 'image/png' }); } catch (e) {} } }, 'image/png'); }
+    function modalNote(msg) { var n = modal.querySelector('.votd-note'); if (n) n.textContent = msg; }
+    function downloadCard() { var a = document.createElement('a'); a.href = cv.toDataURL('image/png'); a.download = 'verse-card.png'; a.click(); }
     modal.addEventListener('click', function (e) { if (e.target === modal) modal.remove(); });
     modal.querySelector('[data-act="close"]').addEventListener('click', function () { modal.remove(); });
     modal.querySelector('[data-act="download"]').addEventListener('click', function () {
@@ -143,19 +149,23 @@
       a.click();
     });
     modal.querySelector('[data-act="share"]').addEventListener('click', function () {
-      var text = '“' + verse + '” — ' + refLabel + ' · ' + SITE_URL;
-      if (cv.toBlob && navigator.canShare) {
-        cv.toBlob(function (blob) {
-          var file = new File([blob], 'verse-card.png', { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            navigator.share({ files: [file], text: text }).catch(function () {});
-            return;
-          }
-          if (navigator.share) navigator.share({ text: text }).catch(function () {});
-        }, 'image/png');
-      } else if (navigator.share) {
-        navigator.share({ text: text }).catch(function () {});
+      var text = '\u201C' + verse + '\u201D \u2014 ' + refLabel + ' \u00B7 ' + SITE_URL;
+      var fellBack = false;
+      function fallback() {
+        if (fellBack) return; fellBack = true;
+        downloadCard();
+        modalNote('Sharing is not available in this browser, so the verse card was downloaded instead \u2014 you can attach it to any message or post.');
       }
+      function shareFailed(err) { if (!err || err.name !== 'AbortError') fallback(); }
+      try {
+        if (cardFile && navigator.canShare && navigator.canShare({ files: [cardFile] })) {
+          navigator.share({ files: [cardFile], text: text }).catch(shareFailed);
+        } else if (navigator.share) {
+          navigator.share({ text: text, url: 'https://' + SITE_URL }).catch(shareFailed);
+        } else {
+          fallback();
+        }
+      } catch (e) { fallback(); }
     });
     document.body.appendChild(modal);
   }
