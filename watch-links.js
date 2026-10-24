@@ -143,7 +143,10 @@
     '.watch-film-strip{position:fixed;top:4.5rem;left:0;right:0;z-index:49;display:block;text-align:center;padding:8px 12px;background:#10243f;color:#f5ecd7;text-decoration:none;font-weight:600;font-size:14px;border-bottom:2px solid #d5aa57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '@media (max-width:900px){.watch-film-strip{top:4.25rem;font-size:13px}}',
     '.watch-film-strip:hover{background:#1a3357}',
-    '.watch-film-strip .watch-play-inline{color:#e74c3c;margin-right:6px}'
+    '.watch-film-strip .watch-play-inline{color:#e74c3c;margin-right:6px}',
+    '.watch-film-strip a{color:#f5ecd7;text-decoration:none}',
+    '.watch-film-strip a.watch-films-link{color:#d5aa57;font-weight:700;white-space:nowrap}',
+    '.watch-film-strip a.watch-films-link:hover{text-decoration:underline}'
   ].join('\n');
 
   function addStyle() {
@@ -158,13 +161,11 @@
     if (document.getElementById('watchFilmStrip')) return;
     var header = document.querySelector('header.topbar') || document.querySelector('header');
     if (!header || !header.parentNode) return;
-    var a = document.createElement('a');
+    var a = document.createElement('div');
     a.id = 'watchFilmStrip';
     a.className = 'watch-film-strip';
-    a.href = COMPLETE_FILM.url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.innerHTML = '<span class="watch-play-inline">▶</span>' + COMPLETE_FILM.label + ' · Christvision Messages';
+    a.innerHTML = '<a href="' + COMPLETE_FILM.url + '" target="_blank" rel="noopener"><span class="watch-play-inline">▶</span>' + COMPLETE_FILM.label + ' · Christvision Messages</a>' +
+      ' &nbsp;·&nbsp; <a class="watch-films-link" href="films.html">🎬 Browse all the films</a>';
     header.parentNode.insertBefore(a, header.nextSibling);
   }
 
