@@ -13,6 +13,9 @@
  function context(){const key='journal:'+route();if(key===contextKey)return;if(editingKey&&dirty)drafts.set(editingKey,{...values(),title:$('passage').textContent,route:editingKey.slice(8)});contextKey=key;editingKey=key;dirty=false;const v=drafts.get(key)||records.find(r=>r.record_key===key)?.value||{};fields.forEach(f=>$(f).value=v[f]||'');dirty=drafts.has(key);$('passage').textContent=title();}
  const SB_URL='https://jgbqghmclugnfklzahpu.supabase.co',SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnYnFnaG1jbHVnbmZrbHphaHB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NDM2MDIsImV4cCI6MjA5NTIxOTYwMn0.aFafq6oqVk_1KgflJubG26pDcjSx0ug1O6ARi322b9Q';
  const SB_STORE_KEY='sb-jgbqghmclugnfklzahpu-auth-token';
+ const MIRROR='gh-study-local-v1';
+ const mirrorRead=()=>{try{return JSON.parse(localStorage.getItem(MIRROR)||'[]');}catch(e){return[];}};
+ const mirrorWrite=rs=>{try{localStorage.setItem(MIRROR,JSON.stringify(rs));}catch(e){}};
  let sbUser=null,usingCloud=false,sbTried=false;
  function readSession(){try{const raw=localStorage.getItem(SB_STORE_KEY);if(!raw)return null;const parsed=JSON.parse(raw);const sess=parsed&&parsed.currentSession?parsed.currentSession:parsed;if(!sess||!sess.access_token||!sess.user||!sess.user.id)return null;if(sess.expires_at&&sess.expires_at*1000<Date.now()-30000)return null;return{token:sess.access_token,user:sess.user};}catch(e){return null;}}
  async function ensureSb(){if(sbTried)return;sbTried=true;const s=readSession();if(s){sbUser=s.user;usingCloud=true;}else{sbUser=null;usingCloud=false;}}
