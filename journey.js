@@ -186,11 +186,45 @@
         '<div class="journey-body"><h3>' + d.title + '</h3>' +
         '<div class="journey-refs">' + d.refs.join(' · ') + '</div>' +
         '<p class="journey-refl">' + d.reflection + '</p>' +
-        '<div class="journey-links">' + links + '</div></div>' +
+        '<div class="journey-links">' + links + '</div>' +
+        '<div class="journey-links"><button type="button" class="jp-btn" data-talk="' + d.day + '">💬 Talk it over with fellow readers</button></div>' +
+        '<div class="journey-talkbox" id="talkbox-' + d.day + '" hidden></div></div>' +
         '<div class="journey-check"><span class="jcheck" role="img" aria-label="' + (done ? 'Day ' + d.day + ' completed' : 'Day ' + d.day + ' not completed yet') + '">✓</span></div>';
       list.appendChild(row);
     });
   }
+
+  /* ---------- Talk It Over: per-day reader discussion (talk.js) ---------- */
+  var talkLoaded = false;
+  function ensureTalk(cb) {
+    if (window.GHTalk) return cb();
+    if (talkLoaded) {
+      var wait = setInterval(function () { if (window.GHTalk) { clearInterval(wait); cb(); } }, 120);
+      setTimeout(function () { clearInterval(wait); }, 6000);
+      return;
+    }
+    talkLoaded = true;
+    var sc = document.createElement('script');
+    sc.src = 'talk.js?v=1';
+    sc.onload = cb;
+    document.head.appendChild(sc);
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target && ev.target.closest ? ev.target.closest('[data-talk]') : null;
+    if (!b) return;
+    var day = parseInt(b.getAttribute('data-talk'), 10);
+    var box = document.getElementById('talkbox-' + day);
+    if (!box) return;
+    if (!box.hidden) { box.hidden = true; return; }
+    box.hidden = false;
+    if (box.getAttribute('data-mounted')) return;
+    box.setAttribute('data-mounted', '1');
+    var d = DAYS.filter(function (x) { return x.day === day; })[0];
+    ensureTalk(function () {
+      if (window.GHTalk) window.GHTalk.mount(box, day, d ? d.reflection : '');
+      else box.innerHTML = '<p style="color:#4e5a6e">The discussion could not load just now — please try again in a moment.</p>';
+    });
+  });
 
   /* ---------- index.html: pill + per-event day bar ---------- */
   function renderPill() {
