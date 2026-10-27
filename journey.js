@@ -163,6 +163,25 @@
       list.parentNode.insertBefore(note, list);
     }
     note.textContent = 'Days complete automatically as you read each event through (or listen to it in full) — there is nothing to tap. Just read, and the ✓ appears.';
+    var inviteBox = document.getElementById('journeyInvite');
+    if (inviteBox && !inviteBox.getAttribute('data-built')) {
+      inviteBox.setAttribute('data-built', '1');
+      inviteBox.innerHTML =
+        '<div style="border:1px solid #e7d9ab;background:#fdf6dd;border-radius:12px;padding:13px 15px;margin:14px 0">' +
+        '<div style="font-weight:700;color:#10243f;font-size:1.02rem">🤝 Walk it together</div>' +
+        '<p style="margin:6px 0 9px;color:#33475e;font-size:.95rem;line-height:1.5">The journey is better with company — readers who walk with even one friend stay the course. Invite your family, your church group, or your friends to start Day 1 together on <strong>Monday, November 2</strong>, and talk it over each day as you go.</p>' +
+        '<button type="button" class="jp-btn gold" id="journeyInviteBtn">📲 Invite friends</button> <span id="journeyInviteNote" style="font-size:.85rem;color:#4e5a6e"></span></div>';
+      var invBtn = document.getElementById('journeyInviteBtn');
+      invBtn.addEventListener('click', function () {
+        var text = '🕊 Walk the Life of Christ in 30 Days — with me!\n\nOne short reading a day from all four Gospels, side by side — you can read or listen, and each day we talk it over together. We start Day 1 on Monday, November 2. It\u2019s free, and it works right in your phone browser.\n\nJoin me here: https://comparative-gospel-harmony.onrender.com/journey.html';
+        var note = document.getElementById('journeyInviteNote');
+        if (navigator.share) {
+          navigator.share({ title: 'The Life of Christ in 30 Days', text: text }).catch(function () {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function () { note.textContent = 'Invitation copied ✓ — paste it into WhatsApp, Messages, or anywhere.'; });
+        }
+      });
+    }
     var startBtn = document.getElementById('journeyStart');
     if (startBtn) {
       startBtn.textContent = st.start ? '↺ Restart the journey' : '▶ Start the journey today';
@@ -205,7 +224,7 @@
     }
     talkLoaded = true;
     var sc = document.createElement('script');
-    sc.src = 'talk.js?v=1';
+    sc.src = 'talk.js?v=2';
     sc.onload = cb;
     document.head.appendChild(sc);
   }
