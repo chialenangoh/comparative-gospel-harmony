@@ -86,11 +86,19 @@
     el.innerHTML =
       '<div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7a5c14;font-weight:700">💬 Talk it over — Day ' + day + '</div>' +
       (prompt ? '<div class="gt-prompt">“' + esc(prompt) + '”</div>' : '') +
+      '<div style="margin:2px 0 6px"><button type="button" class="gt-share" style="background:#fff;border:1px solid #10243f;color:#10243f;border-radius:999px;padding:5px 12px;font-size:.83rem;font-weight:700;cursor:pointer">📲 Share this day\u2019s question</button> <span class="gt-share-note" style="font-size:.8rem;color:#4e5a6e"></span></div>' +
       '<div class="gt-list"><p class="gt-note">Loading the conversation…</p></div>' +
       '<div class="gt-compose"></div>' +
       '<p class="gt-note" style="margin-top:9px">Be kind and keep it about the passage. This is a reader conversation, gently moderated — please report anything unkind. <button type="button" class="gt-refresh" style="background:none;border:none;color:#4e5a6e;text-decoration:underline;cursor:pointer;font-size:.85rem;padding:0">Refresh</button></p>';
     var list = el.querySelector('.gt-list');
     var compose = el.querySelector('.gt-compose');
+    var shareBtn = el.querySelector('.gt-share');
+    if (shareBtn) shareBtn.addEventListener('click', function () {
+      var text = '💬 Talk It Over — Day ' + day + ' of The Life of Christ in 30 Days:\n“' + (prompt || '') + '”\n\nRead the day\u2019s passage and join the conversation: https://comparative-gospel-harmony.onrender.com/journey.html';
+      var note = el.querySelector('.gt-share-note');
+      if (navigator.share) navigator.share({ title: 'Talk It Over — Day ' + day, text: text }).catch(function () {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(text).then(function () { if (note) note.textContent = 'Copied ✓ — paste it anywhere.'; });
+    });
 
     function msgHtml(m) {
       var mine = s && m.user_id === s.user.id;
