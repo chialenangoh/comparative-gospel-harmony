@@ -1,7 +1,11 @@
 /* The Life of Christ in 30 Days — a guided journey through the harmony,
    with a gentle day streak. All progress lives in the reader's own browser
    (localStorage) — no account, no server. Missing a day never erases
-   progress; the journey simply waits. */
+   progress; the journey simply waits.
+   Completion is AUTO-DETECTED (owner directive, 2026-10-26): readers never
+   tap to mark a day complete. A day completes when its event has genuinely
+   been read through on the harmony pages (reading depth + time on the
+   event) or its audio has been listened to in full. */
 (function () {
   'use strict';
 
@@ -39,8 +43,9 @@
     '.journey-links{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap}',
     '.journey-links a,.journey-links button{font-size:.84rem;font-weight:700;color:#10243f;text-decoration:none;border:1px solid #b9c8d7;background:#f4f7fb;border-radius:7px;padding:6px 10px;cursor:pointer}',
     '.journey-check{flex:0 0 auto;align-self:flex-start}',
-    '.journey-check button{width:2.4rem;height:2.4rem;border-radius:50%;border:2px solid #b9c8d7;background:#fff;font-size:1.1rem;cursor:pointer;color:#fff}',
-    '.journey-day.done .journey-check button{background:#2e7d46;border-color:#2e7d46}'
+    '.journey-check .jcheck{display:flex;align-items:center;justify-content:center;width:2.4rem;height:2.4rem;border-radius:50%;border:2px solid #b9c8d7;background:#fff;font-size:1.1rem;color:transparent}',
+    '.journey-day.done .journey-check .jcheck{background:#2e7d46;border-color:#2e7d46;color:#fff}',
+    '.journey-autonote{font-size:.88rem;color:#4e5a6e;margin:0 0 14px}'
   ].join('\n');
 
   function addStyle() {
@@ -125,15 +130,13 @@
     return null;
   }
 
-  function toggleDay(dayNum) {
+  /* Completion is set only by the auto-detection below — never by a tap. */
+  function autoCompleteDay(dayNum) {
     var st = load();
-    if (st.done[dayNum]) {
-      delete st.done[dayNum];
-    } else {
-      st.done[dayNum] = true;
-      st.days[todayStr()] = true;
-      if (!st.start) st.start = todayStr();
-    }
+    if (st.done[dayNum]) return st;
+    st.done[dayNum] = true;
+    st.days[todayStr()] = true;
+    if (!st.start) st.start = todayStr();
     save(st);
     return st;
   }
@@ -152,6 +155,14 @@
         '<div class="journey-stat"><div class="n">' + doneCount(st) + ' / 30</div><div class="l">Days completed</div></div>' +
         '<div class="journey-stat"><div class="n">Day ' + cur + '</div><div class="l">' + (st.start ? 'Today\u2019s reading' : 'Not started yet') + '</div></div>';
     }
+    var note = document.getElementById('journeyAutoNote');
+    if (!note) {
+      note = document.createElement('p');
+      note.id = 'journeyAutoNote';
+      note.className = 'journey-autonote';
+      list.parentNode.insertBefore(note, list);
+    }
+    note.textContent = 'Days complete automatically as you read each event through (or listen to it in full) — there is nothing to tap. Just read, and the ✓ appears.';
     var startBtn = document.getElementById('journeyStart');
     if (startBtn) {
       startBtn.textContent = st.start ? '↺ Restart the journey' : '▶ Start the journey today';
@@ -176,11 +187,7 @@
         '<div class="journey-refs">' + d.refs.join(' · ') + '</div>' +
         '<p class="journey-refl">' + d.reflection + '</p>' +
         '<div class="journey-links">' + links + '</div></div>' +
-        '<div class="journey-check"><button type="button" aria-label="Mark day ' + d.day + ' complete" title="Mark complete">✓</button></div>';
-      row.querySelector('.journey-check button').addEventListener('click', function () {
-        toggleDay(d.day);
-        renderJourneyPage();
-      });
+        '<div class="journey-check"><span class="jcheck" role="img" aria-label="' + (done ? 'Day ' + d.day + ' completed' : 'Day ' + d.day + ' not completed yet') + '">✓</span></div>';
       list.appendChild(row);
     });
   }
@@ -219,7 +226,7 @@
     var num = currentEventNumber();
     var old = document.getElementById('journeyDayBar');
     var d = num ? dayByEvent(num) : null;
-    if (!d) { if (old) old.remove(); return; }
+    if (!d) { if (old) old.remove(); armDetection(null, true); return; }
     var anchor = document.getElementById('eventVisuals');
     if (!anchor || !anchor.parentNode) return;
     var st = load();
@@ -229,22 +236,97 @@
     bar.className = 'journey-daybar';
     bar.innerHTML = '';
     var span = document.createElement('span');
-    span.textContent = '🕊 Day ' + d.day + ' of the Life of Christ Journey — ' + d.title + (done ? ' · Completed ✓' : '');
+    span.textContent = '🕊 Day ' + d.day + ' of the Life of Christ Journey — ' + d.title +
+      (done ? ' · Completed ✓ (detected from your reading)'
+            : ' · This day completes automatically once you have read the event through — no tapping needed.');
     bar.appendChild(span);
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'jp-btn' + (done ? ' ghost' : ' gold');
-    btn.textContent = done ? 'Undo' : '✓ Mark Day ' + d.day + ' complete';
-    btn.addEventListener('click', function () {
-      toggleDay(d.day);
-      renderDayBar();
-      var pill = document.getElementById('journeyPill');
-      if (pill) { pill.remove(); renderPill(); }
-    });
-    bar.appendChild(btn);
+    armDetection(d, done);
     var cardBar = document.getElementById('verseCardBar');
     if (cardBar && cardBar.parentNode === anchor.parentNode) anchor.parentNode.insertBefore(bar, cardBar.nextSibling);
     else anchor.parentNode.insertBefore(bar, anchor);
+  }
+
+  /* ----- auto-detection: a day completes when its event is genuinely read -----
+     Rules (any one completes the day):
+       - reading depth >= 80% of the event page with >= 20 seconds on the event, or
+       - reading depth >= 50% with >= 45 seconds on the event, or
+       - the event's audio player reaches the end (>= 95% also counts).
+     Dwell counts only while the tab is visible; trackers reset whenever the
+     reader moves to a different event, and a stale tracker can never complete
+     a day for an event the reader has left. */
+  var detect = { num: null, day: null, dwell: 0, maxDepth: 0, timer: null, audioHooked: false };
+
+  function scrollDepth() {
+    var best = 0;
+    var view = window.innerHeight || 0;
+    var doc = document.documentElement;
+    var h = Math.max(doc.scrollHeight || 0, document.body ? document.body.scrollHeight : 0);
+    if (h > 0) best = h <= view * 1.05 ? 1 : Math.min(1, ((window.scrollY || 0) + view) / h);
+    var r = document.getElementById('reader');
+    if (r) {
+      var oy = '';
+      try { oy = window.getComputedStyle(r).overflowY; } catch (e) {}
+      if ((oy === 'auto' || oy === 'scroll') && r.clientHeight > 0) {
+        best = r.scrollHeight <= r.clientHeight * 1.05 ? Math.max(best, 1)
+          : Math.max(best, Math.min(1, (r.scrollTop + r.clientHeight) / r.scrollHeight));
+      }
+    }
+    return best;
+  }
+
+  function finishDetection() {
+    if (!detect.day) return;
+    var day = detect.day;
+    detect.day = null;
+    autoCompleteDay(day);
+    renderDayBar();
+    var pill = document.getElementById('journeyPill');
+    if (pill) { pill.remove(); renderPill(); }
+  }
+
+  function checkDetection() {
+    if (!detect.day) return;
+    if (detect.dwell >= 20 && detect.maxDepth >= 0.8) finishDetection();
+    else if (detect.dwell >= 45 && detect.maxDepth >= 0.5) finishDetection();
+  }
+
+  function armDetection(d, alreadyDone) {
+    var num = currentEventNumber();
+    if (detect.num !== num) {
+      detect.num = num;
+      detect.dwell = 0;
+      detect.maxDepth = 0;
+      detect.audioHooked = false;
+    }
+    detect.day = (!alreadyDone && d) ? d.day : null;
+    if (!detect.timer) {
+      detect.timer = setInterval(function () {
+        if (!detect.day) return;
+        var n = currentEventNumber();
+        var dd = n ? dayByEvent(n) : null;
+        if (!dd || dd.day !== detect.day) {
+          detect.day = null;
+          detect.num = n;
+          detect.dwell = 0;
+          detect.maxDepth = 0;
+          return;
+        }
+        if (document.visibilityState === 'visible') detect.dwell += 1;
+        var dep = scrollDepth();
+        if (dep > detect.maxDepth) detect.maxDepth = dep;
+        checkDetection();
+      }, 1000);
+    }
+    if (detect.day && !detect.audioHooked) {
+      var au = document.querySelector('.listen-bar audio');
+      if (au) {
+        detect.audioHooked = true;
+        au.addEventListener('ended', function () { finishDetection(); });
+        au.addEventListener('timeupdate', function () {
+          if (au.duration && au.currentTime / au.duration >= 0.95) finishDetection();
+        });
+      }
+    }
   }
 
   function init() {
