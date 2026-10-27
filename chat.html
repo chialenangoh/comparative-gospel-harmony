@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <script>try{if(/(access_token|refresh_token|type=recovery)/.test(location.hash)){sessionStorage.setItem("gh-auth-hash",location.hash)}}catch(e){}</script>
+  <meta name="description" content="Ask the Harmony — a warm Scripture chat for the Comparative Gospel Harmony. Answers are drawn only from this site's own library of Gospel events and the King James text, with the verses shown side by side.">
+  <title>Ask the Harmony — Scripture Chat · Comparative Gospel Harmony</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="styles.css?v=18">
+<link rel="manifest" href="manifest.webmanifest"><meta property="og:type" content="website">
+<meta property="og:site_name" content="Comparative Gospel Harmony">
+<meta property="og:title" content="Ask the Harmony — Scripture Chat">
+<meta property="og:description" content="Bring your questions and your feelings. Answers come only from the Gospels themselves — verses shown side by side, never invented.">
+<meta property="og:url" content="https://comparative-gospel-harmony.onrender.com/chat.html">
+<meta property="og:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ask the Harmony — Scripture Chat">
+<meta name="twitter:description" content="A warm Scripture chat grounded entirely in the four Gospels, side by side in the KJV.">
+<meta name="twitter:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+<style>
+  .chat-wrap{max-width:46rem;margin:0 auto;padding:96px 14px 40px}
+  .chat-thread{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+  .msg{max-width:92%;padding:11px 14px;border-radius:14px;font-size:.97rem;line-height:1.55;clear:both}
+  .msg.me{align-self:flex-end;background:#10243f;color:#fff;border-bottom-right-radius:4px}
+  .msg.guide{align-self:flex-start;background:#fff;border:1px solid #d7e0ea;border-bottom-left-radius:4px;color:#22344c}
+  .msg.guide p{margin:0 0 8px}.msg.guide p:last-child{margin-bottom:0}
+  .msg .src{display:block;margin-top:8px;font-size:.76rem;color:#7a8798}
+  .vcard{border:1px solid #b9c8d7;border-left:4px solid #d5aa57;border-radius:9px;background:#fdfcf7;padding:9px 12px;margin:8px 0}
+  .vcard .vref{font-weight:700;color:#10243f;font-size:.9rem}
+  .vcard .vtext{font-family:Georgia,serif;font-size:.95rem;color:#22344c;margin-top:3px}
+  .vcard a{font-size:.84rem;font-weight:700;color:#10243f}
+  .ecard{border:1px solid #d7e0ea;border-radius:9px;background:#f4f7fb;padding:9px 12px;margin:8px 0}
+  .ecard .et{font-weight:700;color:#10243f}
+  .ecard .es{font-size:.9rem;color:#33475e;margin-top:2px}
+  .ecard a{font-size:.84rem;font-weight:700;color:#10243f}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+  .chip{border:1px solid #10243f;background:#fff;color:#10243f;border-radius:999px;padding:6px 12px;font-size:.86rem;font-weight:700;cursor:pointer}
+  .chip:hover{background:#10243f;color:#fff}
+  .chip.gold{border-color:#d5aa57;background:#fdf6dd}
+  .typing{display:inline-flex;gap:4px;padding:4px 2px}
+  .typing i{width:7px;height:7px;border-radius:50%;background:#7a5c14;display:inline-block;animation:tblink 1s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+  @keyframes tblink{0%,100%{opacity:.25}50%{opacity:1}}
+  .chat-form{display:flex;gap:8px;position:sticky;bottom:0;background:#eef2f7;padding:10px 0}
+  .chat-form input{flex:1;padding:12px 13px;border:1px solid #b9c8d7;border-radius:10px;font-size:1rem}
+  .chat-form button{padding:12px 18px;border-radius:10px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;cursor:pointer}
+  .chat-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .chat-tools button{background:none;border:none;color:#4e5a6e;text-decoration:underline;cursor:pointer;font-size:.85rem;padding:0}
+  .crisis{border:2px solid #b03a2e;border-radius:10px;background:#fdf1ef;padding:11px 13px;margin:8px 0}
+  .crisis strong{color:#b03a2e}
+  .crisis a{color:#b03a2e;font-weight:700}
+  .msg .share-row{margin-top:8px}
+  .msg .share-row button{background:none;border:1px solid #b9c8d7;border-radius:7px;padding:4px 10px;font-size:.8rem;font-weight:700;color:#10243f;cursor:pointer}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="mark-img" src="logo.svg" alt="Comparative Gospel Harmony logo" width="42" height="42">
+      <div>
+        <div class="brand-title">Comparative Gospel Harmony</div>
+        <div class="brand-subtitle">King James Version</div>
+      </div>
+    </div>
+    <nav><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">← Back to the harmony</a></nav>
+  </header>
+
+  <main class="chat-wrap">
+    <div style="font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#7a5c14;font-weight:700">💬 Ask the Harmony</div>
+    <h1 style="font:700 1.9rem/1.25 Georgia,serif;color:#10243f;margin:6px 0 8px">Bring your question. The Gospels will answer.</h1>
+    <p style="font-size:1rem;line-height:1.55;color:#33475e;max-width:44rem">
+      Ask about a feeling, a topic, a person, or a verse — and the answer is built only from this site's own library:
+      the 185 events of Jesus' life, with His words shown from the four Gospels side by side. Nothing here is invented;
+      every verse is quoted exactly from the King James text on this site.
+    </p>
+    <p style="font-size:.88rem;color:#4e5a6e;max-width:44rem">
+      Ask the Harmony is a study guide, not a pastor, counsellor, or church. For personal guidance, please also talk
+      with a trusted pastor, friend, or counsellor. Your conversation stays on this device.
+    </p>
+
+    <div id="chatChips" class="chips" aria-label="Suggested questions"></div>
+    <div id="chatThread" class="chat-thread" aria-live="polite"></div>
+
+    <form id="chatForm" class="chat-form">
+      <input id="chatInput" type="text" placeholder="Ask about a verse, a topic, or how you feel…" autocomplete="off" aria-label="Your question">
+      <button type="submit">Ask</button>
+    </form>
+    <div class="chat-tools">
+      <button type="button" id="chatClear">Clear this conversation</button>
+      <button type="button" id="chatToday">📖 Today's moment in His life</button>
+      <a href="journey.html" style="font-size:.85rem;color:#4e5a6e">🕊 The 30-day journey</a>
+      <a href="quiz.html" style="font-size:.85rem;color:#4e5a6e">🏆 The Life of Christ quiz</a>
+    </div>
+    <p style="font-size:.85rem;color:#4e5a6e;margin-top:26px">Texts are the King James Version. A Christvision Messages resource — <a href="index.html">Comparative Gospel Harmony</a>.</p>
+  </main>
+
+  <script src="data.js?v=5"></script>
+  <script src="glossary.js?v=5"></script>
+  <script src="chat.js?v=1"></script>
+<script src="pwa.js?v=1"></script><script src="searchbar.js?v=1"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="account.js?v=6"></script><script src="share.js?v=1"></script></body>
+</html>
