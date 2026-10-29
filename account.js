@@ -237,8 +237,10 @@
     var bar = document.createElement('div');
     bar.id = 'acctBar';
     bar.className = 'acct-bar';
+    var mount = document.getElementById('acctMount');
     var reader = document.querySelector('.reader-inner');
-    if (reader) reader.insertBefore(bar, reader.firstElementChild);
+    if (mount) mount.appendChild(bar);
+    else if (reader) reader.insertBefore(bar, reader.firstElementChild);
     else {
       var main = document.querySelector('main');
       if (main) main.insertBefore(bar, main.firstElementChild);
