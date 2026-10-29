@@ -19,6 +19,18 @@
 <meta name="twitter:title" content="Old Testament Reader (KJV) — Gospel Harmony">
 <meta name="twitter:description" content="Read the whole Old Testament in the King James Version, with commentary and study tools.">
 <meta name="twitter:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+<style>
+/* Header dropdown menu (owner request 2026-10-29): OT, NT and account live in one Menu panel */
+.hdr-menu{position:relative}
+.hdr-menu-btn{cursor:pointer;font:inherit}
+.hdr-menu-panel{position:absolute;right:0;top:calc(100% + 10px);width:272px;max-width:86vw;background:#fff;color:#10243f;border:1px solid #b9c8d7;border-radius:14px;box-shadow:0 16px 38px rgba(16,36,63,.28);padding:10px;z-index:1300;text-align:left}
+.hdr-menu-item{display:block;padding:10px 12px;border-radius:9px;color:#10243f;text-decoration:none;font-weight:700;font-size:.98rem}
+.hdr-menu-item:hover,.hdr-menu-item:focus-visible{background:#eef2f7;outline:none}
+.hdr-menu-acct{border-top:1px solid #e3eaf2;margin-top:6px}
+.hdr-menu-acct .acct-bar{display:block;margin:0;padding:9px 6px 3px;border:0;background:transparent;font-size:.9rem}
+.hdr-menu-acct .acct-bar .grow{display:block;margin:0 0 8px;flex:none}
+.hdr-menu-acct .acct-btn{margin:0 6px 6px 0}
+</style>
 </head>
 <body>
   <a class="skip-link" href="#reader">Skip to chapter</a>
@@ -29,7 +41,11 @@
       <div><div class="brand-title">Old Testament Study</div><div class="brand-subtitle">Genesis through Malachi · KJV</div></div>
     </div>
     <div class="nt-top-links"><a class="top-link" href="new-testament.html">New Testament</a><a class="top-link" href="index.html">Gospels</a></div>
+    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 Acts–Revelation (NT)</a></div></div></div>
   </header>
+  <script>
+  (function(){var b=document.getElementById('hdrMenuBtn'),p=document.getElementById('hdrMenuPanel');if(!b||!p)return;function close(){p.hidden=true;b.setAttribute('aria-expanded','false')}b.addEventListener('click',function(e){e.stopPropagation();var willOpen=p.hidden;p.hidden=!willOpen;b.setAttribute('aria-expanded',String(willOpen))});p.addEventListener('click',function(e){if(e.target.closest('a'))close()});document.addEventListener('click',function(e){if(!p.hidden&&!p.contains(e.target))close()});document.addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();
+  </script>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar" aria-label="Old Testament books">
       <div class="sidebar-head"><label class="search-wrap" for="bookSearch"><span aria-hidden="true">⌕</span><input id="bookSearch" type="search" placeholder="Find a book" autocomplete="off"></label><div class="results-meta">39 books · 929 chapters</div></div>
