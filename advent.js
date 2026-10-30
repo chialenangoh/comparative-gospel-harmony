@@ -99,7 +99,7 @@
       var links = '';
       if (d.event) {
         links = '<a href="index.html#event-' + d.event + '">📖 Read — Event ' + d.event + '</a>' +
-                '<a href="audio/event-' + d.event + '.mp3">🔊 Listen</a>';
+                '<a href="audio/event-' + d.event + '.mp3" data-listen="1">🔊 Listen</a>';
       } else {
         links = '<a href="search.html?q=' + encodeURIComponent(d.ref) + '">📖 Read ' + d.ref + '</a>';
       }
@@ -133,6 +133,33 @@
     document.head.appendChild(st);
     render();
   }
+
+  /* Listen in place (owner fix, 2026-10-30): the old links navigated to the
+     raw MP3, stranding readers on the phone's black full-screen player when
+     the reading ended. Now the player opens inline, on this page. */
+  document.addEventListener('click', function (e) {
+    var a = e.target;
+    while (a && !(a.tagName === 'A' && a.getAttribute('data-listen'))) a = a.parentElement;
+    if (!a) return;
+    e.preventDefault();
+    var card = a;
+    while (card && !(card.className && ('' + card.className).indexOf('-body') >= 0)) card = card.parentElement;
+    if (!card) card = a.parentElement;
+    var slot = card.querySelector('.inline-listen');
+    if (slot) {
+      var au0 = slot.querySelector('audio');
+      if (au0) { if (au0.paused) { au0.play().catch(function () {}); } else { au0.pause(); } }
+      return;
+    }
+    var olds = document.querySelectorAll('.inline-listen');
+    for (var i = 0; i < olds.length; i++) olds[i].remove();
+    slot = document.createElement('div');
+    slot.className = 'inline-listen';
+    slot.innerHTML = '<audio controls preload="none" style="width:100%;margin-top:8px" src="' + a.getAttribute('href') + '"></audio>';
+    card.appendChild(slot);
+    var au = slot.querySelector('audio');
+    if (au) au.play().catch(function () {});
+  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
