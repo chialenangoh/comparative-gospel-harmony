@@ -269,6 +269,15 @@
     if (!els.verseDialog.open) els.verseDialog.showModal();
   }
 
+  // Land on the event heading itself. The reader's top carries injected
+  // bars (welcome, verse of the day, journey pill, film strip), so scrolling
+  // to the reader container still opens on homepage furniture — aim at the
+  // title, offset for the fixed header.
+  const landOnPassages = (behavior) => {
+    const y = els.eventTitle.getBoundingClientRect().top + window.scrollY - 132;
+    window.scrollTo({ top: Math.max(0, y), behavior: behavior || 'auto' });
+  };
+
   function renderReader({ focus = false } = {}) {
     closeWordPanel();
     window.StudyTools.close();
@@ -330,7 +339,7 @@
     document.title = `${event.number}. ${event.title} | Comparative Gospel Harmony`;
     if (location.hash.slice(1) !== event.id) history.replaceState(null, '', `#${event.id}`);
     if (focus) {
-      els.reader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      landOnPassages('smooth');
       els.reader.focus({ preventScroll: true });
     }
   }
@@ -479,7 +488,7 @@
     const markScrolled = () => { userScrolled = true; };
     window.addEventListener('wheel', markScrolled, { passive: true });
     window.addEventListener('touchmove', markScrolled, { passive: true });
-    const land = () => { if (!userScrolled) els.reader.scrollIntoView({ behavior: 'auto', block: 'start' }); };
+    const land = () => { if (!userScrolled) landOnPassages('auto'); };
     land();
     window.addEventListener('load', () => { land(); setTimeout(land, 500); setTimeout(land, 1500); });
   }
