@@ -1,0 +1,79 @@
+/* highlights.css — Comparative Gospel Harmony: personal text highlighting.
+   Loaded on every page (see highlights.js). User highlights are <mark>
+   elements with the .gh-hl class plus one color class. Colors are soft
+   translucent tints so text stays readable on light and dark sections. */
+
+mark.gh-hl {
+  color: inherit;
+  padding: 0 0.5px;
+  border-radius: 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+mark.gh-hl-gold  { background: rgba(227, 197, 126, 0.62); } /* site gold #e3c57e */
+mark.gh-hl-green { background: rgba(110, 196, 120, 0.48); }
+mark.gh-hl-blue  { background: rgba(110, 168, 255, 0.48); }
+mark.gh-hl-pink  { background: rgba(255, 141, 182, 0.50); }
+
+/* Floating toolbar shown near the current selection / tapped highlight */
+.gh-hl-toolbar {
+  position: fixed;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100vw - 16px);
+  background: #10243f; /* site navy */
+  border: 1px solid #e3c57e;
+  border-radius: 999px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(10, 23, 41, 0.38);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-hl-toolbar[hidden] { display: none; }
+
+.gh-hl-swatch {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gh-hl-swatch:active { transform: scale(0.94); }
+.gh-hl-dot { width: 22px; height: 22px; border-radius: 50%; display: block; }
+.gh-dot-gold  { background: #e3c57e; }
+.gh-dot-green { background: #6ec478; }
+.gh-dot-blue  { background: #6ea8ff; }
+.gh-dot-pink  { background: #ff8db6; }
+
+.gh-hl-btn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.gh-hl-remove { background: #ffffff; color: #10243f; }
+.gh-hl-clear {
+  background: transparent;
+  color: #e3c57e;
+  border: 1px solid rgba(227, 197, 126, 0.65);
+  font-weight: 600;
+}
+.gh-hl-clear.gh-hl-confirm { background: #b3382e; border-color: #b3382e; color: #ffffff; }
+
+@media print {
+  .gh-hl-toolbar { display: none !important; }
+}
