@@ -65,6 +65,7 @@
   } catch (_) {}
   const state = {
     selectedId: location.hash.slice(1) || data.events[0].id,
+    arrivedHash: location.hash.slice(1),
     query: '',
     part: 'all',
     coverage: 'all',
@@ -483,7 +484,7 @@
   // Later scripts (welcome bar, film strip, verse of the day) inject tall
   // sections ABOVE the reader after this runs, pushing the passages down —
   // so re-land once the page settles, unless the reader starts scrolling.
-  if (location.hash.length > 1 && location.hash.slice(1) === state.selectedId) {
+  if (state.arrivedHash && state.arrivedHash === state.selectedId) {
     let userScrolled = false;
     const markScrolled = () => { userScrolled = true; };
     window.addEventListener('wheel', markScrolled, { passive: true });
