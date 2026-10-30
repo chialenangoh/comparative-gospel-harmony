@@ -330,7 +330,7 @@
     document.title = `${event.number}. ${event.title} | Comparative Gospel Harmony`;
     if (location.hash.slice(1) !== event.id) history.replaceState(null, '', `#${event.id}`);
     if (focus) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      els.reader.scrollIntoView({ behavior: 'smooth', block: 'start' });
       els.reader.focus({ preventScroll: true });
     }
   }
@@ -456,7 +456,7 @@
     const button = event.target.closest('[data-glossary-word]');
     if (button) showWord(button.dataset.glossaryWord);
   });
-  window.addEventListener('hashchange', () => chooseEvent(location.hash.slice(1), { focus: false }));
+  window.addEventListener('hashchange', () => chooseEvent(location.hash.slice(1), { focus: true }));
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') { closeWordPanel(); closeSidebar(); return; }
     if (/input|select|textarea/i.test(document.activeElement.tagName) || document.activeElement.classList.contains('scripture-word')) return;
@@ -469,4 +469,9 @@
   renderEventList();
   window.StudyTools.setup({root:els.comparisonGrid,getTitle:()=>els.eventTitle.textContent});
   renderReader();
+  // Deep link (e.g. a Journey day's "Read" button): land straight on the
+  // passages, not at the top of the homepage (owner directive, 2026-10-30).
+  if (location.hash.length > 1 && location.hash.slice(1) === state.selectedId) {
+    els.reader.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
 })();
