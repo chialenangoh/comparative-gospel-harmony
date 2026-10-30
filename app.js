@@ -471,7 +471,16 @@
   renderReader();
   // Deep link (e.g. a Journey day's "Read" button): land straight on the
   // passages, not at the top of the homepage (owner directive, 2026-10-30).
+  // Later scripts (welcome bar, film strip, verse of the day) inject tall
+  // sections ABOVE the reader after this runs, pushing the passages down —
+  // so re-land once the page settles, unless the reader starts scrolling.
   if (location.hash.length > 1 && location.hash.slice(1) === state.selectedId) {
-    els.reader.scrollIntoView({ behavior: 'auto', block: 'start' });
+    let userScrolled = false;
+    const markScrolled = () => { userScrolled = true; };
+    window.addEventListener('wheel', markScrolled, { passive: true });
+    window.addEventListener('touchmove', markScrolled, { passive: true });
+    const land = () => { if (!userScrolled) els.reader.scrollIntoView({ behavior: 'auto', block: 'start' }); };
+    land();
+    window.addEventListener('load', () => { land(); setTimeout(land, 500); setTimeout(land, 1500); });
   }
 })();
