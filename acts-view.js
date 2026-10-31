@@ -9,6 +9,8 @@
   const $ = (id) => document.getElementById(id);
   const els = Object.fromEntries(['sidebar','scrim','menuButton','eventSearch','eventCount','eventList','reader','eventNumber','eventTitle','eventSummary','eventPassages','eventCommentary','previousEvent','nextEvent','eventVisuals','ntVisualDialog','ntVisualKicker','ntVisualTitle','ntVisualBody','ntVisualCaption','ntVisualClose','glossaryOpen','wordPanel','wordClose','wordSearch','wordSuggestions','wordTitle','wordMeaning','verseDialog','verseTitle','verseText','verseBack','verseRelatedHeading','verseRelated','verseMore','verseClose'].map((id) => [id,$(id)]));
   const esc = (v) => String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+  const sourceLink = (entry, label) => /^https?:\/\//i.test((entry && entry.source) || '')
+    ? `<a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">${label}</a>` : '';
   const fmt = (key) => { const [code,ch,v] = key.split(' '); return `${names[code] || code} ${ch}:${v}`; };
   let selected = Math.max(0, events.findIndex((event) => `#${event.id}` === location.hash));
   let origin = '',current = '',expanded = false, activeVisuals = [];
@@ -37,7 +39,7 @@
   function renderCommentary(event) {
     const entry=henry[`ACT ${event.chapter}`];
     const sections=entry.sections.filter((part)=>part.from<=event.end&&part.to>=event.start);
-    els.eventCommentary.innerHTML=`<div class="nt-author">Matthew Henry <small>Concise Commentary on Acts ${event.chapter}</small></div>${sections.map((part,i)=>`<details class="nt-section" ${i===0?'open':''}><summary>Acts ${event.chapter}:${esc(part.heading.replace(/^Verses? /,''))}</summary><p>${esc(part.text)}</p></details>`).join('')}<a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">View source ↗</a>`;
+    els.eventCommentary.innerHTML=`<div class="nt-author">Matthew Henry <small>Concise Commentary on Acts ${event.chapter}</small></div>${sections.map((part,i)=>`<details class="nt-section" ${i===0?'open':''}><summary>Acts ${event.chapter}:${esc(part.heading.replace(/^Verses? /,''))}</summary><p>${esc(part.text)}</p></details>`).join('')}${sourceLink(entry, 'View source ↗')}`;
   }
   function closeSidebar(){els.sidebar.classList.remove('open');els.scrim.classList.remove('show');els.menuButton.setAttribute('aria-expanded','false');}
   function render(focus=false) {

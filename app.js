@@ -207,7 +207,13 @@
       const end = words.lastIndexOf('. ');
       return end > 160 ? words.slice(0, end + 1) : `${words}…`;
     };
-    els.studyCommentary.innerHTML = [henry && `<article class="historical-entry"><h3>${escapeHtml(henry.author)}</h3><p class="commentary-source">${escapeHtml(henry.work)} · ${escapeHtml(henry.passage)}</p><p>${escapeHtml(excerpt(henry.text))}</p><details><summary>Read the full selection</summary><p>${escapeHtml(henry.text)}</p></details><a href="${escapeHtml(henry.source)}" target="_blank" rel="noopener noreferrer">View source ↗</a></article>`, calvin && `<article class="historical-entry"><h3>${escapeHtml(calvin.author)}</h3><p class="commentary-source">${escapeHtml(calvin.work)} · ${escapeHtml(calvin.passage)}</p><p>${escapeHtml(calvin.text)}</p><a href="${escapeHtml(calvin.source)}" target="_blank" rel="noopener noreferrer">View source ↗</a></article>`].filter(Boolean).join('') + '<p class="commentary-disclaimer">Historical writers offer interpretations of the passages; their words are separate from the Gospel text.</p>';
+    const sourceLine = (entry) => {
+      const parts = [entry.work, entry.passage].filter((value) => (value || '').trim());
+      return parts.length ? `<p class="commentary-source">${parts.map(escapeHtml).join(' · ')}</p>` : '';
+    };
+    const sourceLink = (entry) => /^https?:\/\//i.test(entry.source || '')
+      ? `<a href="${escapeHtml(entry.source)}" target="_blank" rel="noopener noreferrer">View source ↗</a>` : '';
+    els.studyCommentary.innerHTML = [henry && `<article class="historical-entry"><h3>${escapeHtml(henry.author)}</h3>${sourceLine(henry)}<p>${escapeHtml(excerpt(henry.text))}</p><details><summary>Read the full selection</summary><p>${escapeHtml(henry.text)}</p></details>${sourceLink(henry)}</article>`, calvin && `<article class="historical-entry"><h3>${escapeHtml(calvin.author)}</h3>${sourceLine(calvin)}<p>${escapeHtml(calvin.text)}</p>${sourceLink(calvin)}</article>`].filter(Boolean).join('') + '<p class="commentary-disclaimer">Historical writers offer interpretations of the passages; their words are separate from the Gospel text.</p>';
   }
 
   function mapHtml(mapKey, focusKey) {

@@ -11,6 +11,8 @@
   const $ = (id) => document.getElementById(id);
   const els = Object.fromEntries(['sidebar', 'scrim', 'menuButton', 'bookSearch', 'bookList', 'reader', 'chapterCount', 'chapterTitle', 'chapterSelect', 'chapterVerses', 'henryCommentary', 'calvinCommentary', 'previousChapter', 'nextChapter', 'verseDialog', 'verseTitle', 'verseText', 'verseBack', 'verseRelated', 'verseRelatedHeading', 'verseMore', 'verseClose', 'wordPanel', 'wordClose', 'wordSearch', 'wordSuggestions', 'wordTitle', 'wordMeaning', 'chapterVisuals', 'ntVisualDialog', 'ntVisualKicker', 'ntVisualTitle', 'ntVisualBody', 'ntVisualCaption', 'ntVisualClose', 'glossaryOpen'].map((id) => [id, $(id)]));
   const esc = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  const sourceLink = (entry, label) => /^https?:\/\//i.test((entry && entry.source) || '')
+    ? `<a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">${label}</a>` : '';
   const fmt = (key) => { const [code, chapter, verse] = key.split(' '); return `${names[code] || code} ${chapter}:${verse}`; };
   const chapterId = (item) => `${item.book.code}-${item.chapter}`;
   const currentHash = () => location.hash.slice(1);
@@ -34,7 +36,7 @@
     const item = chapters[selected];
     const key = `${item.book.code} ${item.chapter}`;
     const entry = henry[key];
-    els.henryCommentary.innerHTML = `<div class="nt-author">Matthew Henry <small>Concise Commentary</small></div>` + entry.sections.map((part) => `<details class="nt-section" ${part.from <= activeVerse && activeVerse <= part.to ? 'open' : ''}><summary>${esc(item.book.book)} ${item.chapter}:${esc(part.heading.replace(/^Verses? /, ''))}</summary><p>${esc(part.text)}</p></details>`).join('') + `<a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">View Matthew Henry source ↗</a>`;
+    els.henryCommentary.innerHTML = `<div class="nt-author">Matthew Henry <small>Concise Commentary</small></div>` + entry.sections.map((part) => `<details class="nt-section" ${part.from <= activeVerse && activeVerse <= part.to ? 'open' : ''}><summary>${esc(item.book.book)} ${item.chapter}:${esc(part.heading.replace(/^Verses? /, ''))}</summary><p>${esc(part.text)}</p></details>`).join('') + sourceLink(entry, 'View Matthew Henry source ↗');
     renderCalvin(activeVerse);
   }
 
@@ -46,7 +48,7 @@
     const exact = entry.notes.find((n) => n.verse === activeVerse);
     const nearby = entry.notes.find((n) => n.verse > activeVerse && n.verse <= activeVerse + 3);
     const note = exact || nearby || entry.notes[0];
-    els.calvinCommentary.innerHTML = `<div class="nt-author">John Calvin <small>Selected note · ${esc(item.book.book)} ${item.chapter}:${note.verse}</small></div><p>${esc(note.text)}</p><a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">View Calvin source ↗</a>`;
+    els.calvinCommentary.innerHTML = `<div class="nt-author">John Calvin <small>Selected note · ${esc(item.book.book)} ${item.chapter}:${note.verse}</small></div><p>${esc(note.text)}</p>${sourceLink(entry, 'View Calvin source ↗')}`;
   }
 
   function closeSidebar() {

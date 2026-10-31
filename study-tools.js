@@ -63,7 +63,7 @@
     els.contextText.textContent = note?.explanation || 'Read the neighboring verses to see who is speaking, what prompted the words, and how the thought continues.';
     const connections = [...new Set([...(note?.connections || []), ...neighbors])].filter((ref)=>verseText(ref));
     els.contextLinks.innerHTML = connections.map((ref)=>`<button type="button" data-context-verse="${escape(ref)}"><strong>${escape(label(ref))}</strong><span>${escape(verseText(ref))}</span></button>`).join('');
-    if (note?.source) els.contextLinks.innerHTML += `<a href="${escape(note.source)}" target="_blank" rel="noopener noreferrer">${escape(note.sourceLabel || 'Historical context source')} ↗</a>`;
+    if (note?.source && /^https?:\/\//i.test(note.source)) els.contextLinks.innerHTML += `<a href="${escape(note.source)}" target="_blank" rel="noopener noreferrer">${escape(note.sourceLabel || 'Historical context source')} ↗</a>`;
     els.context.hidden = false;
     els.status.hidden = true;
     [...(els.palette.querySelectorAll?.('[data-highlight-color]') || [])].forEach((button) => {
