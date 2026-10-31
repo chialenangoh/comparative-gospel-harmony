@@ -1,8 +1,8 @@
-/* "Why do the accounts differ?" — short, honest, sourced notes for the
+/* "Why do the accounts differ?" — short, honest, carefully checked notes for the
    events readers most often compare. Rendered as a collapsible panel on
    the event page. The four accounts always stand side by side above;
    these notes simply name what differs and how readers have understood
-   it. Sources: the accounts themselves, the Henry and Calvin commentaries
+   it. Basis: the accounts themselves, the Henry and Calvin commentaries
    carried in this app, and standard Gospel-harmony scholarship. */
 (function () {
   'use strict';
@@ -14,7 +14,7 @@
     },
     '10': {
       differs: "Matthew centres on Joseph — an angel in a dream, wise men, the flight to Egypt. Luke centres on Mary — the angel in person, shepherds, the presentation in the temple. Neither mentions the other's visitors.",
-      understood: "Two witnesses remembering the same household event from the two people who lived it. Each evangelist records what his sources preserved; on the core they agree exactly — a virgin conception, a birth at Bethlehem, a childhood at Nazareth. Historians call this pattern complementary testimony: independent accounts that interlock without being identical."
+      understood: "Two witnesses remembering the same household event from the two people who lived it. Each evangelist records what his own witnesses preserved; on the core they agree exactly — a virgin conception, a birth at Bethlehem, a childhood at Nazareth. Historians call this pattern complementary testimony: independent accounts that interlock without being identical."
     },
     '14': {
       differs: "Only Matthew tells of the Magi; only Luke tells of the shepherds. Readers sometimes ask why Luke, who tells the fullest birth story, never mentions the wise men.",
@@ -109,7 +109,7 @@
       '<div class="differ-body">' +
       '<h4>What differs</h4><p></p>' +
       '<h4>How readers have understood it</h4><p></p>' +
-      '<p class="differ-src">Sources: the four accounts side by side above; the Henry and Calvin commentaries on this event (in this app); standard Gospel-harmony scholarship.</p>' +
+      '<p class="differ-src">Based on the four accounts side by side above; the Henry and Calvin commentaries on this event (in this app); standard Gospel-harmony scholarship.</p>' +
       '</div>';
     var ps = panel.querySelectorAll('.differ-body p');
     ps[0].textContent = note.differs;

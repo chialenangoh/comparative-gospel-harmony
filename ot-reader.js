@@ -11,8 +11,6 @@
   const $ = (id) => document.getElementById(id);
   const els = Object.fromEntries(['sidebar', 'scrim', 'menuButton', 'bookSearch', 'bookList', 'reader', 'chapterCount', 'chapterTitle', 'chapterSelect', 'chapterVerses', 'henryCommentary', 'previousChapter', 'nextChapter', 'verseDialog', 'verseTitle', 'verseText', 'verseBack', 'verseRelated', 'verseRelatedHeading', 'verseMore', 'verseClose', 'wordPanel', 'wordClose', 'wordSearch', 'wordSuggestions', 'wordTitle', 'wordMeaning', 'chapterVisuals', 'ntVisualDialog', 'ntVisualKicker', 'ntVisualTitle', 'ntVisualBody', 'ntVisualCaption', 'ntVisualClose', 'glossaryOpen'].map((id) => [id, $(id)]));
   const esc = (value) => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
-  const sourceLink = (entry, label) => /^https?:\/\//i.test((entry && entry.source) || '')
-    ? `<a class="source-link" href="${esc(entry.source)}" target="_blank" rel="noopener noreferrer">${label}</a>` : '';
   const fmt = (key) => { const [code, chapter, verse] = key.split(' '); return `${names[code] || code} ${chapter}:${verse}`; };
   const chapterId = (item) => `${item.book.code}-${item.chapter}`;
   const currentHash = () => location.hash.slice(1);
@@ -36,7 +34,7 @@
     const item = chapters[selected];
     const key = `${item.book.code} ${item.chapter}`;
     const entry = henry[key];
-    els.henryCommentary.innerHTML = `<div class="nt-author">Matthew Henry <small>Concise Commentary</small></div>` + (entry.sections.length ? entry.sections.map((part) => `<details class="nt-section" ${part.from <= activeVerse && activeVerse <= part.to ? 'open' : ''}><summary>${esc(item.book.book)} ${item.chapter}:${esc(part.heading.replace(/^Verses? /, ''))}</summary><p>${esc(part.text)}</p></details>`).join('') : (/^https?:\/\//i.test(entry.source || '') ? '<p>This chapter’s commentary is available at the source link below.</p>' : '')) + sourceLink(entry, 'View Matthew Henry source ↗');
+    els.henryCommentary.innerHTML = `<div class="nt-author">Matthew Henry <small>Concise Commentary</small></div>` + entry.sections.map((part) => `<details class="nt-section" ${part.from <= activeVerse && activeVerse <= part.to ? 'open' : ''}><summary>${esc(item.book.book)} ${item.chapter}:${esc(part.heading.replace(/^Verses? /, ''))}</summary><p>${esc(part.text)}</p></details>`).join('');
   }
 
   function closeSidebar() {

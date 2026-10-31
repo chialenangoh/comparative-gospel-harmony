@@ -377,7 +377,8 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
    Rules are scoped under .topbar so they outrank the .nt-top-links rules
    in nt.css and acts.css, which load later at lower specificity. The
    fixed header height and page top offsets are unchanged. */
-.topbar .brand > div { min-width: 0; }
+.topbar .brand { flex: 0 1 auto; min-width: 0; }
+.topbar .brand > * { min-width: 0; }
 .topbar .brand-title, .topbar .brand-subtitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .reader-tools { flex: none; }
 .hdr-search { display: flex; align-items: center; gap: .4rem; flex: 1 1 14rem; min-width: 0; max-width: 26rem; }
@@ -390,6 +391,7 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
 @media (max-width: 720px) {
   .topbar { gap: .55rem; }
   .topbar .brand { gap: .5rem; max-width: 42vw; }
+  .topbar .brand-title { max-width: 30vw; }
   .topbar > a.top-link, .topbar .nt-top-links, .topbar > nav { display: none; }
   .hdr-search { flex: 1 1 auto; max-width: none; }
   .hdr-search input { font-size: 1rem; }
