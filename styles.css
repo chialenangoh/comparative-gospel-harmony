@@ -388,8 +388,11 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
 .hdr-search button { flex: none; display: inline-flex; align-items: center; padding: .48rem .8rem; border: 1px solid var(--gold-300); border-radius: .45rem; background: var(--gold-300); color: var(--navy-950); font: inherit; font-size: .86rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .hdr-search button:hover, .hdr-search button:focus-visible { background: #ffe2a1; }
 .hdr-search-icon { display: none; }
+.hdr-back { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 2.375rem; height: 2.375rem; border: 1px solid rgba(227,197,126,.65); border-radius: .45rem; color: #ffe2a1; font-size: 1.05rem; font-weight: 700; line-height: 1; text-decoration: none; }
+.hdr-back:hover, .hdr-back:focus-visible { background: rgba(255,255,255,.12); }
 @media (max-width: 720px) {
   .topbar { gap: .55rem; }
+  .hdr-back { width: 2rem; }
   .topbar .brand { gap: .5rem; max-width: 42vw; }
   .topbar .brand-title { max-width: 30vw; }
   .topbar > a.top-link, .topbar .nt-top-links, .topbar > nav { display: none; }
