@@ -224,7 +224,7 @@
     }
     talkLoaded = true;
     var sc = document.createElement('script');
-    sc.src = 'talk.js?v=2';
+    sc.src = 'talk.js?v=3';
     sc.onload = cb;
     document.head.appendChild(sc);
   }

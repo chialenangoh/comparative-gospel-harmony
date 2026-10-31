@@ -1,10 +1,12 @@
 /* Talk It Over — gentle per-day reader discussion for the 30-day journey.
    Modelled on YouVersion's Plans-with-Friends discussion: one thread per
    journey day, seeded with the day's reflection question. Reading is open
-   to everyone; posting needs a (free) site account; readers can delete
-   their own messages and report any message for moderation.
+   to everyone; posting needs a (free) site account; readers can edit or
+   delete their own messages and report any message for moderation.
    Data lives in Supabase (gh_talk / gh_talk_reports) with row-level
-   security: insert/delete are restricted to the message's own author.  */
+   security: insert/update/delete are restricted to the message's own
+   author. (The "(edited)" marker is kept for the current page session
+   only — gh_talk carries no edited-at field in this model.)  */
 (function () {
   'use strict';
 
@@ -29,6 +31,9 @@
       '.ghtalk .gt-actions button{background:none;border:none;color:#7a8798;font-size:.76rem;text-decoration:underline;cursor:pointer;padding:0;margin-right:10px}',
       '.ghtalk textarea{width:100%;box-sizing:border-box;border:1px solid #b9c8d7;border-radius:9px;padding:9px 11px;font-size:.95rem;min-height:64px;font-family:inherit}',
       '.ghtalk .gt-post{margin-top:7px;background:#10243f;color:#fff;border:1px solid #10243f;border-radius:9px;padding:8px 16px;font-weight:700;cursor:pointer}',
+      '.ghtalk .gt-edited{color:#7a8798;font-size:.78rem;margin-left:2px;font-style:italic}',
+      '.ghtalk .gt-editbox{margin-top:4px}',
+      '.ghtalk .gt-cancel{background:#fff;border:1px solid #b9c8d7;color:#33475e;border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}',
       '.ghtalk .gt-note{font-size:.86rem;color:#4e5a6e}',
       '.ghtalk .gt-empty{color:#4e5a6e;font-size:.93rem}'
     ].join('');
@@ -92,6 +97,8 @@
       '<p class="gt-note" style="margin-top:9px">Be kind and keep it about the passage. This is a reader conversation, gently moderated — please report anything unkind. <button type="button" class="gt-refresh" style="background:none;border:none;color:#4e5a6e;text-decoration:underline;cursor:pointer;font-size:.85rem;padding:0">Refresh</button></p>';
     var list = el.querySelector('.gt-list');
     var compose = el.querySelector('.gt-compose');
+    var byId = {};
+    var editedIds = {};
     var shareBtn = el.querySelector('.gt-share');
     if (shareBtn) shareBtn.addEventListener('click', function () {
       var text = '💬 Talk It Over — Day ' + day + ' of The Life of Christ in 30 Days:\n“' + (prompt || '') + '”\n\nRead the day\u2019s passage and join the conversation: https://comparative-gospel-harmony.onrender.com/journey.html';
@@ -104,8 +111,10 @@
       var mine = s && m.user_id === s.user.id;
       return '<div class="gt-msg" data-id="' + esc(m.id) + '">' +
         '<span class="gt-name">' + esc(m.user_name || 'Reader') + '</span><span class="gt-when">' + esc(when(m.created_at)) + '</span>' +
+        (editedIds[m.id] ? '<span class="gt-edited">(edited)</span>' : '') +
         '<div class="gt-body">' + esc(m.body) + '</div>' +
         '<div class="gt-actions">' +
+        (mine ? '<button type="button" data-edit="' + esc(m.id) + '">Edit</button>' : '') +
         (mine ? '<button type="button" data-del="' + esc(m.id) + '">Delete</button>' : '') +
         '<button type="button" data-rep="' + esc(m.id) + '">Report</button>' +
         '</div></div>';
@@ -114,6 +123,8 @@
       return api('GET', 'gh_talk?select=id,day,user_id,user_name,body,created_at&day=eq.' + day + '&order=created_at.asc&limit=200', null, false)
         .then(function (rows) {
           rows = rows || [];
+          byId = {};
+          rows.forEach(function (r) { byId[r.id] = r; });
           list.innerHTML = rows.length
             ? rows.map(msgHtml).join('')
             : '<p class="gt-empty">No one has shared yet — yours could be the encouragement someone needs today. Be the first. 🌱</p>';
@@ -123,7 +134,54 @@
           list.innerHTML = '<p class="gt-note">The conversation could not load just now. Please try Refresh in a moment.</p>';
         });
     }
+    function startEdit(b) {
+      var id = b.getAttribute('data-edit');
+      var wrap = b.closest ? b.closest('.gt-msg') : null;
+      if (!wrap || wrap.querySelector('.gt-editbox')) return;
+      var m = byId[id];
+      var bodyEl = wrap.querySelector('.gt-body');
+      var actionsEl = wrap.querySelector('.gt-actions');
+      var original = m ? String(m.body || '') : (bodyEl ? bodyEl.textContent : '');
+      var box = document.createElement('div');
+      box.className = 'gt-editbox';
+      box.innerHTML =
+        '<textarea maxlength="600"></textarea>' +
+        '<div style="margin-top:6px"><button type="button" class="gt-post gt-save">Save</button> ' +
+        '<button type="button" class="gt-cancel">Cancel</button> <span class="gt-note gt-edit-status"></span></div>';
+      var ta = box.querySelector('textarea');
+      ta.value = original;
+      if (bodyEl) bodyEl.style.display = 'none';
+      if (actionsEl) actionsEl.style.display = 'none';
+      wrap.appendChild(box);
+      ta.focus();
+      function close() {
+        box.remove();
+        if (bodyEl) bodyEl.style.display = '';
+        if (actionsEl) actionsEl.style.display = '';
+      }
+      box.querySelector('.gt-cancel').addEventListener('click', close);
+      box.querySelector('.gt-save').addEventListener('click', function () {
+        var status = box.querySelector('.gt-edit-status');
+        var body = ta.value.trim();
+        if (!body) { status.textContent = 'Your message can\u2019t be empty.'; return; }
+        var low = body.toLowerCase();
+        for (var i = 0; i < BLOCK.length; i++) {
+          if (low.indexOf(BLOCK[i]) !== -1) {
+            status.textContent = 'Links and promotions aren\u2019t posted here — please share in your own words.';
+            return;
+          }
+        }
+        if (body === original) { close(); return; }
+        status.textContent = 'Saving…';
+        api('PATCH', 'gh_talk?id=eq.' + id, { body: body }, true)
+          .then(function () { editedIds[id] = true; load(); })
+          .catch(function () { status.textContent = 'Could not save — please try again in a moment.'; });
+      });
+    }
     function wire() {
+      list.querySelectorAll('[data-edit]').forEach(function (b) {
+        b.addEventListener('click', function () { startEdit(b); });
+      });
       list.querySelectorAll('[data-del]').forEach(function (b) {
         b.addEventListener('click', function () {
           if (!window.confirm('Delete your message?')) return;
