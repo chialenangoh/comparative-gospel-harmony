@@ -10,16 +10,22 @@ mark.gh-hl {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
-mark.gh-hl-gold  { background: rgba(227, 197, 126, 0.62); } /* site gold #e3c57e */
-mark.gh-hl-green { background: rgba(110, 196, 120, 0.48); }
-mark.gh-hl-blue  { background: rgba(110, 168, 255, 0.48); }
-mark.gh-hl-pink  { background: rgba(255, 141, 182, 0.50); }
+mark.gh-hl-gold   { background: rgba(227, 197, 126, 0.62); } /* site gold #e3c57e */
+mark.gh-hl-green  { background: rgba(110, 196, 120, 0.48); }
+mark.gh-hl-blue   { background: rgba(110, 168, 255, 0.48); }
+mark.gh-hl-pink   { background: rgba(255, 141, 182, 0.50); }
+mark.gh-hl-purple { background: rgba(167, 139, 250, 0.50); }
+mark.gh-hl-orange { background: rgba(255, 159, 67, 0.50); }
+mark.gh-hl-teal   { background: rgba(45, 196, 183, 0.48); }
+mark.gh-hl-red    { background: rgba(255, 107, 107, 0.48); }
 
 /* Floating toolbar shown near the current selection / tapped highlight */
 .gh-hl-toolbar {
   position: fixed;
   z-index: 100000;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 6px;
   max-width: calc(100vw - 16px);
@@ -49,10 +55,14 @@ mark.gh-hl-pink  { background: rgba(255, 141, 182, 0.50); }
 }
 .gh-hl-swatch:active { transform: scale(0.94); }
 .gh-hl-dot { width: 22px; height: 22px; border-radius: 50%; display: block; }
-.gh-dot-gold  { background: #e3c57e; }
-.gh-dot-green { background: #6ec478; }
-.gh-dot-blue  { background: #6ea8ff; }
-.gh-dot-pink  { background: #ff8db6; }
+.gh-dot-gold   { background: #e3c57e; }
+.gh-dot-green  { background: #6ec478; }
+.gh-dot-blue   { background: #6ea8ff; }
+.gh-dot-pink   { background: #ff8db6; }
+.gh-dot-purple { background: #a78bfa; }
+.gh-dot-orange { background: #ff9f43; }
+.gh-dot-teal   { background: #2dc4b7; }
+.gh-dot-red    { background: #ff6b6b; }
 
 .gh-hl-btn {
   font: inherit;

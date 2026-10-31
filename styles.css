@@ -68,6 +68,8 @@ button { color: inherit; }
 .brand-title { font-weight: 740; letter-spacing: -.01em; }
 .brand-subtitle { color: #becadd; font: 600 .72rem/1.2 Georgia, serif; letter-spacing: .08em; text-transform: uppercase; }
 .reader-tools { display: flex; align-items: center; gap: .35rem; }
+.top-link { display: inline-flex; align-items: center; padding: .45rem .7rem; border: 1px solid rgba(227,197,126,.65); border-radius: .45rem; color: #ffe2a1; font-size: .86rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.top-link:hover, .top-link:focus-visible { background: rgba(255,255,255,.12); }
 .mobile-label { display: none; }
 .tool-label { color: #c9d2df; font-size: .78rem; }
 .text-button, .icon-button {
@@ -364,3 +366,4 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
   .app-shell.has-strip { padding-top: calc(4.25rem + 39px); }
   .reader-inner { padding-top: 1rem; }
 }
+@media (max-width: 620px) { .top-link { padding: .35rem .45rem; font-size: .72rem; } }

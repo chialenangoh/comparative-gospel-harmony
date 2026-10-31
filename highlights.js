@@ -1,8 +1,10 @@
 /* highlights.js — Comparative Gospel Harmony: personal text highlighting.
  *
  * Select any text on the page and a small toolbar offers highlight colors
- * (gold / green / blue / pink). Highlights are <mark class="gh-hl …">
- * elements, saved per page in localStorage and re-applied on load.
+ * (gold / green / blue / pink / purple / orange / teal / red). Highlights
+ * are <mark class="gh-hl …"> elements, saved per page in localStorage and
+ * re-applied on load. A plain tap on a verse (.scripture-verse) selects
+ * the whole verse, so the same toolbar can highlight it in one go.
  *
  * Anchoring: for each highlight we store the exact selected text plus up
  * to 32 characters of the text immediately before and after it, and the
@@ -18,7 +20,7 @@
   'use strict';
 
   var STORE_KEY = 'gh-highlights-v1';
-  var COLORS = ['gold', 'green', 'blue', 'pink'];
+  var COLORS = ['gold', 'green', 'blue', 'pink', 'purple', 'orange', 'teal', 'red'];
   var CONTEXT_LEN = 32;
   var TOOLBAR_ID = 'gh-hl-toolbar';
   var SKIP_TAGS = {
@@ -514,6 +516,51 @@
         current = { mode: 'mark', markId: mark.getAttribute('data-gh-id') };
         showToolbar(mark.getBoundingClientRect(), { remove: true, clear: true });
       }
+    });
+
+    /* A plain tap on a verse selects the whole verse, so the toolbar
+       offers to highlight the full verse at once (manual drag-selection
+       is fiddly on touch). Drags keep their normal partial selection,
+       and taps on controls inside the verse — glossary word buttons,
+       the verse-number cross-reference button, the Context button and
+       the ••• actions button — or on an existing highlight keep their
+       own behavior. */
+    var tapStart = null;
+    document.addEventListener('pointerdown', function (e) {
+      tapStart = null;
+      var t = e.target;
+      if (!t || !t.closest) return;
+      if (toolbarEl && toolbarEl.contains(t)) return;
+      if (t.closest('button, a')) return;
+      if (t.closest('mark.gh-hl')) return;
+      var verse = t.closest('.scripture-verse');
+      if (verse) tapStart = { x: e.clientX, y: e.clientY, verse: verse };
+    });
+    document.addEventListener('pointerup', function (e) {
+      var start = tapStart;
+      tapStart = null;
+      if (!start) return;
+      var dx = e.clientX - start.x, dy = e.clientY - start.y;
+      if (dx * dx + dy * dy > 49) return; /* the pointer moved — a drag, not a tap */
+      try {
+        var sel = window.getSelection();
+        if (!sel) return;
+        if (!sel.isCollapsed && sel.toString().trim().length > 1) return; /* a real selection wins */
+        var range = document.createRange();
+        range.selectNodeContents(start.verse);
+        /* Leave the verse's trailing Context / ••• control buttons out
+           of the selection — they are controls, not verse text. */
+        var endNode = start.verse.lastChild;
+        while (endNode && endNode.nodeType === 1 &&
+               (endNode.classList.contains('verse-actions') ||
+                endNode.classList.contains('verse-context-button'))) {
+          endNode = endNode.previousSibling;
+        }
+        if (endNode && endNode !== start.verse.lastChild) range.setEndAfter(endNode);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        scheduleCheck();
+      } catch (err) { /* ignore — never break the page */ }
     });
 
     /* Tapping anywhere else dismisses the toolbar. */
