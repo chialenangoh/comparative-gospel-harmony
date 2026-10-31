@@ -103,7 +103,7 @@
     }).join('');
     const pieces = text.split(/(\b\d{1,3}(?=\s+[A-Z]))/g);
     let output = '', currentKey = '';
-    const closeVerse = () => currentKey ? `${window.VERSE_CONTEXT?.[currentKey] ? `<button type="button" class="verse-context-button" data-context-action="${escapeHtml(currentKey)}" aria-label="Context for ${escapeHtml(formatVerse(currentKey))}">Context</button>` : ''}<button type="button" class="verse-actions" data-verse-action="${escapeHtml(currentKey)}" aria-label="Highlight or share ${escapeHtml(formatVerse(currentKey))}">•••</button></span>` : '';
+    const closeVerse = () => currentKey ? '</span>' : '';
     pieces.forEach((piece, index) => {
       if (index % 2 === 0) { output += wordify(currentKey && window.BibleTranslation?.current !== 'KJV' && window.BibleTranslation ? ' '+(verseText[currentKey] || '')+' ' : piece); return; }
       const number = Number(piece);

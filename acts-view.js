@@ -24,7 +24,7 @@
     const title = `${ref.book} ${ref.chapter}:${ref.start}–${ref.end}`;
     const content = Array.from({length:ref.end-ref.start+1},(_,i) => {
       const v=ref.start+i,key=`${code} ${ref.chapter} ${v}`;
-      return `<p class="nt-verse scripture-verse" data-scripture-key="${esc(key)}" data-share-text="${esc(bible[key]||'')}"><button type="button" class="verse-number verse-link" data-verse-ref="${esc(key)}" aria-label="Cross-references for ${esc(fmt(key))}">${v}</button> ${words(bible[key]||'')} ${window.VERSE_CONTEXT?.[key] ? `<button type="button" class="verse-context-button" data-context-action="${esc(key)}" aria-label="Context for ${esc(fmt(key))}">Context</button>` : ''}<button type="button" class="verse-actions" data-verse-action="${esc(key)}" aria-label="Highlight or share ${esc(fmt(key))}">•••</button></p>`;
+      return `<p class="nt-verse scripture-verse" data-scripture-key="${esc(key)}" data-share-text="${esc(bible[key]||'')}"><button type="button" class="verse-number verse-link" data-verse-ref="${esc(key)}" aria-label="Cross-references for ${esc(fmt(key))}">${v}</button> ${words(bible[key]||'')}</p>`;
     }).join('');
     return `<article class="acts-card ${kind}"><header><span>${esc(label)}</span><strong>${esc(title)}</strong></header><div>${content}</div></article>`;
   }

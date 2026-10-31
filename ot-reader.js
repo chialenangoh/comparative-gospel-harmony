@@ -49,7 +49,7 @@
     els.chapterSelect.innerHTML = book.chapters.map((_, i) => `<option value="${i + 1}" ${i + 1 === chapter ? 'selected' : ''}>Chapter ${i + 1}</option>`).join('');
     els.chapterVerses.innerHTML = Array.from({ length: count }, (_, i) => {
       const key = `${book.code} ${chapter} ${i + 1}`;
-      return `<p class="nt-verse scripture-verse" id="verse-${i + 1}" data-scripture-key="${esc(key)}" data-share-text="${esc(text[key])}"><button type="button" class="verse-number verse-link" data-verse-ref="${esc(key)}" aria-label="Cross-references for ${esc(fmt(key))}">${i + 1}</button> ${wordHtml(text[key])} ${window.VERSE_CONTEXT?.[key] ? `<button type="button" class="verse-context-button" data-context-action="${esc(key)}" aria-label="Context for ${esc(fmt(key))}">Context</button>` : ''}<button type="button" class="verse-actions" data-verse-action="${esc(key)}" aria-label="Highlight or share ${esc(fmt(key))}">•••</button></p>`;
+      return `<p class="nt-verse scripture-verse" id="verse-${i + 1}" data-scripture-key="${esc(key)}" data-share-text="${esc(text[key])}"><button type="button" class="verse-number verse-link" data-verse-ref="${esc(key)}" aria-label="Cross-references for ${esc(fmt(key))}">${i + 1}</button> ${wordHtml(text[key])}</p>`;
     }).join('');
     window.StudyTools.apply(els.chapterVerses);
     activeVisuals=window.OT_STUDY_VISUALS.entries(`${book.code} ${chapter}`);
