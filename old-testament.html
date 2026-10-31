@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#10243f">
   <meta name="description" content="Read Genesis through Malachi in the KJV with Bible-wide cross-references, word meanings, and historical commentary.">
   <title>Genesis–Malachi | Old Testament Study</title>
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=21">
   <link rel="stylesheet" href="nt.css?v=10">
 <link rel="stylesheet" href="growth.css?v=18"><link rel="stylesheet" href="search.css?v=19"><link rel="stylesheet" href="footnotes.css?v=20"><link rel="stylesheet" href="translations.css?v=21"><link rel="manifest" href="manifest.webmanifest"><meta name="description" content="Read the whole Old Testament in the King James Version, with commentary and study tools.">
 <meta property="og:type" content="website">
@@ -40,8 +40,9 @@
       <img class="mark-img" src="logo.svg" alt="Comparative Gospel Harmony logo" width="42" height="42">
       <div><div class="brand-title">Old Testament Study</div><div class="brand-subtitle">Genesis through Malachi · KJV</div></div>
     </div>
+    <form class="hdr-search" action="search.html" method="get" role="search"><input type="search" name="q" placeholder="Search Scriptures…" aria-label="Search Scriptures"><button type="submit" aria-label="Search"><span class="hdr-search-label">Search</span><span class="hdr-search-icon" aria-hidden="true">🔍</span></button></form>
     <div class="nt-top-links"><a class="top-link" href="new-testament.html">New Testament</a><a class="top-link" href="index.html">Gospels</a></div>
-    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 Acts–Revelation (NT)</a></div></div></div>
+    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="index.html">🏠 Gospels (Home)</a><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 Acts–Revelation (NT)</a></div></div></div>
   </header>
   <script>
   (function(){var b=document.getElementById('hdrMenuBtn'),p=document.getElementById('hdrMenuPanel');if(!b||!p)return;function close(){p.hidden=true;b.setAttribute('aria-expanded','false')}b.addEventListener('click',function(e){e.stopPropagation();var willOpen=p.hidden;p.hidden=!willOpen;b.setAttribute('aria-expanded',String(willOpen))});p.addEventListener('click',function(e){if(e.target.closest('a'))close()});document.addEventListener('click',function(e){if(!p.hidden&&!p.contains(e.target))close()});document.addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();

@@ -367,3 +367,33 @@ h1 { max-width: 54rem; margin: .2rem 0 0; color: var(--navy-950); font: 720 clam
   .reader-inner { padding-top: 1rem; }
 }
 @media (max-width: 620px) { .top-link { padding: .35rem .45rem; font-size: .72rem; } }
+
+/* Header search + phone-width header layout (owner request 2026-10-31).
+   One row at every width: brand (title truncates with an ellipsis, never
+   wraps over neighbouring elements) + flexible search + nav pills on wide
+   screens + the gold Menu. At <=720px the inline nav pills (.top-link
+   anchors, .nt-top-links) and the "Back to the harmony" nav leave the
+   header row; their destinations are in the Menu panel on every page.
+   Rules are scoped under .topbar so they outrank the .nt-top-links rules
+   in nt.css and acts.css, which load later at lower specificity. The
+   fixed header height and page top offsets are unchanged. */
+.topbar .brand > div { min-width: 0; }
+.topbar .brand-title, .topbar .brand-subtitle { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar .reader-tools { flex: none; }
+.hdr-search { display: flex; align-items: center; gap: .4rem; flex: 1 1 14rem; min-width: 0; max-width: 26rem; }
+.hdr-search input { flex: 1 1 auto; min-width: 0; padding: .48rem .7rem; border: 1px solid rgba(227,197,126,.65); border-radius: .45rem; background: rgba(255,255,255,.1); color: #fff; font-size: .9rem; -webkit-appearance: none; appearance: none; }
+.hdr-search input::placeholder { color: #c9d2df; opacity: 1; }
+.hdr-search input:focus { outline: 2px solid var(--gold-300); outline-offset: 1px; background: rgba(255,255,255,.16); }
+.hdr-search button { flex: none; display: inline-flex; align-items: center; padding: .48rem .8rem; border: 1px solid var(--gold-300); border-radius: .45rem; background: var(--gold-300); color: var(--navy-950); font: inherit; font-size: .86rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.hdr-search button:hover, .hdr-search button:focus-visible { background: #ffe2a1; }
+.hdr-search-icon { display: none; }
+@media (max-width: 720px) {
+  .topbar { gap: .55rem; }
+  .topbar .brand { gap: .5rem; max-width: 42vw; }
+  .topbar > a.top-link, .topbar .nt-top-links, .topbar > nav { display: none; }
+  .hdr-search { flex: 1 1 auto; max-width: none; }
+  .hdr-search input { font-size: 1rem; }
+  .hdr-search button { padding: .48rem .55rem; }
+  .hdr-search-label { display: none; }
+  .hdr-search-icon { display: inline; }
+}

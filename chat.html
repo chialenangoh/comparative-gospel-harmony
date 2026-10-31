@@ -9,7 +9,7 @@
   <title>Ask the Harmony — Scripture Chat · Comparative Gospel Harmony</title>
   <link rel="canonical" href="https://comparative-gospel-harmony.onrender.com/chat.html">
   <link rel="icon" type="image/svg+xml" href="logo.svg">
-  <link rel="stylesheet" href="styles.css?v=20">
+  <link rel="stylesheet" href="styles.css?v=21">
 <link rel="manifest" href="manifest.webmanifest"><meta property="og:type" content="website">
 <meta property="og:site_name" content="Comparative Gospel Harmony">
 <meta property="og:title" content="Ask the Harmony — Scripture Chat">
@@ -77,8 +77,9 @@
         <div class="brand-subtitle">King James Version</div>
       </div>
     </div>
+    <form class="hdr-search" action="search.html" method="get" role="search"><input type="search" name="q" placeholder="Search Scriptures…" aria-label="Search Scriptures"><button type="submit" aria-label="Search"><span class="hdr-search-label">Search</span><span class="hdr-search-icon" aria-hidden="true">🔍</span></button></form>
     <nav><a href="index.html" style="color:#fff;font-weight:700;text-decoration:none">← Back to the harmony</a></nav>
-    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 Acts–Revelation (NT)</a><div class="hdr-menu-acct" id="acctMount"></div></div></div></div>
+    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="index.html">🏠 Gospels (Home)</a><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 Acts–Revelation (NT)</a><div class="hdr-menu-acct" id="acctMount"></div></div></div></div>
   </header>
   <script>
   (function(){var b=document.getElementById('hdrMenuBtn'),p=document.getElementById('hdrMenuPanel');if(!b||!p)return;function close(){p.hidden=true;b.setAttribute('aria-expanded','false')}b.addEventListener('click',function(e){e.stopPropagation();var willOpen=p.hidden;p.hidden=!willOpen;b.setAttribute('aria-expanded',String(willOpen))});p.addEventListener('click',function(e){if(e.target.closest('a'))close()});document.addEventListener('click',function(e){if(!p.hidden&&!p.contains(e.target))close()});document.addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();
