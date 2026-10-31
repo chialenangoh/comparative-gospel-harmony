@@ -32,6 +32,7 @@
   var current = null;      // toolbar state: {mode:'sel'|'mark', ...}
   var checkTimer = null;
   var hideSuppressUntil = 0;
+  var verseTapSeq = 0;     // bumped to cancel a pending tap-select re-assert
   var observer = null;
 
   /* ------------------------------------------------ storage */
@@ -352,6 +353,7 @@
   }
 
   function hideToolbar() {
+    verseTapSeq++; /* a dismissed toolbar cancels any tap-select re-assert */
     if (toolbarEl) toolbarEl.hidden = true;
     current = null;
     resetClearBtn();
@@ -524,7 +526,18 @@
        and taps on controls inside the verse — glossary word buttons,
        the verse-number cross-reference button, the Context button and
        the ••• actions button — or on an existing highlight keep their
-       own behavior. */
+       own behavior.
+       The selection is made on `click`, NOT on pointerup: on iOS
+       Safari pointerup is delivered with the touch events, before the
+       tap's synthetic mousedown/mouseup/click, and the synthetic
+       mousedown drops a caret at the tap point — collapsing any
+       selection made at pointerup before the deferred checkSelection()
+       ever reads it (desktop browsers fire mousedown before pointerup,
+       which is why the mouse path worked and the iPhone tap did not).
+       `click` is the last event of the gesture on every platform, so a
+       selection made there has nothing left in the tap to destroy it;
+       a short re-assert after the click repairs the selection once
+       more if anything still collapses it as the gesture settles. */
     var tapStart = null;
     document.addEventListener('pointerdown', function (e) {
       tapStart = null;
@@ -536,31 +549,79 @@
       var verse = t.closest('.scripture-verse');
       if (verse) tapStart = { x: e.clientX, y: e.clientY, verse: verse };
     });
-    document.addEventListener('pointerup', function (e) {
+    document.addEventListener('pointercancel', function () { tapStart = null; });
+
+    /* Range over the verse's text: trailing control buttons (Context,
+       ••• actions, the footnotes button footnotes.js appends last) are
+       controls, not verse text, so the range ends before them. */
+    function buildVerseRange(verse) {
+      try {
+        var range = document.createRange();
+        range.selectNodeContents(verse);
+        var endNode = verse.lastChild;
+        while (endNode && endNode.nodeType === 1 &&
+               (endNode.classList.contains('verse-actions') ||
+                endNode.classList.contains('verse-context-button') ||
+                endNode.classList.contains('footnote-open'))) {
+          endNode = endNode.previousSibling;
+        }
+        if (endNode && endNode !== verse.lastChild) range.setEndAfter(endNode);
+        return range;
+      } catch (e) { return null; }
+    }
+
+    function applyVerseSelection(verse) {
+      var range = buildVerseRange(verse);
+      if (!range) return false;
+      var sel = window.getSelection();
+      if (!sel) return false;
+      try {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (e) { return false; }
+      return true;
+    }
+
+    function selectVerse(verse) {
+      var sel = window.getSelection();
+      if (!sel) return;
+      /* A real drag selection reaching outside this verse wins; a
+         selection inside the verse is upgraded to the whole verse. */
+      try {
+        if (!sel.isCollapsed && sel.rangeCount) {
+          var r = sel.getRangeAt(0);
+          if (!(verse.contains(r.startContainer) && verse.contains(r.endContainer))) return;
+        }
+      } catch (e) { /* ignore */ }
+      if (!applyVerseSelection(verse)) return;
+      var seq = ++verseTapSeq;
+      /* The toolbar must survive this gesture: a checkSelection() that
+         catches the selection mid-collapse must not hide it. */
+      hideSuppressUntil = Date.now() + 800;
+      scheduleCheck();
+      setTimeout(function () {
+        if (seq !== verseTapSeq) return; /* toolbar dismissed meanwhile */
+        var s = window.getSelection();
+        if (!s) return;
+        if (s.isCollapsed || !s.rangeCount) {
+          if (applyVerseSelection(verse)) scheduleCheck();
+        }
+      }, 60);
+    }
+
+    document.addEventListener('click', function (e) {
       var start = tapStart;
       tapStart = null;
       if (!start) return;
       var dx = e.clientX - start.x, dy = e.clientY - start.y;
       if (dx * dx + dy * dy > 49) return; /* the pointer moved — a drag, not a tap */
-      try {
-        var sel = window.getSelection();
-        if (!sel) return;
-        if (!sel.isCollapsed && sel.toString().trim().length > 1) return; /* a real selection wins */
-        var range = document.createRange();
-        range.selectNodeContents(start.verse);
-        /* Leave the verse's trailing Context / ••• control buttons out
-           of the selection — they are controls, not verse text. */
-        var endNode = start.verse.lastChild;
-        while (endNode && endNode.nodeType === 1 &&
-               (endNode.classList.contains('verse-actions') ||
-                endNode.classList.contains('verse-context-button'))) {
-          endNode = endNode.previousSibling;
-        }
-        if (endNode && endNode !== start.verse.lastChild) range.setEndAfter(endNode);
-        sel.removeAllRanges();
-        sel.addRange(range);
-        scheduleCheck();
-      } catch (err) { /* ignore — never break the page */ }
+      var t = e.target;
+      if (!t || !t.closest) return;
+      if (toolbarEl && toolbarEl.contains(t)) return;
+      if (t.closest('button, a')) return;   /* controls keep their own behavior */
+      if (t.closest('mark.gh-hl')) return;  /* the mark handler above owns those */
+      if (t.closest('.scripture-verse') !== start.verse) return; /* tap ended elsewhere */
+      selectVerse(start.verse);
     });
 
     /* Tapping anywhere else dismisses the toolbar. */
