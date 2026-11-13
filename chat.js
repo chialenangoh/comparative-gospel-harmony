@@ -16,6 +16,21 @@
   var GLOSS = window.GOSPEL_GLOSSARY || {};
   var STORE = 'gh-chat-v1';
 
+  /* Bible version for verse cards: the same selection the reader pages
+     use (translations.js resolves ?translation= / localStorage
+     'bible-translation' into window.BibleTranslation). Cards are built
+     from the library's KJV account text, then re-rendered in the
+     selected version by applyVersion() below — bundled versions from
+     window.BIBLE_TRANSLATIONS, NKJV/NIV from API.Bible via
+     api-translations.js — falling back to the KJV text, honestly
+     labelled, when a version cannot supply a verse. */
+  var VERSION = (window.BibleTranslation && window.BibleTranslation.current) || 'KJV';
+  var BOOK_CODES = {};
+  if (window.GOSPEL_BOOK_NAMES) Object.keys(window.GOSPEL_BOOK_NAMES).forEach(function (c) { BOOK_CODES[window.GOSPEL_BOOK_NAMES[c]] = c; });
+  function bookCode(name) {
+    return BOOK_CODES[name] || ({ Matthew: 'MAT', Mark: 'MAR', Luke: 'LUK', John: 'JOH' })[name] || '';
+  }
+
   /* ---------------- curated topic library ----------------
      lead: original words written for this chat (not Scripture).
      verse: an exact verse pulled live from the named event's account.
@@ -233,7 +248,7 @@
     var t = extractVerse(acc.text, refChapters(acc.reference), chapter, from, to);
     if (!t) return null;
     var ref = book + ' ' + chapter + ':' + from + (to && to !== from ? '\u2013' + to : '');
-    return { ref: ref, text: t, event: e };
+    return { ref: ref, text: t, event: e, code: bookCode(book), chapter: chapter, from: from, to: to || from };
   }
 
   function eventCard(e, excerptBook) {
@@ -251,7 +266,7 @@
   }
 
   function verseCardHtml(vc) {
-    return '<div class="vcard"><div class="vref">' + esc(vc.ref) + ' (KJV)</div>' +
+    return '<div class="vcard" data-vcode="' + esc(vc.code || '') + '" data-vchapter="' + esc(vc.chapter) + '" data-vfrom="' + esc(vc.from) + '" data-vto="' + esc(vc.to) + '"><div class="vref">' + esc(vc.ref) + ' (<span class="vver">KJV</span>)</div>' +
       '<div class="vtext">“' + esc(vc.text) + '”</div>' +
       '<div style="margin-top:4px"><a href="index.html#event-' + esc(vc.event.number) + '">Read it in Event ' + esc(vc.event.number) + ' — ' + esc(vc.event.title) + ' →</a></div></div>';
   }
@@ -270,6 +285,60 @@
     save();
     renderMsg(who, html);
   }
+  /* ---------------- verse cards in the selected version ---------------- */
+  var apiNoticeShown = false;
+  function showApiNotice() {
+    if (apiNoticeShown) return;
+    var picker = document.querySelector('.translation-picker');
+    if (!picker) return;
+    apiNoticeShown = true;
+    var note = document.createElement('small');
+    note.className = 'api-translation-notice';
+    note.textContent = "Couldn't load " + VERSION + ' right now — showing KJV.';
+    picker.appendChild(note);
+  }
+  function refreshStored(div) {
+    var idx = Array.prototype.indexOf.call(thread.children, div);
+    if (idx >= 0 && history[idx]) { history[idx].html = div.innerHTML; save(); }
+  }
+  function setCardText(card, text, label) {
+    var vt = card.querySelector('.vtext');
+    if (vt) vt.textContent = '“' + text + '”';
+    var vv = card.querySelector('.vver');
+    if (vv) vv.textContent = label;
+    card.setAttribute('data-vshown', label);
+  }
+  function applyVersion(div) {
+    if (VERSION === 'KJV') return;
+    div.querySelectorAll('.vcard[data-vcode]').forEach(function (card) {
+      if (card.getAttribute('data-vshown') === VERSION) return;
+      var code = card.getAttribute('data-vcode');
+      var chapter = parseInt(card.getAttribute('data-vchapter'), 10);
+      var from = parseInt(card.getAttribute('data-vfrom'), 10);
+      var to = parseInt(card.getAttribute('data-vto'), 10) || from;
+      if (!code || !chapter || !from) return;
+      var dict = window.BIBLE_TRANSLATIONS && window.BIBLE_TRANSLATIONS[VERSION];
+      if (dict) {
+        var parts = [], ok = true;
+        for (var n = from; n <= to; n++) {
+          var t = dict[code + ' ' + chapter + ' ' + n];
+          if (!t) { ok = false; break; }
+          parts.push(t);
+        }
+        if (ok) setCardText(card, parts.join(' '), VERSION);
+        return;
+      }
+      if (window.BibleApiTranslations && window.BibleApiTranslations.fetchPassageText) {
+        window.BibleApiTranslations.fetchPassageText(code, chapter, from, to).then(function (text) {
+          if (text) { setCardText(card, text, VERSION); refreshStored(div); }
+          else showApiNotice();
+        }).catch(function () { showApiNotice(); });
+      } else {
+        showApiNotice();
+      }
+    });
+  }
+
   function renderMsg(who, html) {
     var div = document.createElement('div');
     div.className = 'msg ' + who;
@@ -277,6 +346,7 @@
     thread.appendChild(div);
     div.scrollIntoView({ block: 'end', behavior: 'smooth' });
     wireChips(div);
+    applyVersion(div);
     return div;
   }
   function setChips(chips) {

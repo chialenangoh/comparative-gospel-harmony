@@ -86,7 +86,7 @@
   }
 
   async function fetchChapter(siteCode, chapter) {
-    const url = 'https://api.scripture.api.bible.com/v1/bibles/' + bibleId + '/chapters/' + apiChapterId(siteCode, chapter) +
+    const url = 'https://api.scripture.api.bible/v1/bibles/' + bibleId + '/chapters/' + apiChapterId(siteCode, chapter) +
       '?content-type=json&include-notes=false&include-titles=false&include-chapter-numbers=false&include-verse-numbers=false&include-verse-spans=false';
     const res = await fetch(url, { headers: { 'api-key': API_KEY } });
     if (!res.ok) throw new Error('API.Bible HTTP ' + res.status);
@@ -214,5 +214,34 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 
-  window.BibleApiTranslations = { code, parseChapter, BOOK_FIX };
+  /* ---------- single-passage plain-text fetch (chat.html verse cards) ----------
+     Same bible, same key, same 13-day on-device cache rule as chapters.
+     Resolves to the passage text, or null when the API cannot supply it
+     (the caller then keeps its KJV text and shows the picker notice). */
+  const PASSAGE_CACHE_PREFIX = 'gh-apibible-passage-' + code + '-' + bibleId + '-';
+  async function fetchPassageText(siteCode, chapter, from, to) {
+    const last = to && to !== from ? to : from;
+    const passageId = apiChapterId(siteCode, chapter) + '.' + from +
+      (last !== from ? '-' + apiChapterId(siteCode, chapter) + '.' + last : '');
+    try {
+      const raw = localStorage.getItem(PASSAGE_CACHE_PREFIX + passageId);
+      if (raw) {
+        const entry = JSON.parse(raw);
+        if (entry && typeof entry.t === 'number' && typeof entry.text === 'string' && Date.now() - entry.t <= TTL_MS) return entry.text;
+        localStorage.removeItem(PASSAGE_CACHE_PREFIX + passageId);
+      }
+    } catch {}
+    const url = 'https://api.scripture.api.bible/v1/bibles/' + bibleId + '/passages/' + passageId +
+      '?content-type=text&include-verse-numbers=false';
+    const res = await fetch(url, { headers: { 'api-key': API_KEY } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const text = json && json.data && typeof json.data.content === 'string'
+      ? json.data.content.replace(/\s+/g, ' ').trim() : '';
+    if (!text) return null;
+    try { localStorage.setItem(PASSAGE_CACHE_PREFIX + passageId, JSON.stringify({ t: Date.now(), text })); } catch {}
+    return text;
+  }
+
+  window.BibleApiTranslations = { code, parseChapter, BOOK_FIX, fetchPassageText };
 })();
