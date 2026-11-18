@@ -34,6 +34,8 @@
     const item = chapters[selected];
     const key = `${item.book.code} ${item.chapter}`;
     const entry = henry[key];
+    if (!entry) { els.henryCommentary.hidden = true; els.henryCommentary.innerHTML = ''; renderCalvin(activeVerse); return; }
+    els.henryCommentary.hidden = false;
     els.henryCommentary.innerHTML = `<div class="nt-author">Matthew Henry <small>Concise Commentary</small></div>` + entry.sections.map((part) => `<details class="nt-section" ${part.from <= activeVerse && activeVerse <= part.to ? 'open' : ''}><summary>${esc(item.book.book)} ${item.chapter}:${esc(part.heading.replace(/^Verses? /, ''))}</summary><p>${esc(part.text)}</p></details>`).join('');
     renderCalvin(activeVerse);
   }

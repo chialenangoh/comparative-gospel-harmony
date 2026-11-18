@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <meta name="description" content="All 66 books of the Bible: tap a book, choose a chapter, and read the whole chapter in the version you choose — with Listen to the Bible on every chapter.">
+  <title>Bible Books | Gospel Harmony</title>
+  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="nt.css?v=10">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Comparative Gospel Harmony">
+  <meta property="og:title" content="Bible Books — All 66 Books, Chapter by Chapter">
+  <meta property="og:description" content="Tap a book, choose a chapter, read or listen to the whole chapter in your version.">
+  <meta property="og:url" content="https://comparative-gospel-harmony.onrender.com/bible.html">
+  <meta property="og:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+<style>
+/* Header dropdown menu: one Menu panel for the whole app */
+.hdr-menu{position:relative}
+.hdr-menu-btn{cursor:pointer;font:inherit;background:#e3c57e;color:#101f33;border:1px solid #e3c57e;font-weight:800;padding:.45rem .8rem;border-radius:.45rem}.hdr-menu-btn:hover,.hdr-menu-btn:focus-visible{background:#ffe2a1;color:#101f33}
+.hdr-menu-panel{position:absolute;right:0;top:calc(100% + 10px);width:272px;max-width:86vw;background:#fff;color:#10243f;border:1px solid #b9c8d7;border-radius:14px;box-shadow:0 16px 38px rgba(16,36,63,.28);padding:10px;z-index:1300;text-align:left}
+.hdr-menu-item{display:block;padding:10px 12px;border-radius:9px;color:#10243f;text-decoration:none;font-weight:700;font-size:.98rem}
+.hdr-menu-item:hover,.hdr-menu-item:focus-visible{background:#eef2f7;outline:none}
+.bible-wrap{max-width:56rem;margin:0 auto;padding:104px 16px 48px}
+.bible-wrap h1{font:700 1.9rem/1.25 Georgia,serif;color:#10243f;margin:6px 0 8px}
+.bible-wrap h2{font:700 1.25rem/1.3 Georgia,serif;color:#10243f;margin:26px 0 10px}
+.bible-search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #b9c8d7;border-radius:10px;padding:.55rem .8rem;max-width:26rem;margin:14px 0 4px}
+.bible-search input{border:0;outline:0;font:inherit;flex:1;background:transparent;color:#10243f}
+.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.book-item{cursor:pointer;font:inherit;text-align:left;background:#fff;border:1px solid #b9c8d7;border-radius:12px;padding:12px 14px;color:#10243f}
+.book-item:hover,.book-item:focus-visible{border-color:#c9a227;background:#fdf8ea;outline:none}
+.book-item .book-name{display:block;font-weight:800;font-size:1.02rem}
+.book-item .book-chs{display:block;font-size:.82rem;color:#4e5a6e;margin-top:2px}
+.bible-back{cursor:pointer;font:inherit;font-weight:700;background:#10243f;color:#fff;border:1px solid #10243f;border-radius:10px;padding:.5rem 1rem;margin-bottom:6px}
+.chapter-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chapter-chip{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:46px;padding:0 8px;background:#fff;border:1px solid #b9c8d7;border-radius:10px;color:#10243f;text-decoration:none;font-weight:700}
+.chapter-chip:hover,.chapter-chip:focus-visible{border-color:#c9a227;background:#fdf8ea}
+</style>
+</head>
+<body>
+  <header class="topbar"><a class="hdr-back" href="index.html" aria-label="Back to main menu">←</a>
+    <div class="brand">
+      <img class="mark-img" src="logo.svg" alt="Comparative Gospel Harmony logo" width="42" height="42">
+    </div>
+    <form class="hdr-search" action="search.html" method="get" role="search"><input type="search" name="q" placeholder="Search Scriptures…" aria-label="Search Scriptures"><button type="submit" aria-label="Search"><span class="hdr-search-label">Search</span><span class="hdr-search-icon" aria-hidden="true">🔍</span></button></form>
+    <div class="nt-top-links"><a class="top-link" href="old-testament.html">Old Testament</a><a class="top-link" href="new-testament.html">New Testament</a></div>
+    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="index.html">🏠 Gospels</a><a class="hdr-menu-item" href="bible.html">📚 Bible Books</a><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 New Testament</a></div></div></div>
+  </header>
+  <script>
+  (function(){var b=document.getElementById('hdrMenuBtn'),p=document.getElementById('hdrMenuPanel');if(!b||!p)return;function close(){p.hidden=true;b.setAttribute('aria-expanded','false')}b.addEventListener('click',function(e){e.stopPropagation();var willOpen=p.hidden;p.hidden=!willOpen;b.setAttribute('aria-expanded',String(willOpen))});p.addEventListener('click',function(e){if(e.target.closest('a'))close()});document.addEventListener('click',function(e){if(!p.hidden&&!p.contains(e.target))close()});document.addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();
+  </script>
+  <main class="bible-wrap">
+    <div class="event-kicker">The Whole Bible</div>
+    <h1>Bible Books</h1>
+    <p class="event-summary">All 66 books of the Bible. Tap a book to see its chapters, then tap a chapter to read the whole chapter — in the version you choose, with <strong>Listen to the Bible</strong> on every chapter.</p>
+    <label class="bible-search"><span aria-hidden="true">⌕</span><input id="bookSearch" type="search" placeholder="Find a book" autocomplete="off"></label>
+    <section id="booksView">
+      <h2>Old Testament · 39 books</h2>
+      <div class="book-grid" id="otBooks"></div>
+      <h2>New Testament · 27 books</h2>
+      <div class="book-grid" id="ntBooks"></div>
+      <div class="empty-list" id="noBooks" hidden>No matching book.</div>
+    </section>
+    <section id="chaptersView" hidden>
+      <button type="button" class="bible-back" id="backToBooks">← All books</button>
+      <h2 id="bookName"></h2>
+      <p class="event-summary" id="bookMeta"></p>
+      <div class="chapter-grid" id="chapterGrid"></div>
+    </section>
+  </main>
+  <script src="ot-books.js?v=16"></script>
+  <script src="nt-books.js?v=11"></script>
+  <script src="pwa.js?v=1"></script>
+  <script>
+  (function () {
+    'use strict';
+    var OT = (window.OT_BOOKS || []).map(function (b) { return { name: b.book, code: b.code, chapters: b.chapters.length, page: 'old-testament.html' }; });
+    var NT = (window.NT_BOOKS || []).map(function (b) { return { name: b.book, code: b.code, chapters: b.chapters.length, page: 'new-testament.html' }; });
+    var ALL = OT.concat(NT);
+    var booksView = document.getElementById('booksView');
+    var chaptersView = document.getElementById('chaptersView');
+    var otBox = document.getElementById('otBooks');
+    var ntBox = document.getElementById('ntBooks');
+    var noBooks = document.getElementById('noBooks');
+    var search = document.getElementById('bookSearch');
+
+    function bookButton(b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'book-item';
+      btn.dataset.code = b.code;
+      btn.innerHTML = '<span class="book-name"></span><span class="book-chs"></span>';
+      btn.querySelector('.book-name').textContent = b.name;
+      btn.querySelector('.book-chs').textContent = b.chapters + (b.chapters === 1 ? ' chapter' : ' chapters');
+      btn.addEventListener('click', function () { showChapters(b); });
+      return btn;
+    }
+    function renderBooks(filter) {
+      var q = (filter || '').trim().toLowerCase();
+      otBox.innerHTML = ''; ntBox.innerHTML = '';
+      var shown = 0;
+      OT.forEach(function (b) { if (!q || b.name.toLowerCase().includes(q)) { otBox.appendChild(bookButton(b)); shown++; } });
+      NT.forEach(function (b) { if (!q || b.name.toLowerCase().includes(q)) { ntBox.appendChild(bookButton(b)); shown++; } });
+      otBox.previousElementSibling.hidden = !otBox.children.length;
+      ntBox.previousElementSibling.hidden = !ntBox.children.length;
+      noBooks.hidden = shown > 0;
+    }
+    function showChapters(b) {
+      document.getElementById('bookName').textContent = b.name;
+      document.getElementById('bookMeta').textContent = b.chapters + (b.chapters === 1 ? ' chapter' : ' chapters') + ' — tap a chapter to open it. On the chapter page you can choose your Bible version and press Listen to hear it read aloud.';
+      var grid = document.getElementById('chapterGrid');
+      grid.innerHTML = '';
+      for (var c = 1; c <= b.chapters; c++) {
+        var a = document.createElement('a');
+        a.className = 'chapter-chip';
+        a.href = b.page + '#' + b.code + '-' + c;
+        a.textContent = c;
+        a.setAttribute('aria-label', b.name + ' chapter ' + c);
+        grid.appendChild(a);
+      }
+      booksView.hidden = true;
+      chaptersView.hidden = false;
+      try { history.replaceState(null, '', '#' + b.code); } catch (e) {}
+      window.scrollTo({ top: 0 });
+    }
+    function showBooks() {
+      chaptersView.hidden = true;
+      booksView.hidden = false;
+      try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      window.scrollTo({ top: 0 });
+    }
+    document.getElementById('backToBooks').addEventListener('click', showBooks);
+    search.addEventListener('input', function () {
+      if (chaptersView.hidden === false) showBooks();
+      renderBooks(search.value);
+    });
+    renderBooks('');
+    var start = (location.hash || '').slice(1);
+    if (start) {
+      for (var i = 0; i < ALL.length; i++) if (ALL[i].code === start) { showChapters(ALL[i]); break; }
+    }
+  })();
+  </script>
+</body>
+</html>
