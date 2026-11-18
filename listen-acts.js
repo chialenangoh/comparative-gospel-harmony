@@ -127,6 +127,8 @@
       var clone = nodes[i].cloneNode(true);
       var num = clone.querySelector('.verse-number');
       if (num) num.remove();
+      var fn = clone.querySelectorAll('.footnote-open');
+      for (var j = 0; j < fn.length; j++) fn[j].remove();
       var text = (clone.textContent || '').replace(/\s+/g, ' ').trim();
       if (text) state.verses.push({ el: nodes[i], text: text });
     }

@@ -86,6 +86,8 @@
     var clone = el.cloneNode(true);
     var num = clone.querySelector('.verse-number');
     if (num) num.remove();
+    var fn = clone.querySelectorAll('.footnote-open');
+    for (var i = 0; i < fn.length; i++) fn[i].remove();
     return (clone.textContent || '').replace(/\s+/g, ' ').trim();
   }
 
@@ -350,9 +352,9 @@
       clearHighlight();
       doneEl.hidden = false;
       if (page === 'old-testament.html') {
-        doneEl.innerHTML = 'You have finished the Old Testament. <a href="new-testament.html#ACT-1">Continue into the New Testament →</a>';
+        doneEl.innerHTML = 'You have finished the Old Testament. <a href="new-testament.html#MAT-1">Continue into the New Testament →</a>';
       } else {
-        doneEl.textContent = 'You have finished the New Testament. 🎉 The four Gospels are in the Harmony reader, with their own Listen buttons.';
+        doneEl.textContent = '🎉 You have finished the New Testament.';
       }
       updateUI();
       savePosition();
