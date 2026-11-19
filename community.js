@@ -24,6 +24,9 @@
   var amenCount = {};     // activity_id -> count
   var commentCount = {};  // activity_id -> count
   var openThreads = {};   // activity_id -> true when comments are open
+  var blockedIds = [];    // user_ids I have blocked (their content is hidden from me)
+  var reportedActs = {};  // activity_id -> true when I reported it (hidden from my feed)
+  var isAdmin = false;    // moderators see the moderation queue and hidden posts
 
   /* ------------------------------------------------ helpers */
 
@@ -138,6 +141,8 @@
         '<div id="findResults"></div>' +
         '<div id="followingBox"></div>' +
       '</div>' +
+      '<div id="modBox"></div>' +
+      '<div id="blockedBox"></div>' +
       '<h2 class="comm-feedtitle">Your feed</h2>' +
       '<div id="feedBox"><p class="comm-note">Loading your feed…</p></div>';
 
@@ -150,6 +155,8 @@
       if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
     });
     renderFollowing();
+    renderBlocked();
+    if (isAdmin) renderModeration();
     loadFeed();
   }
 
@@ -211,14 +218,19 @@
       if (!rows.length) { box.innerHTML = '<p class="comm-note">No readers matched “' + esc(q) + '” yet. Invite a friend to create their account and profile, then search again.</p>'; return; }
       box.innerHTML = rows.map(function (p) {
         var on = followingIds.indexOf(p.user_id) !== -1;
+        var blocked = blockedIds.indexOf(p.user_id) !== -1;
         return '<div class="comm-person">' + avatarHtml(p) +
           '<div class="comm-person-main"><strong>' + esc(p.display_name) + '</strong> <span class="comm-user">@' + esc(p.username) + '</span></div>' +
           (on
             ? '<button type="button" class="comm-btn ghost" data-unfollow="' + p.user_id + '">Following ✓</button>'
             : '<button type="button" class="comm-btn" data-follow="' + p.user_id + '">Follow</button>') +
+          (blocked
+            ? '<button type="button" class="comm-btn ghost" data-unblock="' + p.user_id + '">Unblock</button>'
+            : '<button type="button" class="comm-btn ghost" data-block="' + p.user_id + '">Block</button>') +
           '</div>';
       }).join('');
       wireFollowButtons(box);
+      wireBlockButtons(box);
     });
   }
 
@@ -254,6 +266,130 @@
     if (q && q.value.trim().length >= 2) runSearch();
   }
 
+  /* ------------------------------------------------ safety: block / report / moderation */
+
+  function wireBlockButtons(scope) {
+    scope.querySelectorAll('[data-block]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-block');
+        var p = profileOf(id);
+        if (!window.confirm('Block ' + (p.display_name || 'this reader') + '? You will no longer see their posts or comments.')) return;
+        b.disabled = true;
+        A.rest('POST', 'blocks', { blocker_id: me, blocked_id: id }).then(function () {
+          if (blockedIds.indexOf(id) === -1) blockedIds.push(id);
+          followingIds = followingIds.filter(function (x) { return x !== id; });
+          renderFollowing();
+          renderBlocked();
+          runSearchRefresh();
+          loadFeed();
+        }).catch(function () { b.disabled = false; });
+      });
+    });
+    scope.querySelectorAll('[data-unblock]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-unblock');
+        b.disabled = true;
+        A.rest('DELETE', 'blocks?blocker_id=eq.' + me + '&blocked_id=eq.' + id).then(function () {
+          blockedIds = blockedIds.filter(function (x) { return x !== id; });
+          renderBlocked();
+          runSearchRefresh();
+          loadFeed();
+        }).catch(function () { b.disabled = false; });
+      });
+    });
+  }
+
+  function renderBlocked() {
+    var box = document.getElementById('blockedBox');
+    if (!box) return;
+    if (!blockedIds.length) { box.innerHTML = ''; return; }
+    fetchProfiles(blockedIds).then(function () {
+      box.innerHTML = '<div class="comm-card"><h3>Blocked readers</h3>' +
+        '<p class="comm-note">You do not see posts or comments from readers you block.</p>' +
+        blockedIds.map(function (id) {
+          var p = profileOf(id);
+          return '<div class="comm-person">' + avatarHtml(p) +
+            '<div class="comm-person-main"><strong>' + esc(p.display_name) + '</strong> <span class="comm-user">@' + esc(p.username) + '</span></div>' +
+            '<button type="button" class="comm-btn ghost" data-unblock="' + id + '">Unblock</button></div>';
+        }).join('') + '</div>';
+      wireBlockButtons(box);
+    });
+  }
+
+  function reportActivity(id, btn) {
+    if (!window.confirm('Report this post to the moderators? It will be hidden from your feed while it is reviewed.')) return;
+    btn.disabled = true;
+    A.rest('POST', 'reports', { reporter_id: me, activity_id: id, reason: 'Reported from the community feed' })
+      .then(function () {
+        reportedActs[id] = true;
+        feedItems = feedItems.filter(function (x) { return x.id !== id; });
+        renderFeed();
+      })
+      .catch(function () { btn.disabled = false; });
+  }
+
+  function renderModeration() {
+    var box = document.getElementById('modBox');
+    if (!box) return;
+    A.rest('GET', 'reports?select=id,reporter_id,activity_id,comment_id,reason,created_at&status=eq.open&order=created_at.desc&limit=50')
+      .then(function (rows) {
+        rows = rows || [];
+        if (!rows.length) {
+          box.innerHTML = '<div class="comm-card"><h3>🛡 Moderation</h3><p class="comm-note">No open reports. Thank you for keeping this community safe.</p></div>';
+          return;
+        }
+        var jobs = rows.map(function (r) {
+          if (r.activity_id) {
+            return A.rest('GET', 'activities?select=id,user_id,type,ref,payload&id=eq.' + r.activity_id)
+              .then(function (a) { r._content = a && a[0] ? activityText(a[0]) : '(post no longer visible)'; r._author = a && a[0] ? a[0].user_id : null; })
+              .catch(function () { r._content = '(post no longer visible)'; });
+          }
+          return A.rest('GET', 'comments?select=id,user_id,body&id=eq.' + r.comment_id)
+            .then(function (c) { r._content = c && c[0] ? esc(c[0].body) : '(comment no longer visible)'; r._author = c && c[0] ? c[0].user_id : null; })
+            .catch(function () { r._content = '(comment no longer visible)'; });
+        });
+        return Promise.all(jobs).then(function () {
+          return fetchProfiles(rows.map(function (r) { return r._author; }).concat(rows.map(function (r) { return r.reporter_id; })));
+        }).then(function () {
+          box.innerHTML = '<div class="comm-card"><h3>🛡 Moderation — open reports (' + rows.length + ')</h3>' +
+            rows.map(function (r) {
+              var author = r._author ? profileOf(r._author) : null;
+              var reporter = profileOf(r.reporter_id);
+              return '<div class="comm-person"><div class="comm-person-main">' +
+                '<strong>' + (author ? esc(author.display_name) + ' <span class="comm-user">@' + esc(author.username) + '</span>' : 'Unknown author') + '</strong>' +
+                '<div class="comm-body">' + (r._content || '') + '</div>' +
+                '<div class="comm-time">Reported by ' + esc(reporter.display_name) + ' · ' + esc(timeAgo(r.created_at)) + (r.reason ? ' · ' + esc(r.reason) : '') + '</div></div>' +
+                '<button type="button" class="comm-btn" data-modremove="' + r.id + '">Remove content</button>' +
+                '<button type="button" class="comm-btn ghost" data-moddismiss="' + r.id + '">Dismiss</button></div>';
+            }).join('') + '</div>';
+          box.querySelectorAll('[data-modremove]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              var r = rows.filter(function (x) { return x.id === b.getAttribute('data-modremove'); })[0];
+              if (!r) return;
+              b.disabled = true;
+              var hide = r.activity_id
+                ? A.rest('PATCH', 'activities?id=eq.' + r.activity_id, { hidden: true })
+                : A.rest('PATCH', 'comments?id=eq.' + r.comment_id, { hidden: true });
+              hide.then(function () {
+                return A.rest('PATCH', 'reports?id=eq.' + r.id, { status: 'actioned' });
+              }).then(function () { renderModeration(); loadFeed(); })
+                .catch(function () { b.disabled = false; });
+            });
+          });
+          box.querySelectorAll('[data-moddismiss]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              var rid = b.getAttribute('data-moddismiss');
+              b.disabled = true;
+              A.rest('PATCH', 'reports?id=eq.' + rid, { status: 'dismissed' })
+                .then(function () { renderModeration(); })
+                .catch(function () { b.disabled = false; });
+            });
+          });
+        });
+      })
+      .catch(function () { box.innerHTML = ''; });
+  }
+
   /* ------------------------------------------------ feed */
 
   function activityText(it) {
@@ -284,9 +420,14 @@
     var filter = followingIds.length
       ? 'or=(user_id.eq.' + me + ',user_id.in.(' + followingIds.join(',') + '))'
       : 'user_id=eq.' + me;
-    A.rest('GET', 'activities?select=id,user_id,type,ref,payload,created_at&' + filter + '&order=created_at.desc&limit=60')
+    A.rest('GET', 'activities?select=id,user_id,type,ref,payload,created_at,hidden&' + filter + '&order=created_at.desc&limit=60')
       .then(function (rows) {
-        feedItems = rows || [];
+        feedItems = (rows || []).filter(function (it) {
+          if (blockedIds.indexOf(it.user_id) !== -1) return false;
+          if (reportedActs[it.id]) return false;
+          if (it.hidden && !isAdmin) return false;
+          return true;
+        });
         var authorIds = feedItems.map(function (i) { return i.user_id; });
         var actIds = feedItems.map(function (i) { return i.id; });
         var jobs = [fetchProfiles(authorIds)];
@@ -330,9 +471,13 @@
           (mine ? '<button type="button" class="comm-del" data-del="' + it.id + '" aria-label="Delete this post">✕</button>' : '') +
         '</div>' +
         '<p class="comm-body">' + activityText(it) + '</p>' +
+        (it.hidden ? '<p class="comm-modtag">Hidden by moderation — only moderators see this post.</p>' : '') +
         '<div class="comm-actions">' +
           '<button type="button" class="comm-amen' + (amenMine[it.id] ? ' on' : '') + '" data-amen="' + it.id + '">🙏 Amen' + (amenCount[it.id] ? ' · ' + amenCount[it.id] : '') + '</button>' +
           '<button type="button" class="comm-cbtn" data-comments="' + it.id + '">💬 Comments' + (commentCount[it.id] ? ' · ' + commentCount[it.id] : '') + '</button>' +
+          (mine ? '' :
+            '<button type="button" class="comm-cbtn" data-report="' + it.id + '">🚩 Report</button>' +
+            '<button type="button" class="comm-cbtn" data-block="' + it.user_id + '">Block</button>') +
         '</div>' +
         '<div class="comm-thread" id="thread-' + it.id + '" hidden></div>' +
       '</article>';
@@ -344,6 +489,10 @@
     box.querySelectorAll('[data-comments]').forEach(function (b) {
       b.addEventListener('click', function () { toggleThread(b.getAttribute('data-comments')); });
     });
+    box.querySelectorAll('[data-report]').forEach(function (b) {
+      b.addEventListener('click', function () { reportActivity(b.getAttribute('data-report'), b); });
+    });
+    wireBlockButtons(box);
     box.querySelectorAll('[data-del]').forEach(function (b) {
       b.addEventListener('click', function () {
         var id = b.getAttribute('data-del');
@@ -379,20 +528,41 @@
     el.hidden = false;
     openThreads[id] = true;
     el.innerHTML = '<p class="comm-note">Loading comments…</p>';
-    A.rest('GET', 'comments?select=id,user_id,body,created_at&activity_id=eq.' + id + '&order=created_at.asc')
+    A.rest('GET', 'comments?select=id,user_id,body,created_at,hidden&activity_id=eq.' + id + '&order=created_at.asc')
       .then(function (rows) {
-        return fetchProfiles((rows || []).map(function (r) { return r.user_id; })).then(function () { return rows || []; });
+        rows = (rows || []).filter(function (c) {
+          if (blockedIds.indexOf(c.user_id) !== -1) return false;
+          if (c.hidden && !isAdmin) return false;
+          return true;
+        });
+        return fetchProfiles(rows.map(function (r) { return r.user_id; })).then(function () { return rows; });
       })
       .then(function (rows) {
         var list = rows.map(function (c) {
           var p = profileOf(c.user_id);
           return '<div class="comm-comment">' + avatarHtml(p) +
             '<div><strong>' + esc(p.display_name) + '</strong> <span class="comm-time">' + esc(timeAgo(c.created_at)) + '</span>' +
-            '<div>' + esc(c.body) + '</div></div></div>';
+            (c.hidden ? ' <span class="comm-modtag">Hidden by moderation</span>' : '') +
+            '<div>' + esc(c.body) + '</div>' +
+            (c.user_id === me ? '' : '<button type="button" class="comm-reportlink" data-creport="' + c.id + '">Report</button>') +
+            '</div></div>';
         }).join('');
         el.innerHTML = (list || '<p class="comm-note">No comments yet — be the first to encourage.</p>') +
           '<div class="comm-addcomment"><input class="comm-input" id="ci-' + id + '" type="text" maxlength="300" placeholder="Write an encouraging comment…">' +
           '<button type="button" class="comm-btn" data-send="' + id + '">Post</button></div>';
+        el.querySelectorAll('[data-creport]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            if (!window.confirm('Report this comment to the moderators? It will be hidden from your view while it is reviewed.')) return;
+            var cid = b.getAttribute('data-creport');
+            b.disabled = true;
+            A.rest('POST', 'reports', { reporter_id: me, comment_id: cid, reason: 'Reported from the community comments' })
+              .then(function () {
+                var row = b.closest('.comm-comment');
+                if (row) row.style.display = 'none';
+              })
+              .catch(function () { b.disabled = false; });
+          });
+        });
         var send = el.querySelector('[data-send]');
         send.addEventListener('click', function () {
           var input = document.getElementById('ci-' + id);
@@ -419,12 +589,19 @@
       myProfile = p;
       if (!p) { renderProfileSetup(); return; }
       profilesById[p.user_id] = p;
-      return A.rest('GET', 'follows?select=followee_id&follower_id=eq.' + me)
-        .then(function (rows) {
-          followingIds = (rows || []).map(function (r) { return r.followee_id; });
-          renderMain();
-        })
-        .catch(function () { renderMain(); });
+      isAdmin = !!p.is_admin;
+      var jobs = [
+        A.rest('GET', 'follows?select=followee_id&follower_id=eq.' + me)
+          .then(function (rows) { followingIds = (rows || []).map(function (r) { return r.followee_id; }); })
+          .catch(function () {}),
+        A.rest('GET', 'blocks?select=blocked_id&blocker_id=eq.' + me)
+          .then(function (rows) { blockedIds = (rows || []).map(function (r) { return r.blocked_id; }); })
+          .catch(function () {}),
+        A.rest('GET', 'reports?select=activity_id&reporter_id=eq.' + me + '&activity_id=not.is.null')
+          .then(function (rows) { (rows || []).forEach(function (r) { reportedActs[r.activity_id] = true; }); })
+          .catch(function () {})
+      ];
+      return Promise.all(jobs).then(renderMain).catch(renderMain);
     });
   }
 

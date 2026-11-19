@@ -59,7 +59,7 @@
     var s = session();
     if (!s) return Promise.resolve(null);
     if (profileCache !== undefined && !force) return Promise.resolve(profileCache);
-    return rest('GET', 'profiles?select=user_id,username,display_name&user_id=eq.' + s.user.id)
+    return rest('GET', 'profiles?select=user_id,username,display_name,is_admin&user_id=eq.' + s.user.id)
       .then(function (rows) {
         profileCache = rows && rows[0] ? rows[0] : null;
         return profileCache;
