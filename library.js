@@ -84,7 +84,8 @@
       '<a href="journey.html">🕊 30-Day Journey</a>' +
       '<a href="listen.html">🎧 Listen</a>' +
       '<a href="advent.html">🕯 Advent</a>' +
-      '<a href="community.html">🤝 Community</a>';
+      '<a href="community.html">🤝 Community</a>' +
+      '<a href="prayer.html">🙏 Prayer List</a>';
     var votd = document.getElementById('votdCard');
     if (votd && votd.parentNode === root) root.insertBefore(row, votd.nextSibling);
     else root.insertBefore(row, root.firstChild);
