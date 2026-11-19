@@ -105,9 +105,13 @@
 
 @media (max-width: 900px) {
   .topbar { display: none; }
-  .app-shell { padding-top: 54px; }
-  .app-shell.has-strip { padding-top: calc(54px + 39px + 14px); }
-  body .watch-film-strip { top: 54px !important; }
+  /* Tight stack (owner: "close the empty gap", 2026-11-19): greeting bar
+     (54px + notch inset) -> film strip (39px) -> content, ~6px apart. */
+  .app-shell { padding-top: calc(54px + env(safe-area-inset-top, 0px)) !important; }
+  .app-shell.has-strip { padding-top: calc(54px + env(safe-area-inset-top, 0px) + 39px + 6px) !important; }
+  body .watch-film-strip { top: calc(54px + env(safe-area-inset-top, 0px)) !important; }
+  .reader-inner { padding-top: .5rem; }
+  .reader-inner .votd-card { margin-top: 6px; }
   .sidebar { top: 54px !important; }
   .app-shell.has-strip .sidebar { top: calc(54px + 39px) !important; }
   .reader { scroll-margin-top: calc(54px + 39px + 14px); }
