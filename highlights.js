@@ -411,6 +411,7 @@
         var list2 = loadPage();
         list2.push(rec);
         savePage(list2);
+        if (window.GHActivity) GHActivity.post('highlight', null, { text: String(rec.text || '').slice(0, 180), color: color, page: location.pathname || '' });
         wrapOffsets(map, start, end, color, rec.id);
         try { window.getSelection().removeAllRanges(); } catch (e) { /* ignore */ }
       }

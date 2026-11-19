@@ -83,7 +83,8 @@
       '<a href="films.html">🎬 Films</a>' +
       '<a href="journey.html">🕊 30-Day Journey</a>' +
       '<a href="listen.html">🎧 Listen</a>' +
-      '<a href="advent.html">🕯 Advent</a>';
+      '<a href="advent.html">🕯 Advent</a>' +
+      '<a href="community.html">🤝 Community</a>';
     var votd = document.getElementById('votdCard');
     if (votd && votd.parentNode === root) root.insertBefore(row, votd.nextSibling);
     else root.insertBefore(row, root.firstChild);
@@ -121,6 +122,7 @@
         state.items[n] = it;
         saveLocal(state);
         cloudPush();
+        if (it.on && window.GHActivity) GHActivity.post('bookmark', 'Event ' + n, { event: n, title: it.title || '' });
         renderBookmarkBtn();
         refreshCount();
       });
