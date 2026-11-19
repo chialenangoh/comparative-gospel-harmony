@@ -91,3 +91,120 @@
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(16, 36, 63, .06);
 }
+
+/* ---------- Greeting bar + More sheet (phones) ----------
+   Owner direction 2026-11-19: since More now carries everything the
+   top menu held, the classic top menu is retired on phones and the
+   greeting bar takes its place — "Good Morning, <name>", the reader's
+   day streak, and a notifications bell, in the Bible-app style. */
+.gh-greet, .gh-sheet, .gh-sheet-backdrop { display: none; }
+
+/* With the welcome hero gone, the shell itself carries the offset that
+   clears the fixed header + film strip. */
+.app-shell.has-strip { padding-top: calc(4.5rem + 39px + 14px); }
+
+@media (max-width: 900px) {
+  .topbar { display: none; }
+  .app-shell { padding-top: 54px; }
+  .app-shell.has-strip { padding-top: calc(54px + 39px + 14px); }
+  body .watch-film-strip { top: 54px !important; }
+  .sidebar { top: 54px !important; }
+  .app-shell.has-strip .sidebar { top: calc(54px + 39px) !important; }
+  .reader { scroll-margin-top: calc(54px + 39px + 14px); }
+
+  .gh-greet {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: calc(54px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 14px 0;
+    background: #10243f;
+    color: #fff;
+    z-index: 80;
+    box-shadow: 0 2px 10px rgba(16, 36, 63, .25);
+  }
+  .gh-greet-hi { font-size: 1.07rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gh-greet-acts { display: flex; align-items: center; gap: 15px; flex: none; }
+  .gh-greet-search { font-size: 1.02rem; text-decoration: none; }
+  .gh-streak { font-size: .98rem; font-weight: 700; color: #fff; }
+  .gh-bell { background: none; border: 0; font-size: 1.14rem; cursor: pointer; padding: 4px 2px; color: #fff; }
+  .gh-bell-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 10px;
+    width: 272px;
+    max-width: 86vw;
+    background: #fff;
+    color: #10243f;
+    border: 1px solid #b9c8d7;
+    border-radius: 14px;
+    box-shadow: 0 16px 38px rgba(16, 36, 63, .28);
+    padding: 14px 16px;
+    z-index: 90;
+    text-align: left;
+  }
+  .gh-bell-panel[hidden] { display: none; }
+  .gh-bell-title { font-weight: 800; margin-bottom: 6px; }
+  .gh-bell-panel p { margin: 0 0 8px; color: #33475e; font-size: .94rem; }
+  .gh-bell-panel a { color: #10243f; font-weight: 700; font-size: .94rem; }
+
+  .gh-sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 22, 38, .45);
+    z-index: 110;
+  }
+  .gh-sheet-backdrop[hidden] { display: none; }
+  .gh-sheet {
+    display: block;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 120;
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 34px rgba(16, 36, 63, .3);
+    padding: 8px 10px calc(14px + env(safe-area-inset-bottom, 0px));
+    max-height: 78vh;
+    overflow: auto;
+  }
+  .gh-sheet[hidden] { display: none; }
+  .gh-sheet-grip { width: 40px; height: 4px; border-radius: 2px; background: #c9d4e0; margin: 4px auto 8px; }
+  .gh-sheet a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: #10243f;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .gh-sheet a:hover, .gh-sheet a:focus-visible { background: #eef2f7; }
+  .gh-sheet-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid #e3eaf2;
+    margin-top: 4px;
+    font-weight: 600;
+    color: #33475e;
+    font-size: .95rem;
+  }
+  .gh-sheet-textbtns { display: inline-flex; gap: 6px; }
+  .gh-sheet-textbtns button {
+    font: inherit;
+    font-weight: 700;
+    color: #10243f;
+    background: #fff;
+    border: 1px solid rgba(16, 36, 63, .4);
+    border-radius: .45rem;
+    min-width: 2.4rem;
+    padding: .3rem .5rem;
+    cursor: pointer;
+  }
+}
