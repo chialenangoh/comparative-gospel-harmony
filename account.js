@@ -40,7 +40,13 @@
     '.acct-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}',
     '.acct-status{font-size:.87rem;margin-top:11px;min-height:1.2em;color:#33475e}',
     '.acct-status.err{color:#b03a2e}',
-    '.acct-link{background:none;border:none;color:#10243f;text-decoration:underline;cursor:pointer;font-size:.86rem;padding:0}'
+    '.acct-link{background:none;border:none;color:#10243f;text-decoration:underline;cursor:pointer;font-size:.86rem;padding:0}',
+    '.acct-viewer{position:fixed;inset:0;z-index:2000;background:rgba(10,20,36,.92);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}',
+    '.acct-viewer img{max-width:92vw;max-height:82vh;border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.5);will-change:transform;user-select:none;-webkit-user-drag:none}',
+    '.acct-viewer-bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;justify-content:center;align-items:center;padding:14px 12px calc(14px + env(safe-area-inset-bottom))}',
+    '.acct-viewer-bar button{min-width:48px;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font-weight:800;font-size:1rem;cursor:pointer}',
+    '.acct-viewer-close{position:absolute;top:calc(10px + env(safe-area-inset-top));right:12px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font-size:1.15rem;font-weight:800;cursor:pointer}',
+    '.acct-viewer-hint{position:absolute;top:calc(16px + env(safe-area-inset-top));left:0;right:0;text-align:center;color:rgba(255,255,255,.75);font-size:.85rem;pointer-events:none}'
   ].join('\n');
 
   /* ---------- local progress ---------- */
@@ -144,6 +150,12 @@
       photo.addEventListener('click', function () { file.click(); });
       menu.appendChild(photo); menu.appendChild(file);
       if (avUrl) {
+        var view = document.createElement('button');
+        view.type = 'button'; view.className = 'acct-btn ghost'; view.textContent = '🔍 View photo';
+        view.addEventListener('click', function () { menu.hidden = true; openPhotoViewer(avUrl); });
+        menu.appendChild(view);
+      }
+      if (avUrl) {
         var rm = document.createElement('button');
         rm.type = 'button'; rm.className = 'acct-btn ghost'; rm.textContent = 'Remove photo';
         rm.addEventListener('click', function () { menu.hidden = true; removeAvatar(); });
@@ -170,6 +182,81 @@
       upB.addEventListener('click', function () { openDialog(); });
       bar.appendChild(span); bar.appendChild(inB); bar.appendChild(upB);
     }
+  }
+
+  /* ---------- Profile photo viewer (tap the photo, then pinch / scroll to zoom) ---------- */
+  function openPhotoViewer(url) {
+    var old = document.querySelector('.acct-viewer');
+    if (old) old.remove();
+    var ov = document.createElement('div');
+    ov.className = 'acct-viewer';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-label', 'Your profile photo — pinch or scroll to zoom');
+    var hint = document.createElement('div');
+    hint.className = 'acct-viewer-hint';
+    hint.textContent = 'Pinch or scroll to zoom · drag to move';
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = 'Your profile photo';
+    var close = document.createElement('button');
+    close.type = 'button'; close.className = 'acct-viewer-close'; close.textContent = '✕';
+    close.setAttribute('aria-label', 'Close photo viewer');
+    var bar = document.createElement('div');
+    bar.className = 'acct-viewer-bar';
+    var minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.setAttribute('aria-label', 'Zoom out');
+    var reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'Reset'; reset.setAttribute('aria-label', 'Reset zoom');
+    var plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.setAttribute('aria-label', 'Zoom in');
+    bar.appendChild(minus); bar.appendChild(reset); bar.appendChild(plus);
+    ov.appendChild(hint); ov.appendChild(img); ov.appendChild(close); ov.appendChild(bar);
+    document.body.appendChild(ov);
+
+    var scale = 1, tx = 0, ty = 0;
+    function apply() { img.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')'; }
+    function setScale(next, cx, cy) {
+      next = Math.min(4, Math.max(1, next));
+      if (next === 1) { tx = 0; ty = 0; }
+      scale = next; apply();
+    }
+    function done() { document.removeEventListener('keydown', onKey); ov.remove(); }
+    function onKey(e) { if (e.key === 'Escape') done(); }
+    document.addEventListener('keydown', onKey);
+    close.addEventListener('click', done);
+    ov.addEventListener('click', function (e) { if (e.target === ov) done(); });
+    plus.addEventListener('click', function () { setScale(scale * 1.3); });
+    minus.addEventListener('click', function () { setScale(scale / 1.3); });
+    reset.addEventListener('click', function () { setScale(1); });
+    ov.addEventListener('wheel', function (e) { e.preventDefault(); setScale(scale * (e.deltaY < 0 ? 1.12 : 0.89)); }, { passive: false });
+    img.addEventListener('dblclick', function () { setScale(scale > 1 ? 1 : 2.2); });
+
+    var pinch = null, drag = null;
+    ov.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) {
+        var dx = e.touches[0].clientX - e.touches[1].clientX;
+        var dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinch = { d: Math.hypot(dx, dy), s: scale };
+        drag = null;
+      } else if (e.touches.length === 1) {
+        drag = { x: e.touches[0].clientX - tx, y: e.touches[0].clientY - ty };
+      }
+    }, { passive: true });
+    ov.addEventListener('touchmove', function (e) {
+      if (pinch && e.touches.length === 2) {
+        e.preventDefault();
+        var dx = e.touches[0].clientX - e.touches[1].clientX;
+        var dy = e.touches[0].clientY - e.touches[1].clientY;
+        setScale(pinch.s * (Math.hypot(dx, dy) / pinch.d));
+      } else if (drag && e.touches.length === 1 && scale > 1) {
+        tx = e.touches[0].clientX - drag.x;
+        ty = e.touches[0].clientY - drag.y;
+        apply();
+      }
+    }, { passive: false });
+    ov.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinch = null; if (!e.touches.length) drag = null; });
+    var mdrag = null;
+    ov.addEventListener('mousedown', function (e) { if (scale > 1 && e.target === img) mdrag = { x: e.clientX - tx, y: e.clientY - ty }; });
+    ov.addEventListener('mousemove', function (e) { if (mdrag) { tx = e.clientX - mdrag.x; ty = e.clientY - mdrag.y; apply(); } });
+    ov.addEventListener('mouseup', function () { mdrag = null; });
+    apply();
   }
 
   /* ---------- Profile photo ---------- */
