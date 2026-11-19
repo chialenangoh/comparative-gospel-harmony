@@ -1,0 +1,93 @@
+/* App look — the YouVersion-inspired layer (owner request 2026-11-19):
+   app-style bottom tab bar on phones, a photo-card Verse of the Day, and
+   softer, rounder cards. Gospel Harmony keeps its navy + gold identity;
+   only the shapes, spacing and navigation borrow the Bible-app language.
+   Loaded after styles.css; rules are scoped to outrank the base styles
+   and verse-day.js's injected styles. */
+
+/* ---------- Bottom tab bar (phones & small tablets) ---------- */
+.gh-tabbar { display: none; }
+@media (max-width: 900px) {
+  .gh-tabbar {
+    display: flex;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 60;
+    background: rgba(255, 255, 255, .97);
+    border-top: 1px solid #dbe3ec;
+    box-shadow: 0 -4px 18px rgba(16, 36, 63, .08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .gh-tabbar a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 2px 7px;
+    color: #68798d;
+    text-decoration: none;
+    font-size: .66rem;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .gh-tabbar .gh-tab-ico { font-size: 1.28rem; line-height: 1.1; filter: grayscale(45%); opacity: .75; }
+  .gh-tabbar a.active { color: #10243f; }
+  .gh-tabbar a.active .gh-tab-ico { filter: none; opacity: 1; }
+  .gh-tabbar a.active .gh-tab-label { box-shadow: inset 0 -2px 0 #d5aa57; padding-bottom: 1px; }
+  body { padding-bottom: 58px; }
+}
+
+/* ---------- Verse of the Day: photo-card look ---------- */
+.reader-inner .votd-card {
+  border: none;
+  border-radius: 20px;
+  padding: 30px 24px 22px;
+  text-align: center;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(213, 170, 87, .28), rgba(213, 170, 87, 0) 55%),
+    linear-gradient(160deg, #1d4066 0%, #10243f 58%, #0a1830 100%);
+  box-shadow: 0 14px 34px rgba(10, 23, 41, .35);
+  margin: 16px 0 22px;
+}
+.reader-inner .votd-kicker { color: #e8cf8f; text-align: center; }
+.reader-inner .votd-text {
+  font: 1.38rem/1.6 Georgia, 'Times New Roman', serif;
+  font-style: normal;
+  color: #ffffff;
+  text-align: center;
+}
+.reader-inner .votd-ref {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: rgba(213, 170, 87, .18);
+  color: #e8cf8f;
+  font-size: .88rem;
+}
+.reader-inner .votd-actions { justify-content: center; margin-top: 16px; }
+.reader-inner .votd-btn {
+  border-radius: 999px;
+  padding: 9px 18px;
+  border: none;
+}
+.reader-inner .votd-btn.ghost {
+  background: rgba(255, 255, 255, .14);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .35);
+}
+
+/* ---------- Home hero: softer cards, pill buttons ---------- */
+.home-hero .home-hero-btn { border-radius: 999px; }
+.home-hero .home-hero-card {
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(16, 36, 63, .10);
+}
+.home-hero .home-hero-card:hover { box-shadow: 0 10px 24px rgba(16, 36, 63, .16); }
+
+/* ---------- General card softening on app pages ---------- */
+.pl-card, .nt-card, .pr-card, .comm-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(16, 36, 63, .06);
+}
