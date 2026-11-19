@@ -43,7 +43,7 @@
       '<div class="gh-greet-hi">' + greetingWord() + '<span class="gh-greet-name"></span></div>' +
       '<div class="gh-greet-acts">' +
         '<a class="gh-greet-search" href="search.html" aria-label="Search Scripture">🔍</a>' +
-        '<span class="gh-streak" title="Your day streak">⚡ <b>' + streak() + '</b></span>' +
+        '<a class="gh-streak" href="journey.html" title="Your day streak — open the 30-Day Journey" aria-label="Your day streak — open the 30-Day Journey">⚡ <b>' + streak() + '</b></a>' +
         '<button class="gh-bell" type="button" aria-label="Notifications" aria-expanded="false">🔔</button>' +
       '</div>' +
       '<div class="gh-bell-panel" hidden>' +
