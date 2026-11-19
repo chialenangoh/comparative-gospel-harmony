@@ -187,27 +187,7 @@
     sheet.hidden = true;
     sheet.setAttribute('role', 'dialog');
     sheet.setAttribute('aria-label', 'More');
-    sheet.innerHTML =
-      '<div class="gh-sheet-grip"></div>' +
-      '<a href="#" data-open-list>📖 Event list</a>' +
-      '<a href="#" data-act="bookmarks">🔖 Bookmarks</a>' +
-      '<a href="index.html">🏠 Gospels</a>' +
-      '<a href="bible.html">📚 Bible Books</a>' +
-      '<a href="old-testament.html">📖 Old Testament</a>' +
-      '<a href="new-testament.html">📜 New Testament</a>' +
-      '<a href="listen.html">🎧 Listen</a>' +
-      '<a href="quiz.html">🧠 Life of Christ Quiz</a>' +
-      '<a href="films.html">🎬 Films</a>' +
-      '<a href="journey.html">🕊 30-Day Journey</a>' +
-      '<a href="advent.html">🕯 Advent</a>' +
-      '<a href="community.html">🤝 Community</a>' +
-      '<a href="prayer.html">🙏 Prayer List</a>' +
-      '<a href="notes.html">📝 My Notes</a>' +
-      '<a href="plan.html">📅 Bible in One Year</a>' +
-      '<div class="gh-sheet-row"><span>Scripture text size</span><span class="gh-sheet-textbtns">' +
-      '<button type="button" data-text="decreaseText" aria-label="Decrease Scripture text size">A−</button>' +
-      '<button type="button" data-text="increaseText" aria-label="Increase Scripture text size">A+</button></span></div>' +
-      '<a href="community.html">👤 Account &amp; sign in</a>';
+    sheet.innerHTML = '<div class="gh-sheet-grip"></div><div class="gh-sheet-body"></div>';
     document.body.appendChild(backdrop);
     document.body.appendChild(sheet);
     backdrop.addEventListener('click', closeSheet);
@@ -231,7 +211,34 @@
       if (e.target.closest('a')) closeSheet();
     });
   }
-  function openSheet() { buildSheet(); sheet.hidden = false; backdrop.hidden = false; }
+  function moreSheetHtml() {
+    return '' +
+      '<a href="#" data-open-list>📖 Event list</a>' +
+      '<a href="#" data-act="bookmarks">🔖 Bookmarks</a>' +
+      '<a href="index.html">🏠 Gospels</a>' +
+      '<a href="bible.html">📚 Bible Books</a>' +
+      '<a href="old-testament.html">📖 Old Testament</a>' +
+      '<a href="new-testament.html">📜 New Testament</a>' +
+      '<a href="listen.html">🎧 Listen</a>' +
+      '<a href="quiz.html">🧠 Life of Christ Quiz</a>' +
+      '<a href="films.html">🎬 Films</a>' +
+      '<a href="journey.html">🕊 30-Day Journey</a>' +
+      '<a href="advent.html">🕯 Advent</a>' +
+      '<a href="community.html">🤝 Community</a>' +
+      '<a href="prayer.html">🙏 Prayer List</a>' +
+      '<a href="notes.html">📝 My Notes</a>' +
+      '<a href="plan.html">📅 Bible in One Year</a>' +
+      '<div class="gh-sheet-row"><span>Scripture text size</span><span class="gh-sheet-textbtns">' +
+      '<button type="button" data-text="decreaseText" aria-label="Decrease Scripture text size">A−</button>' +
+      '<button type="button" data-text="increaseText" aria-label="Increase Scripture text size">A+</button></span></div>' +
+      '<a href="community.html">👤 Account &amp; sign in</a>';
+  }
+  function openSheet(html) {
+    buildSheet();
+    var body = sheet.querySelector('.gh-sheet-body');
+    if (body) body.innerHTML = html || '';
+    sheet.hidden = false; backdrop.hidden = false;
+  }
   function closeSheet() { if (sheet) sheet.hidden = true; if (backdrop) backdrop.hidden = true; }
 
   /* ---------- bottom tab bar ---------- */
@@ -252,7 +259,7 @@
     if (more) more.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      openSheet();
+      openSheet(moreSheetHtml());
     });
   }
 
