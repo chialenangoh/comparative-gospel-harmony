@@ -30,6 +30,7 @@
     var more = nav.querySelector('[data-more]');
     if (more) more.addEventListener('click', function (e) {
       e.preventDefault();
+      e.stopPropagation();
       var btn = document.getElementById('hdrMenuBtn');
       if (btn) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
