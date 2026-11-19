@@ -133,7 +133,7 @@
   .gh-greet-hi { font-size: 1.07rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .gh-greet-acts { display: flex; align-items: center; gap: 15px; flex: none; }
   .gh-greet-search { font-size: 1.02rem; text-decoration: none; }
-  .gh-streak { font-size: .98rem; font-weight: 700; color: #fff; }
+  .gh-streak { font-size: .98rem; font-weight: 700; color: #fff; text-decoration: none; padding: 6px 4px; margin: -6px -2px; cursor: pointer; }
   .gh-bell { background: none; border: 0; font-size: 1.14rem; cursor: pointer; padding: 4px 2px; color: #fff; }
   .gh-bell-panel {
     position: absolute;
