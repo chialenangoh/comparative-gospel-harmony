@@ -113,10 +113,16 @@
     sheet.innerHTML =
       '<div class="gh-sheet-grip"></div>' +
       '<a href="#" data-open-list>📖 Event list</a>' +
+      '<a href="#" data-act="bookmarks">🔖 Bookmarks</a>' +
       '<a href="index.html">🏠 Gospels</a>' +
       '<a href="bible.html">📚 Bible Books</a>' +
       '<a href="old-testament.html">📖 Old Testament</a>' +
       '<a href="new-testament.html">📜 New Testament</a>' +
+      '<a href="listen.html">🎧 Listen</a>' +
+      '<a href="quiz.html">🧠 Life of Christ Quiz</a>' +
+      '<a href="films.html">🎬 Films</a>' +
+      '<a href="journey.html">🕊 30-Day Journey</a>' +
+      '<a href="advent.html">🕯 Advent</a>' +
       '<a href="community.html">🤝 Community</a>' +
       '<a href="prayer.html">🙏 Prayer List</a>' +
       '<a href="notes.html">📝 My Notes</a>' +
@@ -129,6 +135,8 @@
     document.body.appendChild(sheet);
     backdrop.addEventListener('click', closeSheet);
     sheet.addEventListener('click', function (e) {
+      var bk = e.target.closest('[data-act="bookmarks"]');
+      if (bk) { e.preventDefault(); closeSheet(); if (window.GHLibrary && window.GHLibrary.open) window.GHLibrary.open(); return; }
       var list = e.target.closest('[data-open-list]');
       if (list) {
         e.preventDefault();

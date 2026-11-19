@@ -201,7 +201,9 @@
 
   function init() {
     addStyle();
-    renderTools();
+    /* The .lib-tools pill row was retired 2026-11-19 by owner direction:
+       every destination it held now lives in the app-look More sheet.
+       The per-event bookmark button and the bookmarks modal stay. */
     renderBookmarkBtn();
     cloudPull();
     var target = document.getElementById('eventNumber');
@@ -211,6 +213,9 @@
     }
     window.addEventListener('hashchange', function () { setTimeout(renderBookmarkBtn, 70); });
   }
+
+  /* The More sheet's Bookmarks row opens the bookmarks modal. */
+  window.GHLibrary = { open: openModal, count: activeCount };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
