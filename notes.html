@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243f">
+  <meta name="description" content="My Notes — keep private notes on the passages you study in the Gospel Harmony, synced to your account.">
+  <title>My Notes — Gospel Harmony</title>
+  <link rel="canonical" href="https://comparative-gospel-harmony.onrender.com/notes.html">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Gospel Harmony">
+  <meta property="og:title" content="My Notes — Gospel Harmony">
+  <meta property="og:description" content="Private notes on the verses you study — kept with your account.">
+  <meta property="og:url" content="https://comparative-gospel-harmony.onrender.com/notes.html">
+  <meta property="og:image" content="https://comparative-gospel-harmony.onrender.com/og-image.png">
+<style>
+.nt-wrap{max-width:44rem;margin:0 auto;padding:18px 16px 48px}
+.nt-kicker{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#7a5c14;font-weight:700}
+.nt-wrap h1{font:700 1.9rem/1.25 Georgia,serif;color:#10243f;margin:6px 0 8px}
+.nt-intro{font-size:1rem;line-height:1.55;color:#33475e}
+.nt-card{background:#fff;border:1px solid #b9c8d7;border-radius:12px;padding:16px;margin:0 0 14px}
+.nt-card h3{font:700 1.15rem Georgia,serif;color:#10243f;margin:0 0 8px}
+.nt-h{font:700 1.3rem Georgia,serif;color:#10243f;margin:20px 0 10px}
+.nt-label{display:block;font-size:.82rem;font-weight:700;color:#33475e;margin:10px 0 4px}
+.nt-input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #b9c8d7;border-radius:8px;font-size:1rem;margin:0 0 8px;background:#fff;color:#10243f}
+.nt-btn{padding:9px 16px;border-radius:9px;border:1px solid #10243f;background:#10243f;color:#fff;font-weight:700;font-size:.92rem;cursor:pointer}
+.nt-btn.ghost{background:#fff;color:#10243f;border-color:#b9c8d7}
+.nt-error{color:#8a2f24;font-weight:600;font-size:.92rem}
+.nt-note{font-size:.92rem;color:#5a6b7d;line-height:1.55}
+.nt-ref{font:700 1.05rem Georgia,serif;color:#7a5c14}
+.nt-text{line-height:1.6;color:#22344d;margin:6px 0;white-space:pre-wrap}
+.nt-meta{font-size:.85rem;color:#7d8ea3}
+.nt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.nt-searchrow{margin:0 0 6px}
+</style>
+<style>
+/* Header dropdown menu (owner request 2026-10-29): OT, NT and account live in one Menu panel */
+.hdr-menu{position:relative}
+.hdr-menu-btn{cursor:pointer;font:inherit;background:#e3c57e;color:#101f33;border:1px solid #e3c57e;font-weight:800;padding:.45rem .8rem;border-radius:.45rem}.hdr-menu-btn:hover,.hdr-menu-btn:focus-visible{background:#ffe2a1;color:#101f33}
+.hdr-menu-panel{position:absolute;right:0;top:calc(100% + 10px);width:272px;max-width:86vw;background:#fff;color:#10243f;border:1px solid #b9c8d7;border-radius:14px;box-shadow:0 16px 38px rgba(16,36,63,.28);padding:10px;z-index:1300;text-align:left}
+.hdr-menu-item{display:block;padding:10px 12px;border-radius:9px;color:#10243f;text-decoration:none;font-weight:700;font-size:.98rem}
+.hdr-menu-item:hover,.hdr-menu-item:focus-visible{background:#eef2f7;outline:none}
+.hdr-menu-acct{border-top:1px solid #e3eaf2;margin-top:6px}
+.hdr-menu-acct .acct-bar{display:block;margin:0;padding:9px 6px 3px;border:0;background:transparent;font-size:.9rem}
+.hdr-menu-acct .acct-bar .grow{display:block;margin:0 0 8px;flex:none}
+.hdr-menu-acct .acct-btn{margin:0 6px 6px 0}
+</style>
+</head>
+<body>
+<header class="topbar"><a class="hdr-back" href="index.html" aria-label="Back to main menu">←</a>
+    <div class="brand">
+      <img class="mark-img" src="logo.svg" alt="Comparative Gospel Harmony logo" width="42" height="42">
+      
+    </div>
+    <form class="hdr-search" action="search.html" method="get" role="search"><input type="search" name="q" placeholder="Search Scriptures…" aria-label="Search Scriptures"><button type="submit" aria-label="Search"><span class="hdr-search-label">Search</span><span class="hdr-search-icon" aria-hidden="true">🔍</span></button></form>
+    <div class="reader-tools" aria-label="Reading controls"><div class="hdr-menu"><button class="top-link hdr-menu-btn" id="hdrMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Menu ▾</button><div class="hdr-menu-panel" id="hdrMenuPanel" hidden><a class="hdr-menu-item" href="index.html">🏠 Gospels</a><a class="hdr-menu-item" href="bible.html">📚 Bible Books</a><a class="hdr-menu-item" href="old-testament.html">📖 Old Testament</a><a class="hdr-menu-item" href="new-testament.html">📜 New Testament</a><a class="hdr-menu-item" href="community.html">🤝 Community</a><a class="hdr-menu-item" href="prayer.html">🙏 Prayer List</a><a class="hdr-menu-item" href="notes.html">📝 My Notes</a></div></div></div>
+  </header>
+  <script>
+  (function(){var b=document.getElementById('hdrMenuBtn'),p=document.getElementById('hdrMenuPanel');if(!b||!p)return;function close(){p.hidden=true;b.setAttribute('aria-expanded','false')}b.addEventListener('click',function(e){e.stopPropagation();var willOpen=p.hidden;p.hidden=!willOpen;b.setAttribute('aria-expanded',String(willOpen))});p.addEventListener('click',function(e){if(e.target.closest('a'))close()});document.addEventListener('click',function(e){if(!p.hidden&&!p.contains(e.target))close()});document.addEventListener('keydown',function(e){if(e.key==='Escape')close()})})();
+  </script>
+  <main class="nt-wrap">
+    <p class="nt-kicker">Gospel Harmony</p>
+    <h1>📝 My Notes</h1>
+    <p class="nt-intro">Write down what the Word shows you. Your notes are private — just between you and the Lord — and they follow your account across devices.</p>
+    <div id="notesRoot"><p class="nt-note">Loading your notes…</p></div>
+  </main>
+  <script src="gh-sync.js?v=1"></script>
+  <script src="notes.js?v=1"></script>
+  <script src="highlights.js?v=3"></script>
+</body>
+</html>
