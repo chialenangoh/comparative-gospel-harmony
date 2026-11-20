@@ -67,6 +67,147 @@
     }
     return { now: streak(), best: best, thisYear: thisYear, weeks: weeks, week: week };
   }
+  /* ---------- "Everything you've done" — activity tabs in the streak
+     sheet (owner request 2026-11-20): All · Highlights · Notes · Plans ·
+     Badges, each pill opening the reader's own items. All data is read
+     from the same on-device stores the features themselves use. */
+  function lsJSON(key, dflt) {
+    try { var v = JSON.parse(localStorage.getItem(key) || 'null'); return v == null ? dflt : v; }
+    catch (e) { return dflt; }
+  }
+  function escH(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  var HL_HEX = { gold: '#e3c57e', green: '#6ec478', blue: '#6ea8ff', pink: '#ff8db6', purple: '#a78bfa', orange: '#ff9f43', teal: '#2dc4b7', red: '#ff6b6b' };
+  function pageLabel(p) {
+    var f = String(p || '').split('?')[0].split('/').pop() || 'index.html';
+    var map = { 'index.html': 'Life of Jesus', 'old-testament.html': 'Old Testament', 'new-testament.html': 'New Testament', 'acts-harmony.html': 'Acts', 'bible.html': 'Bible Books', 'journey.html': '30-Day Journey', 'plan.html': 'Bible in One Year', 'listen.html': 'Listen', 'quiz.html': 'Life of Christ Quiz', 'search.html': 'Search', 'community.html': 'Community', 'prayer.html': 'Prayer List', 'notes.html': 'My Notes', 'advent.html': 'Advent' };
+    return map[f] || f.replace(/\.html$/, '');
+  }
+  function myHighlights() {
+    var all = lsJSON('gh-highlights-v1', {}), out = [];
+    Object.keys(all || {}).forEach(function (page) {
+      (all[page] || []).forEach(function (r) {
+        if (r && r.text) out.push({ text: r.text, color: r.color || 'gold', page: page });
+      });
+    });
+    return out;
+  }
+  function myNotes() {
+    var st = lsJSON('gh-notes-v1', { items: {} }), out = [];
+    Object.keys((st && st.items) || {}).forEach(function (k) {
+      var it = st.items[k];
+      if (it && !it.gone) out.push({ ref: it.ref || '', text: it.text || '', t: it.created || it.t || 0 });
+    });
+    out.sort(function (a, b) { return b.t - a.t; });
+    return out;
+  }
+  function myPlan() {
+    var st = lsJSON('gh-plan-v1', { done: {} });
+    var days = Object.keys((st && st.done) || {}).filter(function (k) { return st.done[k]; })
+      .map(function (k) { return parseInt(k, 10); }).filter(function (n) { return !isNaN(n); })
+      .sort(function (a, b) { return b - a; });
+    return { count: days.length, days: days, start: (st && st.start) || null };
+  }
+  function myBadges(d) {
+    var B = [];
+    function add(ico, name, desc, have, need) {
+      B.push({ ico: ico, name: name, desc: desc, have: have, need: need, earned: have >= need });
+    }
+    add('🌱', 'First Steps', 'Mark your first day in the Word', d.journeyTotal, 1);
+    add('⚡', '3-Day Streak', 'Three days in a row', d.best, 3);
+    add('🔥', '7-Day Streak', 'A full week, day after day', d.best, 7);
+    add('🌟', '30-Day Streak', 'A month of daily Bible habit', d.best, 30);
+    add('👑', '100-Day Streak', 'One hundred days in a row', d.best, 100);
+    add('📆', '50 Days in the Word', 'Fifty days on the journey', d.journeyTotal, 50);
+    add('💯', '100 Days in the Word', 'One hundred days in the Word', d.journeyTotal, 100);
+    add('🖍️', 'First Highlight', 'Highlight your first verse', d.hl, 1);
+    add('🎨', '10 Highlights', 'Ten verses highlighted', d.hl, 10);
+    add('🌈', '25 Highlights', 'Twenty-five verses highlighted', d.hl, 25);
+    add('📝', 'First Note', 'Write your first verse note', d.notes, 1);
+    add('📚', '10 Notes', 'Ten notes in your notebook', d.notes, 10);
+    add('📖', 'Plan Starter', 'Finish day one of Bible in One Year', d.plan, 1);
+    add('🗓️', '30 Plan Days', 'Thirty days of the reading plan', d.plan, 30);
+    add('🏃', '100 Plan Days', 'One hundred days of the reading plan', d.plan, 100);
+    add('🏆', 'Through the Bible', 'Finish all 365 days of the plan', d.plan, 365);
+    return B;
+  }
+  function fmtDate(t) {
+    if (!t) return '';
+    var d = new Date(t);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function hlRow(h) {
+    var href = escH(h.page.charAt(0) === '/' ? h.page : '/' + h.page);
+    return '<a class="gh-act-row" href="' + href + '">' +
+      '<span class="gh-act-dot" style="background:' + (HL_HEX[h.color] || HL_HEX.gold) + '"></span>' +
+      '<span class="gh-act-main"><span class="gh-act-text">“' + escH(h.text) + '”</span>' +
+      '<span class="gh-act-meta">' + escH(pageLabel(h.page)) + ' · ' + escH(h.color) + ' highlight</span></span></a>';
+  }
+  function noteRow(n) {
+    return '<a class="gh-act-row" href="notes.html">' +
+      '<span class="gh-act-ico">📝</span>' +
+      '<span class="gh-act-main"><span class="gh-act-text"><b>' + escH(n.ref) + '</b>' +
+      (n.text ? ' — ' + escH(n.text) : '') + '</span>' +
+      (n.t ? '<span class="gh-act-meta">' + fmtDate(n.t) + '</span>' : '') + '</span></a>';
+  }
+  function badgeCell(b) {
+    return '<div class="gh-badge' + (b.earned ? '' : ' locked') + '">' +
+      '<div class="gh-badge-img">' + b.ico + (b.earned ? '<span class="gh-badge-tick">✓</span>' : '') + '</div>' +
+      '<div class="gh-badge-name">' + escH(b.name) + '</div>' +
+      '<div class="gh-badge-sub">' + (b.earned ? 'Earned' : escH(b.desc) + ' · ' + Math.min(b.have, b.need) + '/' + b.need) + '</div></div>';
+  }
+  function activityData() {
+    var hl = myHighlights(), nt = myNotes(), pl = myPlan();
+    var days = journeyDays();
+    var total = Object.keys(days).filter(function (k) { return days[k]; }).length;
+    var s = streakStats();
+    var badges = myBadges({ journeyTotal: total, best: s.best, hl: hl.length, notes: nt.length, plan: pl.count });
+    return { hl: hl, nt: nt, pl: pl, journeyTotal: total, badges: badges };
+  }
+  function renderActivity(tab, d) {
+    if (tab === 'highlights') {
+      if (!d.hl.length) return '<p class="gh-act-empty">No highlights yet. Tap any verse while you read and pick a color — it will wait for you here.</p>';
+      return d.hl.map(hlRow).join('');
+    }
+    if (tab === 'notes') {
+      if (!d.nt.length) return '<p class="gh-act-empty">No notes yet. Open <b>My Notes</b> from the More tab and write what a verse says to you.</p>' +
+        '<a class="gh-sheet-link" href="notes.html">Open My Notes →</a>';
+      return d.nt.map(noteRow).join('') + '<a class="gh-sheet-link" href="notes.html">Open My Notes →</a>';
+    }
+    if (tab === 'plans') {
+      var pct = Math.round(d.pl.count / 365 * 100);
+      var chips = d.pl.days.slice(0, 14).map(function (n) { return '<span class="gh-day-chip">Day ' + n + ' ✓</span>'; }).join('');
+      return '<div class="gh-plan-head"><b>Bible in One Year</b><span>' + d.pl.count + ' of 365 days · ' + pct + '%</span></div>' +
+        '<div class="gh-plan-bar"><div class="gh-plan-fill" style="width:' + Math.max(pct, d.pl.count ? 2 : 0) + '%"></div></div>' +
+        (d.pl.start ? '<p class="gh-act-meta">Started ' + fmtDate(d.pl.start) + '</p>' : '') +
+        (chips ? '<div class="gh-day-chips">' + chips + '</div>' : '<p class="gh-act-empty">No plan days finished yet — today is a good day to begin.</p>') +
+        '<a class="gh-sheet-link" href="plan.html">Open Bible in One Year →</a>' +
+        '<div class="gh-plan-head" style="margin-top:16px"><b>30-Day Journey</b><span>' + d.journeyTotal + ' days marked</span></div>' +
+        '<a class="gh-sheet-link" href="journey.html">Open the 30-Day Journey →</a>';
+    }
+    if (tab === 'badges') {
+      var earned = d.badges.filter(function (b) { return b.earned; }).length;
+      return '<p class="gh-act-count">' + earned + ' of ' + d.badges.length + ' badges earned</p>' +
+        '<div class="gh-badges">' + d.badges.map(badgeCell).join('') + '</div>';
+    }
+    // All — an overview: counts, earned badges, then the latest of everything
+    var earnedBadges = d.badges.filter(function (b) { return b.earned; });
+    var html = '<p class="gh-act-count">' + d.hl.length + ' highlights · ' + d.nt.length + ' notes · ' +
+      d.pl.count + ' plan days · ' + earnedBadges.length + ' badges</p>';
+    if (earnedBadges.length) {
+      html += '<div class="gh-badges-row">' + earnedBadges.map(function (b) {
+        return '<div class="gh-badge mini"><div class="gh-badge-img">' + b.ico + '</div><div class="gh-badge-name">' + escH(b.name) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    var latest = d.nt.slice(0, 3).map(noteRow).join('') + d.hl.slice(0, 4).map(hlRow).join('');
+    html += latest || '<p class="gh-act-empty">Nothing here yet — read a passage, highlight a verse, write a note, and your journey will fill this page.</p>';
+    return html;
+  }
+
   function openStreakSheet() {
     var s = streakStats();
     var names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -90,13 +231,38 @@
       '<div class="gh-wk">' + cells + '</div>' +
       '<button class="gh-why-btn" type="button">Why Streaks?</button>' +
       '<p class="gh-why-text" hidden>Each day you complete a day in the 30-Day Journey, your streak grows. Miss a day and the count starts again — small steps, every day, build a lasting habit in God\'s Word.</p>' +
-      '<a class="gh-sheet-link gh-streak-go" href="journey.html">Open the 30-Day Journey →</a>'
+      '<a class="gh-sheet-link gh-streak-go" href="journey.html">Open the 30-Day Journey →</a>' +
+      '<div class="gh-act">' +
+        '<div class="gh-act-title">Everything you\'ve done</div>' +
+        '<div class="gh-pills" role="tablist" aria-label="Your activity">' +
+          '<button class="gh-pill active" type="button" data-tab="all">All</button>' +
+          '<button class="gh-pill" type="button" data-tab="highlights">🖍️ Highlights</button>' +
+          '<button class="gh-pill" type="button" data-tab="notes">🗒️ Notes</button>' +
+          '<button class="gh-pill" type="button" data-tab="plans">✅ Plans</button>' +
+          '<button class="gh-pill" type="button" data-tab="badges">🏅 Badges</button>' +
+        '</div>' +
+        '<div class="gh-act-panel"></div>' +
+      '</div>'
     );
     var why = document.querySelector('.gh-why-btn');
     if (why) why.addEventListener('click', function () {
       var t = document.querySelector('.gh-why-text');
       if (t) t.hidden = !t.hidden;
     });
+    var panel = document.querySelector('.gh-act-panel');
+    if (panel) {
+      var data = activityData();
+      var showTab = function (tab) {
+        panel.innerHTML = renderActivity(tab, data);
+        Array.prototype.forEach.call(document.querySelectorAll('.gh-pill'), function (p) {
+          p.classList.toggle('active', p.getAttribute('data-tab') === tab);
+        });
+      };
+      showTab('all');
+      Array.prototype.forEach.call(document.querySelectorAll('.gh-pill'), function (p) {
+        p.addEventListener('click', function () { showTab(p.getAttribute('data-tab')); });
+      });
+    }
   }
 
   function greetingWord() {
