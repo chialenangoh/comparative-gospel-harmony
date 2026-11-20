@@ -70,6 +70,33 @@
     return 'h' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
   }
 
+  /* Reference capture (2026-11-20): verses across the harmony and the
+     OT/NT readers carry data-scripture-key="HEB 9 12". When a highlight
+     starts/ends inside a verse we store the formatted reference, the raw
+     keys and the reader's current version, so the streak sheet's
+     Highlights tab can show real cards ("You highlighted Hebrews 9:12
+     NKJV") with working Read / Compare actions. */
+  var BOOK_NAMES = { GEN: 'Genesis', EXO: 'Exodus', LEV: 'Leviticus', NUM: 'Numbers', DEU: 'Deuteronomy', JOS: 'Joshua', JDG: 'Judges', RUT: 'Ruth', '1SA': '1 Samuel', '2SA': '2 Samuel', '1KI': '1 Kings', '2KI': '2 Kings', '1CH': '1 Chronicles', '2CH': '2 Chronicles', EZR: 'Ezra', NEH: 'Nehemiah', EST: 'Esther', JOB: 'Job', PSA: 'Psalms', PRO: 'Proverbs', ECC: 'Ecclesiastes', SOS: 'Song of Solomon', ISA: 'Isaiah', JER: 'Jeremiah', LAM: 'Lamentations', EZE: 'Ezekiel', DAN: 'Daniel', HOS: 'Hosea', JOE: 'Joel', AMO: 'Amos', OBA: 'Obadiah', JON: 'Jonah', MIC: 'Micah', NAH: 'Nahum', HAB: 'Habakkuk', ZEP: 'Zephaniah', HAG: 'Haggai', ZEC: 'Zechariah', MAL: 'Malachi', MAT: 'Matthew', MAR: 'Mark', LUK: 'Luke', JOH: 'John', ACT: 'Acts', ROM: 'Romans', '1CO': '1 Corinthians', '2CO': '2 Corinthians', GAL: 'Galatians', EPH: 'Ephesians', PHP: 'Philippians', COL: 'Colossians', '1TH': '1 Thessalonians', '2TH': '2 Thessalonians', '1TI': '1 Timothy', '2TI': '2 Timothy', TIT: 'Titus', PHM: 'Philemon', HEB: 'Hebrews', JAM: 'James', '1PE': '1 Peter', '2PE': '2 Peter', '1JO': '1 John', '2JO': '2 John', '3JO': '3 John', JDE: 'Jude', REV: 'Revelation' };
+  function verseKeyOf(node) {
+    try {
+      var el = node && node.nodeType === 1 ? node : (node ? node.parentNode : null);
+      var v = el && el.closest ? el.closest('[data-scripture-key]') : null;
+      return v ? v.getAttribute('data-scripture-key') : null;
+    } catch (e) { return null; }
+  }
+  function displayRef(k1, k2) {
+    if (!k1) return null;
+    var a = String(k1).split(' '), name = BOOK_NAMES[a[0]] || a[0];
+    if (!k2 || k2 === k1) return name + ' ' + a[1] + ':' + a[2];
+    var b = String(k2).split(' ');
+    if (a[0] === b[0] && a[1] === b[1]) return name + ' ' + a[1] + ':' + a[2] + '-' + b[2];
+    if (a[0] === b[0]) return name + ' ' + a[1] + ':' + a[2] + '-' + b[1] + ':' + b[2];
+    return name + ' ' + a[1] + ':' + a[2];
+  }
+  function currentVersion() {
+    try { return localStorage.getItem('bible-translation') || 'KJV'; } catch (e) { return 'KJV'; }
+  }
+
   /* ------------------------------------------------ text map */
 
   function closestMark(node) {
@@ -406,12 +433,15 @@
         }
         var rec = {
           id: newId(), text: current.text, prefix: current.prefix,
-          suffix: current.suffix, occ: current.occ, color: color
+          suffix: current.suffix, occ: current.occ, color: color,
+          t: Date.now(), ref: displayRef(current.rk1, current.rk2),
+          rk1: current.rk1 || null, rk2: current.rk2 || null,
+          ver: currentVersion()
         };
         var list2 = loadPage();
         list2.push(rec);
         savePage(list2);
-        if (window.GHActivity) GHActivity.post('highlight', null, { text: String(rec.text || '').slice(0, 180), color: color, page: location.pathname || '' });
+        if (window.GHActivity) GHActivity.post('highlight', null, { text: String(rec.text || '').slice(0, 180), color: color, page: location.pathname || '', ref: rec.ref || '', ver: rec.ver || '' });
         wrapOffsets(map, start, end, color, rec.id);
         try { window.getSelection().removeAllRanges(); } catch (e) { /* ignore */ }
       }
@@ -492,7 +522,9 @@
         prefix: map.full.slice(Math.max(0, offs.start - CONTEXT_LEN), offs.start),
         suffix: map.full.slice(offs.end, offs.end + CONTEXT_LEN),
         occ: cands.indexOf(offs.start),
-        overlapIds: overlapIds
+        overlapIds: overlapIds,
+        rk1: verseKeyOf(range.startContainer),
+        rk2: verseKeyOf(range.endContainer)
       };
       showToolbar(rangeRect(range), { remove: overlapIds.length > 0, clear: true });
     } catch (e) { /* ignore — never break the page */ }

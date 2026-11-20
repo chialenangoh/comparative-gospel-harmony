@@ -273,6 +273,46 @@
   .gh-badge-name { font-weight: 700; font-size: .84rem; color: #10243f; line-height: 1.25; }
   .gh-badge.locked .gh-badge-name { color: #5a6c80; }
   .gh-badge-sub { font-size: .74rem; color: #5a6c80; line-height: 1.35; margin-top: 2px; }
+  /* Highlight cards + action menu (owner request 2026-11-20, modeled on
+     the YouVersion highlight cards he screenshotted). */
+  .gh-hl-card { background: #f8fafc; border: 1.5px solid #d7e0ea; border-radius: 16px; padding: 12px 12px 8px; margin: 0 0 12px; }
+  .gh-hl-head { display: flex; align-items: center; gap: 9px; }
+  .gh-hl-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto; overflow: hidden;
+    background: radial-gradient(circle at 35% 30%, #f6e2ac, #d5aa57 75%);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #10243f; font-size: .95rem;
+  }
+  .gh-hl-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gh-hl-who { flex: 1 1 auto; min-width: 0; color: #33475e; font-size: .95rem; line-height: 1.3; }
+  .gh-hl-who b { color: #10243f; }
+  .gh-hl-when { color: #5a6c80; font-size: .82rem; font-weight: 600; }
+  .gh-hl-body { border-left: 5px solid #d5aa57; padding: 2px 0 2px 12px; margin: 12px 0 4px; }
+  .gh-hl-text { font-family: Georgia, 'Times New Roman', serif; font-size: 1.16rem; line-height: 1.5; color: #10243f; margin: 0; }
+  .gh-hl-ref { font-weight: 700; color: #10243f; margin-top: 8px; font-size: .95rem; }
+  .gh-hl-foot { display: flex; align-items: center; gap: 6px; padding-top: 4px; }
+  .gh-sheet a.gh-hl-icobtn, .gh-hl-icobtn {
+    font: inherit; font-size: 1.15rem; line-height: 1; background: none; border: 0; cursor: pointer;
+    padding: 8px; border-radius: 10px; color: #10243f; text-decoration: none; display: inline-flex;
+  }
+  .gh-hl-dots { margin-left: auto; font-weight: 800; letter-spacing: 1px; }
+  .gh-hl-menu { border-top: 1px solid #e3eaf2; margin-top: 6px; padding-top: 6px; }
+  .gh-hl-menu button {
+    display: block; width: 100%; text-align: left; font: inherit; font-weight: 600; font-size: .98rem;
+    color: #10243f; background: none; border: 0; border-radius: 10px; padding: 10px 8px; cursor: pointer;
+  }
+  .gh-hl-menu button:hover, .gh-hl-menu button:focus-visible { background: #eef2f7; }
+  .gh-hl-menu button.danger { color: #c0392b; }
+  .gh-hl-edit { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; border-top: 1px solid #e3eaf2; margin-top: 6px; padding: 10px 8px 6px; }
+  .gh-hl-edit[hidden] { display: none; }
+  .gh-hl-edit-label { font-weight: 600; color: #33475e; font-size: .9rem; }
+  .gh-hl-swatch { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(16, 36, 63, .25); cursor: pointer; padding: 0; }
+  .gh-hl-swatch.sel { border-color: #10243f; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #10243f; }
+  .gh-hl-cmp { border-top: 1px solid #e3eaf2; margin-top: 6px; padding: 10px 8px 4px; }
+  .gh-hl-cmp[hidden] { display: none; }
+  .gh-cmp-ver { background: #eef2f7; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .gh-cmp-ver b { color: #10243f; }
+  .gh-cmp-ver p { margin: 4px 0 0; color: #33475e; line-height: 1.5; font-family: Georgia, 'Times New Roman', serif; }
   .gh-sheet-textbtns button {
     font: inherit;
     font-weight: 700;

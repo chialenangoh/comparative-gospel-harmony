@@ -90,10 +90,81 @@
     var all = lsJSON('gh-highlights-v1', {}), out = [];
     Object.keys(all || {}).forEach(function (page) {
       (all[page] || []).forEach(function (r) {
-        if (r && r.text) out.push({ text: r.text, color: r.color || 'gold', page: page });
+        if (r && r.text) out.push({
+          id: r.id || '', text: r.text, color: r.color || 'gold', page: page,
+          ref: r.ref || '', ver: r.ver || '', t: r.t || 0, rk1: r.rk1 || '', rk2: r.rk2 || ''
+        });
       });
     });
+    out.sort(function (a, b) { return (b.t || 0) - (a.t || 0); });
     return out;
+  }
+  function fmtAgo(t) {
+    if (!t) return '';
+    var s = Math.floor((Date.now() - t) / 1000);
+    if (s < 3600) return 'now';
+    if (s < 86400) return Math.floor(s / 3600) + 'h';
+    if (s < 7 * 86400) return Math.floor(s / 86400) + 'd';
+    if (s < 30 * 86400) return Math.floor(s / 604800) + 'w';
+    if (s < 365 * 86400) return Math.floor(s / 2592000) + 'mo';
+    return Math.floor(s / 31536000) + 'y';
+  }
+  function hlFavs() { return lsJSON('gh-hl-favs-v1', {}); }
+  function pageHref(p) { return p && p.charAt(0) === '/' ? p : '/' + (p || ''); }
+  function updateHlRecord(page, id, patch) {
+    var all = lsJSON('gh-highlights-v1', {});
+    var list = all[page] || [];
+    var idx = -1;
+    list.forEach(function (r, i) { if (r && r.id === id) idx = i; });
+    if (idx < 0) return false;
+    if (patch === null) list.splice(idx, 1);
+    else for (var k in patch) list[idx][k] = patch[k];
+    if (list.length) all[page] = list; else delete all[page];
+    try { localStorage.setItem('gh-highlights-v1', JSON.stringify(all)); } catch (e) {}
+    return true;
+  }
+  /* YouVersion-style highlight card (owner request 2026-11-20): header
+     with the reader's photo, the verse in large serif with a color bar,
+     like / comment / ••• actions, and the full action menu — Read,
+     Share, Pray, Create Image, Compare Versions, Copy, Edit, Delete. */
+  function hlCard(h, favs) {
+    var hex = HL_HEX[h.color] || HL_HEX.gold;
+    var title = h.ref ? escH(h.ref) + (h.ver ? ' ' + escH(h.ver) : '') : escH(pageLabel(h.page));
+    var fav = h.id && favs[h.id];
+    return '<div class="gh-hl-card" data-page="' + escH(h.page) + '" data-id="' + escH(h.id) + '">' +
+      '<div class="gh-hl-head">' +
+        '<span class="gh-hl-avatar">👤</span>' +
+        '<span class="gh-hl-who">You highlighted <b>' + title + '</b></span>' +
+        '<span class="gh-hl-when">' + (h.t ? fmtAgo(h.t) : '') + '</span>' +
+        '<span class="gh-act-dot" style="background:' + hex + '"></span>' +
+      '</div>' +
+      '<div class="gh-hl-body" style="border-left-color:' + hex + '">' +
+        '<p class="gh-hl-text">' + escH(h.text) + '</p>' +
+        '<div class="gh-hl-ref">' + title + '</div>' +
+      '</div>' +
+      '<div class="gh-hl-foot">' +
+        '<button class="gh-hl-icobtn' + (fav ? ' faved' : '') + '" type="button" data-hl-fav aria-label="Love this highlight">' + (fav ? '❤️' : '🤍') + '</button>' +
+        '<a class="gh-hl-icobtn" href="community.html" aria-label="See it in Community">💬</a>' +
+        '<button class="gh-hl-icobtn gh-hl-dots" type="button" data-hl-menu aria-label="Highlight actions">•••</button>' +
+      '</div>' +
+      '<div class="gh-hl-menu" hidden>' +
+        '<button type="button" data-hl-act="read">📖 Read</button>' +
+        '<button type="button" data-hl-act="share">📤 Share</button>' +
+        '<button type="button" data-hl-act="pray">🙏 Pray</button>' +
+        '<button type="button" data-hl-act="image">🖼️ Create Image</button>' +
+        '<button type="button" data-hl-act="compare">🔍 Compare Versions</button>' +
+        '<button type="button" data-hl-act="copy">📋 Copy</button>' +
+        '<button type="button" data-hl-act="edit">🖍️ Edit</button>' +
+        '<button type="button" data-hl-act="delete" class="danger">🗑️ Delete</button>' +
+      '</div>' +
+      '<div class="gh-hl-edit" hidden>' +
+        '<span class="gh-hl-edit-label">Change color:</span>' +
+        Object.keys(HL_HEX).map(function (c) {
+          return '<button type="button" class="gh-hl-swatch' + (c === h.color ? ' sel' : '') + '" data-hl-color="' + c + '" style="background:' + HL_HEX[c] + '" aria-label="Highlight ' + c + '"></button>';
+        }).join('') +
+      '</div>' +
+      '<div class="gh-hl-cmp" hidden></div>' +
+    '</div>';
   }
   function myNotes() {
     var st = lsJSON('gh-notes-v1', { items: {} }), out = [];
@@ -171,7 +242,8 @@
   function renderActivity(tab, d) {
     if (tab === 'highlights') {
       if (!d.hl.length) return '<p class="gh-act-empty">No highlights yet. Tap any verse while you read and pick a color — it will wait for you here.</p>';
-      return d.hl.map(hlRow).join('');
+      var favs = hlFavs();
+      return d.hl.map(function (h) { return hlCard(h, favs); }).join('');
     }
     if (tab === 'notes') {
       if (!d.nt.length) return '<p class="gh-act-empty">No notes yet. Open <b>My Notes</b> from the More tab and write what a verse says to you.</p>' +
@@ -206,6 +278,89 @@
     var latest = d.nt.slice(0, 3).map(noteRow).join('') + d.hl.slice(0, 4).map(hlRow).join('');
     html += latest || '<p class="gh-act-empty">Nothing here yet — read a passage, highlight a verse, write a note, and your journey will fill this page.</p>';
     return html;
+  }
+
+  /* ---------- highlight card actions ---------- */
+  function flashBtn(btn, msg) {
+    if (!btn) return;
+    var old = btn.innerHTML;
+    btn.innerHTML = msg;
+    setTimeout(function () { btn.innerHTML = old; }, 1600);
+  }
+  function copyText(txt, btn) {
+    var done = function () { flashBtn(btn, '✓ Copied'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(function () { legacyCopy(txt); done(); });
+    } else { legacyCopy(txt); done(); }
+  }
+  function legacyCopy(txt) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    } catch (e) {}
+  }
+  function hlShareText(h) {
+    var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : pageLabel(h.page);
+    return '“' + h.text + '” — ' + ref + ' · via Gospel Harmony';
+  }
+  function addToPrayerList(h) {
+    var st = lsJSON('gh-prayers-v1', { items: {} });
+    if (!st.items) st.items = {};
+    var id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
+    st.items[id] = {
+      title: h.ref || 'Highlighted verse', person: '',
+      details: h.text, created: Date.now(), answered: null, t: Date.now()
+    };
+    try { localStorage.setItem('gh-prayers-v1', JSON.stringify(st)); } catch (e) {}
+  }
+  function verseImageBlob(h, cb) {
+    try {
+      var W = 1080, H = 1350, cv = document.createElement('canvas');
+      cv.width = W; cv.height = H;
+      var ctx = cv.getContext('2d');
+      var g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, '#17335e'); g.addColorStop(1, '#0b1a30');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = '#d5aa57'; ctx.lineWidth = 6;
+      ctx.strokeRect(36, 36, W - 72, H - 72);
+      var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : pageLabel(h.page);
+      var size = 56, lines = [];
+      (function fit() {
+        ctx.font = '600 ' + size + 'px Georgia, "Times New Roman", serif';
+        var words = ('“' + h.text + '”').split(/\s+/), line = '';
+        lines = [];
+        words.forEach(function (w) {
+          var t = line ? line + ' ' + w : w;
+          if (ctx.measureText(t).width > W - 210 && line) { lines.push(line); line = w; }
+          else line = t;
+        });
+        if (line) lines.push(line);
+        if (lines.length * (size * 1.35) > H - 460 && size > 30) { size -= 4; fit(); }
+      })();
+      var lh = size * 1.35, total = lines.length * lh;
+      var y = (H - total) / 2 - 30;
+      ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
+      lines.forEach(function (ln, i) { ctx.fillText(ln, W / 2, y + i * lh); });
+      ctx.fillStyle = '#d5aa57';
+      ctx.font = '700 46px Georgia, "Times New Roman", serif';
+      ctx.fillText(ref, W / 2, y + total + 78);
+      ctx.fillStyle = 'rgba(255,255,255,.72)';
+      ctx.font = '600 30px sans-serif';
+      ctx.fillText('✦ Gospel Harmony ✦', W / 2, H - 92);
+      if (cv.toBlob) cv.toBlob(cb, 'image/png'); else cb(null);
+    } catch (e) { cb(null); }
+  }
+  function fillHlAvatars() {
+    if (!window.GHActivity || !GHActivity.session || !GHActivity.session()) return;
+    GHActivity.myProfile().then(function (p) {
+      if (!p) return;
+      Array.prototype.forEach.call(document.querySelectorAll('.gh-hl-avatar'), function (el) {
+        if (p.avatar_url) el.innerHTML = '<img src="' + escH(p.avatar_url) + '" alt="">';
+        else if (p.display_name) el.textContent = p.display_name.trim().charAt(0).toUpperCase();
+      });
+    }).catch(function () {});
   }
 
   function openStreakSheet() {
@@ -252,15 +407,132 @@
     var panel = document.querySelector('.gh-act-panel');
     if (panel) {
       var data = activityData();
+      var currentTab = 'all';
+      var hlById = {};
       var showTab = function (tab) {
+        currentTab = tab;
+        data = activityData();
+        hlById = {};
+        data.hl.forEach(function (h) { if (h.id) hlById[h.id] = h; });
         panel.innerHTML = renderActivity(tab, data);
         Array.prototype.forEach.call(document.querySelectorAll('.gh-pill'), function (p) {
           p.classList.toggle('active', p.getAttribute('data-tab') === tab);
         });
+        if (tab === 'highlights') fillHlAvatars();
       };
       showTab('all');
       Array.prototype.forEach.call(document.querySelectorAll('.gh-pill'), function (p) {
         p.addEventListener('click', function () { showTab(p.getAttribute('data-tab')); });
+      });
+      panel.addEventListener('click', function (e) {
+        var card = e.target.closest ? e.target.closest('.gh-hl-card') : null;
+        if (!card) return;
+        var h = hlById[card.getAttribute('data-id')];
+        var menuBtn = e.target.closest('[data-hl-menu]');
+        if (menuBtn) {
+          var menu = card.querySelector('.gh-hl-menu');
+          var wasHidden = menu.hidden;
+          Array.prototype.forEach.call(panel.querySelectorAll('.gh-hl-menu'), function (m) { m.hidden = true; });
+          menu.hidden = !wasHidden;
+          return;
+        }
+        var favBtn = e.target.closest('[data-hl-fav]');
+        if (favBtn && h) {
+          var favs = hlFavs();
+          if (favs[h.id]) delete favs[h.id]; else favs[h.id] = 1;
+          try { localStorage.setItem('gh-hl-favs-v1', JSON.stringify(favs)); } catch (err) {}
+          favBtn.classList.toggle('faved', !!favs[h.id]);
+          favBtn.innerHTML = favs[h.id] ? '❤️' : '🤍';
+          return;
+        }
+        var sw = e.target.closest('[data-hl-color]');
+        if (sw && h) {
+          updateHlRecord(h.page, h.id, { color: sw.getAttribute('data-hl-color') });
+          showTab(currentTab);
+          return;
+        }
+        var actBtn = e.target.closest('[data-hl-act]');
+        if (!actBtn || !h) return;
+        var act = actBtn.getAttribute('data-hl-act');
+        var menu2 = card.querySelector('.gh-hl-menu');
+        if (act === 'read') { location.href = pageHref(h.page); return; }
+        if (act === 'share') {
+          var payload = { title: 'Gospel Harmony', text: hlShareText(h) };
+          if (navigator.share) navigator.share(payload).catch(function () {});
+          else copyText(payload.text, actBtn);
+          if (menu2) menu2.hidden = true;
+          return;
+        }
+        if (act === 'copy') { copyText(hlShareText(h), actBtn); if (menu2) menu2.hidden = true; return; }
+        if (act === 'pray') {
+          addToPrayerList(h);
+          flashBtn(actBtn, '✓ Added — see Prayer List');
+          if (menu2) menu2.hidden = true;
+          return;
+        }
+        if (act === 'edit') {
+          var ed = card.querySelector('.gh-hl-edit');
+          if (ed) ed.hidden = !ed.hidden;
+          if (menu2) menu2.hidden = true;
+          return;
+        }
+        if (act === 'delete') {
+          if (!actBtn.getAttribute('data-armed')) {
+            actBtn.setAttribute('data-armed', '1');
+            actBtn.innerHTML = '🗑️ Tap again to delete';
+            setTimeout(function () { actBtn.removeAttribute('data-armed'); actBtn.innerHTML = '🗑️ Delete'; }, 3000);
+            return;
+          }
+          updateHlRecord(h.page, h.id, null);
+          showTab(currentTab);
+          return;
+        }
+        if (act === 'image') {
+          flashBtn(actBtn, 'Making image…');
+          verseImageBlob(h, function (blob) {
+            if (!blob) { flashBtn(actBtn, 'Image failed — try again'); return; }
+            var file = null;
+            try { file = new File([blob], 'gospel-harmony-verse.png', { type: 'image/png' }); } catch (err) {}
+            if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ files: [file], title: 'Gospel Harmony' }).catch(function () {});
+            } else {
+              var a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = 'gospel-harmony-verse.png';
+              document.body.appendChild(a); a.click();
+              setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+            }
+            if (menu2) menu2.hidden = true;
+          });
+          return;
+        }
+        if (act === 'compare') {
+          if (menu2) menu2.hidden = true;
+          var box = card.querySelector('.gh-hl-cmp');
+          if (!box) return;
+          box.hidden = false;
+          box.innerHTML = '<p class="gh-act-meta">Loading…</p>';
+          var ownVer = h.ver || 'KJV';
+          var html = '<div class="gh-cmp-ver"><b>' + escH(ownVer) + '</b><p>' + escH(h.text) + '</p></div>';
+          var finish = function (extra) {
+            box.innerHTML = html + (extra || '') +
+              '<a class="gh-sheet-link" href="' + escH(pageHref(h.page)) + '">Open in the reader for all versions →</a>';
+          };
+          var api = window.BibleApiTranslations;
+          if (h.rk1 && api && api.fetchPassageText && api.code && api.code !== ownVer) {
+            var p1 = h.rk1.split(' '), p2 = (h.rk2 || h.rk1).split(' ');
+            if (p1[0] === p2[0] && p1[1] === p2[1]) {
+              api.fetchPassageText(p1[0], p1[1], parseInt(p1[2], 10), parseInt(p2[2], 10))
+                .then(function (txt) {
+                  finish(txt ? '<div class="gh-cmp-ver"><b>' + escH(api.code) + '</b><p>' + escH(txt) + '</p></div>' : '');
+                })
+                .catch(function () { finish(''); });
+              return;
+            }
+          }
+          finish('');
+          return;
+        }
       });
     }
   }
