@@ -129,18 +129,22 @@
      Share, Pray, Create Image, Compare Versions, Copy, Edit, Delete. */
   function hlCard(h, favs) {
     var hex = HL_HEX[h.color] || HL_HEX.gold;
-    var title = h.ref ? escH(h.ref) + (h.ver ? ' ' + escH(h.ver) : '') : escH(pageLabel(h.page));
+    /* Owner (2026-11-20): never headline a card with the section name
+       ("You highlighted New Testament") — the Bible verse itself is the
+       headline. Only a real reference may complete the sentence. */
+    var title = h.ref ? escH(h.ref) + (h.ver ? ' ' + escH(h.ver) : '') : '';
+    var who = h.ref ? 'You highlighted <b>' + title + '</b>' : 'You highlighted';
     var fav = h.id && favs[h.id];
     return '<div class="gh-hl-card" data-page="' + escH(h.page) + '" data-id="' + escH(h.id) + '">' +
       '<div class="gh-hl-head">' +
         '<span class="gh-hl-avatar">👤</span>' +
-        '<span class="gh-hl-who">You highlighted <b>' + title + '</b></span>' +
+        '<span class="gh-hl-who">' + who + '</span>' +
         '<span class="gh-hl-when">' + (h.t ? fmtAgo(h.t) : '') + '</span>' +
         '<span class="gh-act-dot" style="background:' + hex + '"></span>' +
       '</div>' +
       '<div class="gh-hl-body" style="border-left-color:' + hex + '">' +
         '<p class="gh-hl-text">' + escH(h.text) + '</p>' +
-        '<div class="gh-hl-ref">' + title + '</div>' +
+        (title ? '<div class="gh-hl-ref">' + title + '</div>' : '') +
       '</div>' +
       '<div class="gh-hl-foot">' +
         '<button class="gh-hl-icobtn' + (fav ? ' faved' : '') + '" type="button" data-hl-fav aria-label="Love this highlight">' + (fav ? '❤️' : '🤍') + '</button>' +
@@ -216,7 +220,7 @@
     return '<a class="gh-act-row" href="' + href + '">' +
       '<span class="gh-act-dot" style="background:' + (HL_HEX[h.color] || HL_HEX.gold) + '"></span>' +
       '<span class="gh-act-main"><span class="gh-act-text">“' + escH(h.text) + '”</span>' +
-      '<span class="gh-act-meta">' + escH(pageLabel(h.page)) + ' · ' + escH(h.color) + ' highlight</span></span></a>';
+      '<span class="gh-act-meta">' + (h.ref ? escH(h.ref) + (h.ver ? ' ' + escH(h.ver) : '') + ' · ' : '') + escH(h.color) + ' highlight</span></span></a>';
   }
   function noteRow(n) {
     return '<a class="gh-act-row" href="notes.html">' +
@@ -302,8 +306,8 @@
     } catch (e) {}
   }
   function hlShareText(h) {
-    var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : pageLabel(h.page);
-    return '“' + h.text + '” — ' + ref + ' · via Gospel Harmony';
+    var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : '';
+    return '“' + h.text + '”' + (ref ? ' — ' + ref : '') + ' · via Gospel Harmony';
   }
   function addToPrayerList(h) {
     var st = lsJSON('gh-prayers-v1', { items: {} });
@@ -325,7 +329,7 @@
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
       ctx.strokeStyle = '#d5aa57'; ctx.lineWidth = 6;
       ctx.strokeRect(36, 36, W - 72, H - 72);
-      var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : pageLabel(h.page);
+      var ref = h.ref ? h.ref + (h.ver ? ' ' + h.ver : '') : '';
       var size = 56, lines = [];
       (function fit() {
         ctx.font = '600 ' + size + 'px Georgia, "Times New Roman", serif';

@@ -292,6 +292,34 @@
           var start = findAnchor(rec, map);
           if (start < 0) return; /* content changed — skip silently */
           wrapOffsets(map, start, start + rec.text.length, rec.color, rec.id);
+          /* Backfill (2026-11-20): highlights saved before reference
+             capture have no ref, so their cards could only name the
+             section ("New Testament"). Now that the highlight sits on
+             the page, read the verse keys off the wrapped marks and
+             store the real reference on the record. */
+          if (!rec.ref) {
+            try {
+              var marks = marksFor(rec.id);
+              if (marks.length) {
+                var k1 = verseKeyOf(marks[0]);
+                var k2 = verseKeyOf(marks[marks.length - 1]);
+                var ref = displayRef(k1, k2);
+                if (ref) {
+                  var list2 = loadPage();
+                  for (var i = 0; i < list2.length; i++) {
+                    if (list2[i] && list2[i].id === rec.id) {
+                      list2[i].ref = ref;
+                      list2[i].rk1 = k1 || '';
+                      list2[i].rk2 = k2 || '';
+                      rec.ref = ref;
+                      break;
+                    }
+                  }
+                  savePage(list2);
+                }
+              }
+            } catch (e2) { /* backfill is best-effort */ }
+          }
         } catch (e) { /* skip this highlight */ }
       });
     } catch (e) { /* never break the page */ }
