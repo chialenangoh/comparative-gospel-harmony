@@ -59,9 +59,19 @@
     var s = session();
     if (!s) return Promise.resolve(null);
     if (profileCache !== undefined && !force) return Promise.resolve(profileCache);
-    return rest('GET', 'profiles?select=user_id,username,display_name,is_admin&user_id=eq.' + s.user.id)
+    return rest('GET', 'profiles?select=user_id,username,display_name,is_admin,avatar_url&user_id=eq.' + s.user.id)
       .then(function (rows) {
         profileCache = rows && rows[0] ? rows[0] : null;
+        // Keep the Community photo in step with the account photo: the
+        // account bar stores it in the auth user's metadata; copy it onto
+        // the profile row (best-effort) so feeds show the same picture.
+        if (profileCache) {
+          var want = (s.user.user_metadata && s.user.user_metadata.avatar_url) || null;
+          if ((profileCache.avatar_url || null) !== want) {
+            profileCache.avatar_url = want;
+            rest('PATCH', 'profiles?user_id=eq.' + s.user.id, { avatar_url: want }).catch(function () {});
+          }
+        }
         return profileCache;
       })
       .catch(function () { return null; });

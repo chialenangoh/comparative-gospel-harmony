@@ -284,6 +284,10 @@
           .then(function (res) {
             if (res && res.error) throw res.error;
             if (res && res.data && res.data.user) user = res.data.user;
+            // Mirror the photo onto the Community profile row so the
+            // Community shows the same picture right away.
+            var pub2 = user && user.user_metadata && user.user_metadata.avatar_url;
+            sb.from('profiles').update({ avatar_url: pub2 || null }).eq('user_id', user.id).then(function () {}, function () {});
             setStatus('Profile photo updated.');
             renderBar();
           })
@@ -299,6 +303,7 @@
       .then(function () { return sb.auth.updateUser({ data: { avatar_url: null } }); })
       .then(function (res) {
         if (res && res.data && res.data.user) user = res.data.user;
+        sb.from('profiles').update({ avatar_url: null }).eq('user_id', user.id).then(function () {}, function () {});
         setStatus('Profile photo removed.');
         renderBar();
       })

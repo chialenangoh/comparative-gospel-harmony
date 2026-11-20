@@ -64,7 +64,7 @@
   function fetchProfiles(ids) {
     var missing = ids.filter(function (id) { return id && !profilesById[id]; });
     if (!missing.length) return Promise.resolve();
-    return A.rest('GET', 'profiles?select=user_id,username,display_name&user_id=in.(' + missing.join(',') + ')')
+    return A.rest('GET', 'profiles?select=user_id,username,display_name,avatar_url&user_id=in.(' + missing.join(',') + ')')
       .then(function (rows) {
         (rows || []).forEach(function (p) { profilesById[p.user_id] = p; });
       })
@@ -161,6 +161,7 @@
   }
 
   function avatarHtml(p) {
+    if (p && p.avatar_url) return '<img class="comm-avatar comm-avimg" src="' + esc(p.avatar_url) + '" alt="">';
     return '<span class="comm-avatar" aria-hidden="true">' + esc(initials(p && p.display_name)) + '</span>';
   }
 
@@ -205,8 +206,8 @@
     box.innerHTML = '<p class="comm-note">Searching…</p>';
     var like = encodeURIComponent('%' + q + '%');
     Promise.all([
-      A.rest('GET', 'profiles?select=user_id,username,display_name&username=ilike.' + like + '&limit=20').catch(function () { return []; }),
-      A.rest('GET', 'profiles?select=user_id,username,display_name&display_name=ilike.' + like + '&limit=20').catch(function () { return []; })
+      A.rest('GET', 'profiles?select=user_id,username,display_name,avatar_url&username=ilike.' + like + '&limit=20').catch(function () { return []; }),
+      A.rest('GET', 'profiles?select=user_id,username,display_name,avatar_url&display_name=ilike.' + like + '&limit=20').catch(function () { return []; })
     ]).then(function (res) {
       var seen = {}, rows = [];
       (res[0] || []).concat(res[1] || []).forEach(function (p) {
