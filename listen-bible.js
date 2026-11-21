@@ -116,13 +116,44 @@
     if (typeof synth.onvoiceschanged !== 'undefined') synth.onvoiceschanged = pickVoice;
   }
 
+  /* The reader's saved voice (voice.js) wins; the heuristic above is
+     only the fallback when no voice has been chosen. */
+  var voiceChangedWhilePaused = false;
+  function chosenVoice() {
+    try { if (window.GHVoice) { var g = GHVoice.get(); if (g) return g; } } catch (e) {}
+    return voice;
+  }
+
+  /* ---------- lock-screen / background support ---------- */
+  function setMediaMetadata() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      var info = chapterInfo();
+      var t = info ? (info.bookName + ' ' + info.chapter) : (titleEl.textContent || testamentName);
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: t,
+        artist: 'Gospel Harmony',
+        album: 'Gospel Harmony \u2014 Listen',
+        artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }]
+      });
+    } catch (e) {}
+  }
+  function playbackStarted() {
+    setMediaMetadata();
+    if (window.GHVoice) { GHVoice.keepAliveStart(); GHVoice.acquireWakeLock(); }
+  }
+  function playbackEnded() {
+    if (window.GHVoice) { GHVoice.keepAliveStop(); GHVoice.releaseWakeLock(); }
+    if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; } catch (e) {} }
+  }
+
   function rate() {
     var r = parseFloat(localStorage.getItem(RATE_KEY) || '1');
     return isNaN(r) ? 1 : r;
   }
 
   /* ---------- UI ---------- */
-  var bar, playBtn, prevBtn, nextVerseBtn, stopBtn, rateSel, fillEl, statusEl, overallEl, resumeEl, doneEl;
+  var bar, playBtn, prevBtn, nextVerseBtn, stopBtn, rateSel, fillEl, statusEl, overallEl, resumeEl, doneEl, voiceSel, wakeBox;
 
   function buildBar() {
     addStyle();
@@ -140,6 +171,11 @@
           '<option value="0.8">0.8×</option><option value="1">1×</option>' +
           '<option value="1.15">1.15×</option><option value="1.3">1.3×</option><option value="1.5">1.5×</option>' +
         '</select>' +
+      '</div>' +
+      '<div class="lb-row lb-opts">' +
+        '<label class="lb-voice-label" for="lbVoice">Voice</label>' +
+        '<select class="lb-voice" id="lbVoice" aria-label="Reading voice"></select>' +
+        '<label class="lb-wake"><input type="checkbox" id="lbWake"> Keep screen on</label>' +
       '</div>' +
       '<div class="lb-track"><div class="lb-fill" id="lbFill"></div></div>' +
       '<div class="lb-status" id="lbStatus"></div>' +
@@ -159,6 +195,20 @@
     resumeEl = bar.querySelector('#lbResume');
     doneEl = bar.querySelector('#lbDone');
     rateSel.value = String(rate());
+    voiceSel = bar.querySelector('#lbVoice');
+    wakeBox = bar.querySelector('#lbWake');
+    if (window.GHVoice) {
+      GHVoice.populate(voiceSel);
+      voiceSel.addEventListener('change', onVoiceChange);
+      wakeBox.checked = GHVoice.wakeLockOn();
+      wakeBox.addEventListener('change', function () {
+        GHVoice.setWakeLockPref(wakeBox.checked);
+        if (wakeBox.checked && playing && !paused) GHVoice.acquireWakeLock();
+      });
+    } else {
+      voiceSel.disabled = true;
+      wakeBox.disabled = true;
+    }
     if (!synth) {
       playBtn.disabled = true;
       statusEl.textContent = 'Listening is not available in this browser.';
@@ -190,6 +240,9 @@
     if (info) {
       overallEl.textContent = 'Chapter ' + info.globalIndex + ' of ' + info.testamentChapters + ' in the ' + testamentName +
         ' · ' + completedCount() + ' of ' + TOTAL_BIBLE_CHAPTERS + ' Bible chapters completed';
+    }
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.playbackState = playing ? (paused ? 'paused' : 'playing') : 'none'; } catch (e) {}
     }
     playBtn.textContent = playing ? (paused ? '▶ Resume' : '⏸ Pause') : (idx > 0 ? '▶ Continue' : '▶ Listen');
     prevBtn.disabled = idx <= 0;
@@ -247,8 +300,9 @@
   function speak(text, done) {
     var my = ++token;
     var u = new SpeechSynthesisUtterance(text);
-    if (voice) u.voice = voice;
-    u.lang = (voice && voice.lang) || 'en-US';
+    var v = chosenVoice();
+    if (v) u.voice = v;
+    u.lang = (v && v.lang) || 'en-US';
     u.rate = rate();
     u.onend = function () { if (my === token) done(); };
     u.onerror = function () { if (my === token) done(); };
@@ -278,6 +332,8 @@
     idx = Math.max(0, Math.min(verseIndex, verses.length - 1));
     playing = true;
     paused = false;
+    voiceChangedWhilePaused = false;
+    playbackStarted();
     doneEl.hidden = true;
     var info = chapterInfo();
     if (withIntro && info) {
@@ -292,17 +348,28 @@
     updateUI();
   }
 
+  function onVoiceChange() {
+    if (!window.GHVoice || !voiceSel) return;
+    GHVoice.set(voiceSel.value || '');
+    if (!playing) return;
+    if (paused) { voiceChangedWhilePaused = true; return; } // applied on Resume
+    startAt(idx, false); // re-read the current verse in the new voice
+  }
+
   function onPlayPause() {
     if (!synth) return;
     if (playing && !paused) {
       paused = true;
       synth.pause();
+      if (window.GHVoice) GHVoice.releaseWakeLock();
       updateUI();
       return;
     }
     if (playing && paused) {
+      if (voiceChangedWhilePaused) { startAt(idx, false); return; }
       paused = false;
       synth.resume();
+      if (window.GHVoice) GHVoice.acquireWakeLock();
       updateUI();
       return;
     }
@@ -328,6 +395,7 @@
     if (synth) synth.cancel();
     playing = false;
     paused = false;
+    playbackEnded();
     if (reset) { idx = 0; clearHighlight(); }
     updateUI();
     savePosition();
@@ -348,6 +416,7 @@
     } else {
       playing = false;
       paused = false;
+      playbackEnded();
       idx = 0;
       clearHighlight();
       doneEl.hidden = false;
@@ -393,6 +462,20 @@
   mo.observe(versesEl, { childList: true });
 
   window.addEventListener('beforeunload', function () { if (synth) { token++; synth.cancel(); } });
+
+  /* Returning to the app: if the system killed speech while the screen
+     was locked / the app was backgrounded (common on iOS), pick the
+     chapter back up at the current verse instead of staying silent. */
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    if (window.GHVoice && playing && !paused) GHVoice.acquireWakeLock();
+    if (!synth || !playing || paused) return;
+    setTimeout(function () {
+      if (playing && !paused && !autoAdvance && synth && !synth.speaking && !synth.pending) {
+        startAt(idx, false);
+      }
+    }, 600);
+  });
 
   // Chrome can stall long speech sessions; a gentle resume keeps it going.
   setInterval(function () {

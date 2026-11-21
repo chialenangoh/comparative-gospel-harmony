@@ -41,7 +41,8 @@
     paused: false,
     token: 0,      // increments to invalidate stale utterance callbacks
     awaitingRender: false,
-    fromGospels: false
+    fromGospels: false,
+    voiceChangedWhilePaused: false
   };
   var els = {};
 
@@ -57,6 +58,28 @@
     var r = parseFloat(localStorage.getItem(RATE_KEY) || '1');
     return isNaN(r) ? 1 : r;
   }
+  /* ---------- lock-screen / background support ---------- */
+  function setMediaMetadata() {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      var e = ev();
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: evLabel() + ' \u2014 ' + e.title,
+        artist: 'Gospel Harmony',
+        album: 'Gospel Harmony \u2014 Listen',
+        artwork: [{ src: 'icon-512.png', sizes: '512x512', type: 'image/png' }]
+      });
+    } catch (err) {}
+  }
+  function playbackStarted() {
+    setMediaMetadata();
+    if (window.GHVoice) { GHVoice.keepAliveStart(); GHVoice.acquireWakeLock(); }
+  }
+  function playbackEnded() {
+    if (window.GHVoice) { GHVoice.keepAliveStop(); GHVoice.releaseWakeLock(); }
+    if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'none'; } catch (err) {} }
+  }
+
   function ev() { return EVENTS[state.idx]; }
   function evLabel() {
     var e = ev();
@@ -86,6 +109,11 @@
           '<option value="1.25">1.25×</option><option value="1.5">1.5×</option>' +
         '</select>' +
       '</div>' +
+      '<div class="gh-listen-row gh-listen-opts">' +
+        '<label class="gh-voice-label" for="ghVoice">Voice</label>' +
+        '<select class="gh-listen-voice" id="ghVoice" aria-label="Reading voice"></select>' +
+        '<label class="gh-listen-wake"><input type="checkbox" id="ghWake"> Keep screen on</label>' +
+      '</div>' +
       '<div class="gh-listen-track"><div class="gh-listen-fill" id="ghFill"></div></div>' +
       '<div class="gh-listen-status" id="ghStatus"></div>' +
       '<div class="gh-listen-sub" id="ghSub"></div>' +
@@ -97,6 +125,8 @@
       next: document.getElementById('ghNext'),
       stop: document.getElementById('ghStop'),
       rateSel: document.getElementById('ghRate'),
+      voiceSel: document.getElementById('ghVoice'),
+      wakeBox: document.getElementById('ghWake'),
       fill: document.getElementById('ghFill'),
       status: document.getElementById('ghStatus'),
       sub: document.getElementById('ghSub'),
@@ -112,6 +142,18 @@
       if (state.playing && !state.paused) restartVerse();
     });
     els.rateSel.value = String(rate());
+    if (window.GHVoice) {
+      GHVoice.populate(els.voiceSel);
+      els.voiceSel.addEventListener('change', onVoiceChange);
+      els.wakeBox.checked = GHVoice.wakeLockOn();
+      els.wakeBox.addEventListener('change', function () {
+        GHVoice.setWakeLockPref(els.wakeBox.checked);
+        if (els.wakeBox.checked && state.playing && !state.paused) GHVoice.acquireWakeLock();
+      });
+    } else {
+      els.voiceSel.disabled = true;
+      els.wakeBox.disabled = true;
+    }
     els.resumeBtn.addEventListener('click', function () {
       var s = loadSave();
       if (!s) return;
@@ -154,6 +196,9 @@
 
   function refreshUI() {
     if (!els.status) return;
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.playbackState = state.playing ? (state.paused ? 'paused' : 'playing') : 'none'; } catch (err) {}
+    }
     var e = ev();
     els.play.textContent = state.playing ? (state.paused ? '▶ Resume' : '⏸ Pause') : '▶ Listen';
     els.prev.disabled = !state.verses.length || (state.idx === 0 && state.vi <= 0);
@@ -179,6 +224,12 @@
   function speak(text, onend) {
     var my = ++state.token;
     var u = new SpeechSynthesisUtterance(text);
+    try {
+      if (window.GHVoice) {
+        var v = GHVoice.get();
+        if (v) { u.voice = v; u.lang = v.lang; }
+      }
+    } catch (err) {}
     u.rate = rate();
     u.onend = function () { if (my === state.token) onend(); };
     u.onerror = function () { if (my === state.token) onend(); };
@@ -202,6 +253,8 @@
     if (!state.verses.length) { finishEvent(); return; }
     state.playing = true;
     state.paused = false;
+    state.voiceChangedWhilePaused = false;
+    playbackStarted();
     state.vi = Math.max(0, Math.min(vi || 0, state.verses.length - 1));
     highlight();
     refreshUI();
@@ -220,6 +273,7 @@
       state.playing = false;
       state.paused = false;
       state.vi = -1;
+      playbackEnded();
       refreshUI();
       els.status.textContent = '🎉 You have finished the Gospels and Acts';
       els.sub.innerHTML = 'From the birth of Jesus to Paul in Rome — the whole story, read aloud. <a href="index.html">Back to the Gospels</a>';
@@ -255,9 +309,38 @@
     })();
   }
 
+  function onVoiceChange() {
+    if (!window.GHVoice || !els.voiceSel) return;
+    GHVoice.set(els.voiceSel.value || '');
+    if (!state.playing) return;
+    if (state.paused) { state.voiceChangedWhilePaused = true; return; } // applied on Resume
+    if (state.vi >= 0) restartVerse(); // re-read the current verse in the new voice
+    else startAt(0);
+  }
+
   function onPlayPause() {
-    if (state.playing && !state.paused) { synth.pause(); state.paused = true; refreshUI(); return; }
-    if (state.playing && state.paused) { state.paused = false; synth.resume(); refreshUI(); return; }
+    if (state.playing && !state.paused) {
+      synth.pause();
+      state.paused = true;
+      if (window.GHVoice) GHVoice.releaseWakeLock();
+      refreshUI();
+      return;
+    }
+    if (state.playing && state.paused) {
+      if (state.voiceChangedWhilePaused) {
+        state.voiceChangedWhilePaused = false;
+        state.paused = false;
+        if (state.vi >= 0) { restartVerse(); if (window.GHVoice) GHVoice.acquireWakeLock(); }
+        else startAt(0);
+        refreshUI();
+        return;
+      }
+      state.paused = false;
+      synth.resume();
+      if (window.GHVoice) GHVoice.acquireWakeLock();
+      refreshUI();
+      return;
+    }
     startAt(state.vi > 0 ? state.vi : 0);
   }
 
@@ -267,6 +350,7 @@
     state.playing = false;
     state.paused = false;
     state.vi = -1;
+    playbackEnded();
     clearHighlightOnly();
     refreshUI();
   }
@@ -317,6 +401,28 @@
     state.idx = i >= 0 ? i : 0;
     collectVerses();
     refreshUI();
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.setActionHandler('play', function () { if (!state.playing || state.paused) onPlayPause(); });
+        navigator.mediaSession.setActionHandler('pause', function () { if (state.playing && !state.paused) onPlayPause(); });
+        navigator.mediaSession.setActionHandler('previoustrack', function () { stepVerse(-1); });
+        navigator.mediaSession.setActionHandler('nexttrack', function () { stepVerse(1); });
+      } catch (err) {}
+    }
+    /* Returning to the app: re-acquire the wake lock, and if the system
+       killed speech while the screen was locked / the app was
+       backgrounded (common on iOS), pick the reading back up at the
+       current verse instead of staying silent. */
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState !== 'visible') return;
+      if (window.GHVoice && state.playing && !state.paused) GHVoice.acquireWakeLock();
+      if (!state.playing || state.paused || state.awaitingRender) return;
+      setTimeout(function () {
+        if (state.playing && !state.paused && !synth.speaking && !synth.pending) {
+          if (state.vi >= 0) restartVerse(); else startAt(0);
+        }
+      }, 600);
+    });
     window.addEventListener('hashchange', function () { setTimeout(syncToPage, 60); });
     var target = document.getElementById('eventNumber');
     if (target && window.MutationObserver) {

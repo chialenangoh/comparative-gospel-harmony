@@ -1,0 +1,474 @@
+/* Gospel Harmony — DARK MODE (owner request 2026-11-20).
+   Loaded LAST in <head> on every page (after the page's own stylesheets).
+   Every rule is scoped under html[data-theme="dark"], which theme.js sets
+   before first paint. The navy + gold brand is untouched: the topbar and
+   other navy chrome stay navy; only light surfaces, body background and
+   navy-as-text on light backgrounds flip to a deep-navy night palette.
+   Gold accents stay gold. */
+
+/* ---------- Toggle button (injected by theme.js into the topbar) ---------- */
+.gh-theme-toggle { font-size: 1.02rem; line-height: 1; padding: 0 .3rem; }
+
+/* ---------- Palette + page ground ---------- */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9eef6;
+  --muted: #9dabbf;
+  --line: #2b3c58;
+  --surface: #101d33;
+  --surface-soft: #16263f;
+  --surface-blue: #1b3050;
+}
+html[data-theme="dark"] body { background: #0a1424; color: var(--ink); }
+html[data-theme="dark"] h2 { color: #d7e5f8; }
+html[data-theme="dark"] ::placeholder { color: #7e8ea8; opacity: 1; }
+
+/* Generic form controls on shell pages (community/prayer/notes/plan/quiz…). */
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: var(--surface-soft);
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+/* ---------- Headings & navy-as-text (styles.css core) ---------- */
+html[data-theme="dark"] h1 { color: #d7e5f8; }
+html[data-theme="dark"] .gospel-name { color: #d7e5f8; }
+html[data-theme="dark"] .study-column h2,
+html[data-theme="dark"] .supplemental h2,
+html[data-theme="dark"] .editorial-notes h2 { color: #d7e5f8; }
+html[data-theme="dark"] .study-column h3 { color: #a9c6ea; }
+html[data-theme="dark"] .historical-entry h3 { color: #d7e5f8; }
+html[data-theme="dark"] .verse-dialog h2,
+html[data-theme="dark"] .verse-dialog h3 { color: #d7e5f8; }
+html[data-theme="dark"] .word-panel h2 { color: #d7e5f8; }
+html[data-theme="dark"] .event-link.active { color: #d7e5f8; }
+html[data-theme="dark"] .reference-link { color: #d7e5f8; }
+html[data-theme="dark"] .word-help button { color: #d7e5f8; }
+html[data-theme="dark"] .verse-back-link { color: #a9c6ea; }
+html[data-theme="dark"] .event-kicker { color: #d7e5f8; }
+html[data-theme="dark"] .visual-label,
+html[data-theme="dark"] .visual-kicker { color: #d7e5f8; }
+html[data-theme="dark"] .visual-card strong { color: #d7e5f8; }
+html[data-theme="dark"] .word-help { color: #a9c6ea; }
+html[data-theme="dark"] .historical-entry summary,
+html[data-theme="dark"] .historical-entry a { color: #a9c6ea; }
+html[data-theme="dark"] .study-column a,
+html[data-theme="dark"] .supplemental a,
+html[data-theme="dark"] .editorial-notes a { color: #a9c6ea; }
+html[data-theme="dark"] .supplemental-entry strong { color: #d7e5f8; }
+
+/* ---------- Scripture & reader text ---------- */
+html[data-theme="dark"] .scripture { color: #e9eef6; }
+html[data-theme="dark"] .event-summary { color: #b9c6d8; }
+/* .not-recorded .scripture intentionally stays muted italic (styles.css). */
+html[data-theme="dark"] .verse-number { color: #e3c57e; }
+html[data-theme="dark"] .visual-caption { color: #b9c6d8; }
+html[data-theme="dark"] .visual-card small { color: #9dabbf; }
+
+/* ---------- Light surfaces -> night surfaces ---------- */
+html[data-theme="dark"] .visual-card,
+html[data-theme="dark"] .verse-dialog,
+html[data-theme="dark"] .visual-dialog,
+html[data-theme="dark"] .word-panel,
+html[data-theme="dark"] .study-column,
+html[data-theme="dark"] .supplemental,
+html[data-theme="dark"] .editorial-notes,
+html[data-theme="dark"] .nav-button,
+html[data-theme="dark"] .verse-result { background: var(--surface); }
+html[data-theme="dark"] .skip-link { background: var(--surface); color: #d7e5f8; }
+html[data-theme="dark"] .visual-card,
+html[data-theme="dark"] .verse-dialog,
+html[data-theme="dark"] .visual-dialog { border-color: var(--line); }
+html[data-theme="dark"] .word-panel { border-color: var(--line); border-top-color: var(--gold-500); }
+html[data-theme="dark"] .coverage-badge { background: var(--surface); }
+html[data-theme="dark"] .coverage-badge.on { background: rgba(201, 154, 66, .18); color: #e3c57e; border-color: #d7b86f; }
+html[data-theme="dark"] .reference { background: var(--surface); color: #d7e5f8; }
+html[data-theme="dark"] .not-recorded .card-head { background: var(--surface-soft); }
+html[data-theme="dark"] .visual-large,
+html[data-theme="dark"] .study-map { background: #16263f; }
+html[data-theme="dark"] .visual-map-card { background: #1c2f33; }
+html[data-theme="dark"] .map-symbol { background: #2c4a55; color: #d7e5f8; }
+html[data-theme="dark"] .map-label { fill: #d7e5f8; }
+html[data-theme="dark"] .map-north { fill: #d7e5f8; }
+html[data-theme="dark"] .map-small { fill: #9dabbf; }
+html[data-theme="dark"] .view-tab.unavailable { color: #5f7089; }
+html[data-theme="dark"] .verse-result strong { color: #d7e5f8; }
+html[data-theme="dark"] .verse-result:hover,
+html[data-theme="dark"] .verse-result:focus-visible { border-color: var(--gold-500); }
+html[data-theme="dark"] .reference-link,
+html[data-theme="dark"] .reference-text { border-color: var(--line); }
+html[data-theme="dark"] .word-close { color: #a9c6ea; }
+html[data-theme="dark"] .word-suggestions button { border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] #wordSearch { border-color: var(--line); color: var(--ink); }
+
+/* Sidebar controls */
+html[data-theme="dark"] .search-wrap { border-color: var(--line); }
+html[data-theme="dark"] #partSelect { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .filter-chip { background: var(--surface); border-color: var(--line); color: #b9c6d8; }
+html[data-theme="dark"] .filter-chip.active { border-color: var(--gold-500); }
+html[data-theme="dark"] .mini-dot { background: #3d547a; }
+html[data-theme="dark"] .mini-dot.on { background: var(--gold-500); }
+
+/* Verse links + scripture words (gold highlight chips) */
+html[data-theme="dark"] .verse-link { background: rgba(201, 154, 66, .28); color: #ffe9b8; }
+html[data-theme="dark"] .verse-link:hover,
+html[data-theme="dark"] .verse-link:focus-visible { background: rgba(201, 154, 66, .45); }
+html[data-theme="dark"] .scripture-word:hover,
+html[data-theme="dark"] .scripture-word:focus-visible { background: rgba(201, 154, 66, .28); color: #ffe2a1; }
+
+/* Reader highlights: pastel fills stay, text goes back to dark ink. */
+html[data-theme="dark"] .highlight-yellow,
+html[data-theme="dark"] .highlight-green,
+html[data-theme="dark"] .highlight-blue,
+html[data-theme="dark"] .highlight-pink,
+html[data-theme="dark"] .highlight-purple { color: #172033; }
+
+/* ---------- NT / OT readers (nt.css) + Acts (acts.css) ---------- */
+html[data-theme="dark"] .chapter-controls label { color: #d7e5f8; }
+html[data-theme="dark"] .chapter-controls select { background: var(--surface); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .nt-instructions { color: #b9c6d8; }
+html[data-theme="dark"] .nt-instructions button { color: #d7e5f8; }
+html[data-theme="dark"] .nt-scripture { background: var(--surface); }
+html[data-theme="dark"] .nt-verse { color: #e9eef6; }
+html[data-theme="dark"] .nt-commentary { background: var(--surface); }
+html[data-theme="dark"] .nt-commentary h2 { color: #d7e5f8; }
+html[data-theme="dark"] .nt-author { color: #d7e5f8; }
+html[data-theme="dark"] .nt-section summary { color: #d7e5f8; }
+html[data-theme="dark"] .source-link { color: #a9c6ea; }
+html[data-theme="dark"] .verse-more { border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] .acts-card { background: var(--surface); }
+html[data-theme="dark"] .acts-card header span { color: #d7e5f8; }
+html[data-theme="dark"] .acts-card header strong { color: #a9c6ea; }
+html[data-theme="dark"] .acts-related h2 { color: #d7e5f8; }
+
+/* ---------- Search page (search.css) ---------- */
+html[data-theme="dark"] .search-form { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .search-page button,
+html[data-theme="dark"] .search-page select,
+html[data-theme="dark"] .scripture-search-link { background: var(--surface-soft); color: #d7e5f8; border-color: var(--line); }
+html[data-theme="dark"] .search-page button[type="submit"] { background: var(--navy-900); color: #fff; }
+html[data-theme="dark"] .search-page small { color: #9dabbf; }
+html[data-theme="dark"] .search-page a { color: #a9c6ea; }
+html[data-theme="dark"] .search-result strong { color: #e3c57e; }
+html[data-theme="dark"] .search-chapter { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .search-chapter .selected-verse { background: rgba(201, 154, 66, .30); }
+html[data-theme="dark"] .search-chapter sup { color: #e3c57e; }
+
+/* ---------- Growth panel (growth.css) ---------- */
+html[data-theme="dark"] .growth { background: var(--surface); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .growth button,
+html[data-theme="dark"] .growth select,
+html[data-theme="dark"] .growth a.growth-link { background: var(--surface-blue); color: #d7e5f8; border-color: var(--line); }
+html[data-theme="dark"] .growth textarea { border-color: var(--line); }
+html[data-theme="dark"] .growth small { color: #9dabbf; }
+html[data-theme="dark"] .growth-status { background: var(--surface-blue); }
+html[data-theme="dark"] .growth-plan { border-bottom-color: var(--line); }
+html[data-theme="dark"] .growth-plan a { color: #a9c6ea; }
+html[data-theme="dark"] .audio-reading { background: rgba(201, 154, 66, .25); }
+
+/* ---------- Translation picker (translations.css) ---------- */
+html[data-theme="dark"] .translation-picker { background: var(--surface); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .translation-picker select { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .translation-picker a { color: #a9c6ea; }
+
+/* ---------- Footnotes (footnotes.css) ---------- */
+html[data-theme="dark"] .footnote-open { background: rgba(201, 154, 66, .20); color: #e3c57e; border-color: rgba(201, 154, 66, .5); }
+html[data-theme="dark"] .footnote-library { background: var(--surface); color: #d7e5f8; border-color: var(--line); }
+html[data-theme="dark"] .footnote-dialog { background: var(--surface); color: var(--ink); border-color: var(--line); }
+html[data-theme="dark"] .footnote-dialog button,
+html[data-theme="dark"] .footnote-dialog select { background: var(--surface-soft); color: var(--ink); border-color: var(--line); }
+html[data-theme="dark"] .footnote-dialog a { color: #a9c6ea; }
+html[data-theme="dark"] .footnote-dialog small { color: #9dabbf; }
+html[data-theme="dark"] .footnote-dialog li { border-bottom-color: var(--line); }
+html[data-theme="dark"] .footnote-kind { color: #e3c57e; }
+
+/* ---------- Header dropdown menu panel (inline styles on most pages) ---------- */
+html[data-theme="dark"] .hdr-menu-panel { background: var(--surface); color: var(--ink); border-color: var(--line); }
+html[data-theme="dark"] .hdr-menu-item { color: var(--ink); }
+html[data-theme="dark"] .hdr-menu-item:hover,
+html[data-theme="dark"] .hdr-menu-item:focus-visible { background: var(--surface-blue); }
+html[data-theme="dark"] .hdr-menu-acct { border-top-color: var(--line); }
+
+/* ---------- Account bar / avatar menu (injected by account.js) ---------- */
+html[data-theme="dark"] .acct-bar { background: var(--surface); border-color: var(--line); color: #b9c6d8; }
+html[data-theme="dark"] .acct-btn.ghost { color: #d7e5f8; }
+html[data-theme="dark"] .acct-avmenu { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .acct-avatar-empty { background: var(--surface-blue); }
+
+/* ---------- Verse of the Day modal + card bar (injected by verse-day.js;
+   the VOTD card itself is already a navy gradient — left as designed) ---------- */
+html[data-theme="dark"] .votd-modal-box { background: var(--surface); }
+html[data-theme="dark"] .votd-note { color: #c9b18a; }
+html[data-theme="dark"] .verse-card-bar .votd-btn { background: var(--surface-soft); color: #d7e5f8; border-color: var(--line); }
+
+/* ---------- Shell pages: shared patterns (community / prayer / notes / plan / quiz) ---------- */
+html[data-theme="dark"] .comm-kicker, html[data-theme="dark"] .pr-kicker,
+html[data-theme="dark"] .nt-kicker, html[data-theme="dark"] .pl-kicker,
+html[data-theme="dark"] .quiz-kicker, html[data-theme="dark"] .films-kicker { color: #e3c57e; }
+html[data-theme="dark"] .comm-wrap h1, html[data-theme="dark"] .pr-wrap h1,
+html[data-theme="dark"] .nt-wrap h1, html[data-theme="dark"] .pl-wrap h1,
+html[data-theme="dark"] .quiz-wrap h1, html[data-theme="dark"] .films-wrap h1,
+html[data-theme="dark"] .bible-wrap h1, html[data-theme="dark"] .bible-wrap h2 { color: #d7e5f8; }
+html[data-theme="dark"] .comm-intro, html[data-theme="dark"] .pr-intro,
+html[data-theme="dark"] .nt-intro, html[data-theme="dark"] .pl-intro,
+html[data-theme="dark"] .quiz-intro, html[data-theme="dark"] .films-intro { color: #b9c6d8; }
+html[data-theme="dark"] .comm-note, html[data-theme="dark"] .pr-note,
+html[data-theme="dark"] .nt-note, html[data-theme="dark"] .pl-note { color: #9dabbf; }
+html[data-theme="dark"] .comm-card, html[data-theme="dark"] .pr-card,
+html[data-theme="dark"] .nt-card, html[data-theme="dark"] .pl-card { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .comm-card h3, html[data-theme="dark"] .pr-card h3,
+html[data-theme="dark"] .nt-card h3, html[data-theme="dark"] .comm-sub,
+html[data-theme="dark"] .pr-h, html[data-theme="dark"] .nt-h,
+html[data-theme="dark"] .pl-h, html[data-theme="dark"] .comm-feedtitle { color: #d7e5f8; }
+html[data-theme="dark"] .comm-label, html[data-theme="dark"] .pr-label,
+html[data-theme="dark"] .nt-label, html[data-theme="dark"] .pl-label { color: #b9c6d8; }
+html[data-theme="dark"] .comm-input, html[data-theme="dark"] .pr-input,
+html[data-theme="dark"] .nt-input, html[data-theme="dark"] .pl-input { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .comm-btn, html[data-theme="dark"] .pr-btn,
+html[data-theme="dark"] .nt-btn, html[data-theme="dark"] .pl-btn,
+html[data-theme="dark"] .quiz-btn { border-color: #3d5a80; }
+html[data-theme="dark"] .comm-btn.ghost, html[data-theme="dark"] .pr-btn.ghost,
+html[data-theme="dark"] .nt-btn.ghost, html[data-theme="dark"] .pl-btn.ghost,
+html[data-theme="dark"] .quiz-btn.ghost { background: var(--surface-soft); color: #d7e5f8; border-color: var(--line); }
+html[data-theme="dark"] .comm-error, html[data-theme="dark"] .pr-error,
+html[data-theme="dark"] .nt-error { color: #f0a49c; }
+html[data-theme="dark"] .comm-time, html[data-theme="dark"] .pr-meta,
+html[data-theme="dark"] .nt-meta, html[data-theme="dark"] .pl-date { color: #8fa1ba; }
+
+/* Community feed details */
+html[data-theme="dark"] .comm-body, html[data-theme="dark"] .comm-comment,
+html[data-theme="dark"] .nt-text { color: #dbe4f0; }
+html[data-theme="dark"] .comm-body a { color: #d7e5f8; }
+html[data-theme="dark"] .comm-user, html[data-theme="dark"] .comm-ref,
+html[data-theme="dark"] .pr-person, html[data-theme="dark"] .pr-verse,
+html[data-theme="dark"] .nt-ref { color: #e3c57e; }
+html[data-theme="dark"] .comm-amen, html[data-theme="dark"] .comm-cbtn { background: var(--surface-soft); border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] .comm-amen.on { background: rgba(201, 154, 66, .22); border-color: var(--gold-500); }
+html[data-theme="dark"] .comm-person, html[data-theme="dark"] .comm-thread { border-color: var(--line); }
+html[data-theme="dark"] .comm-avimg { background: var(--surface-soft); }
+html[data-theme="dark"] .comm-share { color: #b9c6d8; }
+html[data-theme="dark"] .comm-reportlink { color: #8fa1ba; }
+html[data-theme="dark"] .comm-modtag { background: rgba(176, 58, 46, .25); border-color: rgba(240, 164, 156, .5); color: #f0a49c; }
+html[data-theme="dark"] .comm-del { color: #f0a49c; }
+
+/* Prayer + plan specifics */
+html[data-theme="dark"] .pr-card.answered { background: rgba(201, 154, 66, .10); }
+html[data-theme="dark"] .pr-main strong { color: #d7e5f8; }
+html[data-theme="dark"] .pr-details { color: #b9c6d8; }
+html[data-theme="dark"] .pl-card.done { background: rgba(46, 125, 70, .14); border-color: #2e7d46; }
+html[data-theme="dark"] .pl-bar, html[data-theme="dark"] .quiz-bar { background: #22344f; }
+html[data-theme="dark"] .pl-dayhead strong { color: #d7e5f8; }
+html[data-theme="dark"] .pl-check { color: #8fd6a4; }
+html[data-theme="dark"] .pl-read { background: rgba(201, 154, 66, .18); color: #e8cf8f; }
+html[data-theme="dark"] .pl-list { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .pl-row { border-bottom-color: var(--line); }
+html[data-theme="dark"] .pl-row.today { background: rgba(201, 154, 66, .18); }
+html[data-theme="dark"] .pl-rowmain { color: var(--ink); }
+html[data-theme="dark"] .pl-rowsum { color: #b9c6d8; }
+html[data-theme="dark"] .pl-rowcheck { color: #8fd6a4; }
+
+/* Quiz specifics */
+html[data-theme="dark"] .quiz-best, html[data-theme="dark"] .quiz-ref { color: #e3c57e; }
+html[data-theme="dark"] .quiz-meta { color: #9dabbf; }
+html[data-theme="dark"] .quiz-q, html[data-theme="dark"] .quiz-final,
+html[data-theme="dark"] .quiz-read { color: #d7e5f8; }
+html[data-theme="dark"] .quiz-opt { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .quiz-opt:hover:not([disabled]) { background: var(--surface-blue); }
+html[data-theme="dark"] .quiz-opt.right { background: rgba(46, 125, 70, .28); color: #a9e5bc; }
+html[data-theme="dark"] .quiz-opt.wrong { background: rgba(176, 58, 46, .28); color: #f3b3a7; }
+html[data-theme="dark"] .quiz-feedback, html[data-theme="dark"] .quiz-final-note { color: #b9c6d8; }
+html[data-theme="dark"] .quiz-good { color: #8fd6a4; }
+html[data-theme="dark"] .quiz-bad { color: #f0a49c; }
+html[data-theme="dark"] .quiz-note { color: #8fd6a4; }
+html[data-theme="dark"] .quiz-links { color: #9dabbf; }
+html[data-theme="dark"] .quiz-links a { color: #d7e5f8; }
+
+/* ---------- Chat page ---------- */
+html[data-theme="dark"] .msg.guide { background: var(--surface); border-color: var(--line); color: #dbe4f0; }
+html[data-theme="dark"] .msg .src { color: #8fa1ba; }
+html[data-theme="dark"] .vcard { background: var(--surface-soft); border-color: var(--line); border-left-color: var(--gold-500); }
+html[data-theme="dark"] .vcard .vref, html[data-theme="dark"] .vcard a { color: #d7e5f8; }
+html[data-theme="dark"] .vcard .vtext { color: #dbe4f0; }
+html[data-theme="dark"] .ecard { background: var(--surface-soft); border-color: var(--line); }
+html[data-theme="dark"] .ecard .et, html[data-theme="dark"] .ecard a { color: #d7e5f8; }
+html[data-theme="dark"] .ecard .es { color: #b9c6d8; }
+html[data-theme="dark"] .chip { background: var(--surface-soft); border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] .chip.gold { background: rgba(201, 154, 66, .20); }
+html[data-theme="dark"] .chat-form { background: #0a1424; }
+html[data-theme="dark"] .chat-tools button { color: #9dabbf; }
+html[data-theme="dark"] .crisis { background: rgba(176, 58, 46, .16); }
+html[data-theme="dark"] .msg .share-row button { border-color: var(--line); color: #d7e5f8; }
+
+/* ---------- Listen page ---------- */
+html[data-theme="dark"] .path-card { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .path-card h3 { color: #d7e5f8; }
+html[data-theme="dark"] .path-desc { color: #b9c6d8; }
+html[data-theme="dark"] .path-meta { color: #9dabbf; }
+html[data-theme="dark"] .aj-btn { border-color: #3d5a80; }
+html[data-theme="dark"] .queue-row { background: var(--surface-soft); border-color: var(--line); color: #b9c6d8; }
+html[data-theme="dark"] .queue-row.current { background: rgba(201, 154, 66, .18); color: #e9eef6; }
+html[data-theme="dark"] .queue-row .q-dur { color: #9dabbf; }
+html[data-theme="dark"] .offline-box { background: rgba(201, 154, 66, .14); border-color: rgba(201, 154, 66, .55); }
+html[data-theme="dark"] .offline-box p { color: #e8cf8f; }
+html[data-theme="dark"] #offlineStatus { color: #b9c6d8; }
+
+/* ---------- Films page ---------- */
+html[data-theme="dark"] .film-card { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .film-body h3 { color: #d7e5f8; }
+html[data-theme="dark"] .film-event { color: #e3c57e; }
+html[data-theme="dark"] .films-tools button { background: var(--surface-soft); border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] .films-tools button[aria-pressed="true"] { background: var(--navy-900); color: #f5ecd7; }
+html[data-theme="dark"] .films-count, html[data-theme="dark"] .films-foot { color: #9dabbf; }
+html[data-theme="dark"] .films-foot a { color: #d7e5f8; }
+html[data-theme="dark"] .film-btn.read { background: var(--surface-blue); border-color: var(--line); color: #d7e5f8; }
+
+/* ---------- Bible books page ---------- */
+html[data-theme="dark"] .bible-search { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .book-item { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .book-item:hover,
+html[data-theme="dark"] .book-item:focus-visible { background: rgba(201, 154, 66, .16); }
+html[data-theme="dark"] .book-item .book-chs { color: #9dabbf; }
+html[data-theme="dark"] .chapter-chip { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .chapter-chip:hover,
+html[data-theme="dark"] .chapter-chip:focus-visible { background: rgba(201, 154, 66, .16); }
+
+/* ---------- Journey + Advent (styles injected by journey.js / advent.js) ---------- */
+html[data-theme="dark"] .journey-pill, html[data-theme="dark"] .journey-stat,
+html[data-theme="dark"] .journey-day, html[data-theme="dark"] .adv-stat,
+html[data-theme="dark"] .adv-day { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .journey-pill .jp-kicker, html[data-theme="dark"] .adv-phase { color: #e3c57e; }
+html[data-theme="dark"] .journey-pill .jp-title, html[data-theme="dark"] .journey-stat .n,
+html[data-theme="dark"] .journey-num .d, html[data-theme="dark"] .journey-body h3,
+html[data-theme="dark"] .adv-stat .n, html[data-theme="dark"] .adv-num .d,
+html[data-theme="dark"] .adv-body h3 { color: #d7e5f8; }
+html[data-theme="dark"] .journey-pill .jp-sub, html[data-theme="dark"] .journey-refs,
+html[data-theme="dark"] .adv-refs, html[data-theme="dark"] .adv-note,
+html[data-theme="dark"] .journey-autonote { color: #9dabbf; }
+html[data-theme="dark"] .journey-refl, html[data-theme="dark"] .adv-verse,
+html[data-theme="dark"] .adv-focus { color: #b9c6d8; }
+html[data-theme="dark"] .journey-daybar { background: rgba(201, 154, 66, .16); color: #e8cf8f; border-color: rgba(201, 154, 66, .55); }
+html[data-theme="dark"] .journey-links a, html[data-theme="dark"] .journey-links button,
+html[data-theme="dark"] .adv-links a { background: var(--surface-blue); border-color: var(--line); color: #d7e5f8; }
+html[data-theme="dark"] .journey-check .jcheck, html[data-theme="dark"] .adv-check button { background: var(--surface-soft); border-color: var(--line); }
+html[data-theme="dark"] .jp-btn.ghost { color: #d7e5f8; }
+html[data-theme="dark"] .adv-num .w { color: #f0a49c; }
+
+/* ---------- Home page: welcome hero (welcome-home.css, index only) ---------- */
+html[data-theme="dark"] .home-hero {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(227, 197, 126, .16), rgba(227, 197, 126, 0) 62%),
+    linear-gradient(180deg, #14263f 0%, #101d33 55%, #0c1728 100%);
+  border-color: rgba(201, 154, 66, .45);
+}
+html[data-theme="dark"] .home-hero-title { color: #e9eef6; }
+html[data-theme="dark"] .home-hero-sub { color: #e3c57e; }
+html[data-theme="dark"] .home-hero-lede { color: #b9c6d8; }
+html[data-theme="dark"] .home-hero-lede strong { color: #e9eef6; }
+html[data-theme="dark"] .home-hero-card { background: var(--surface-soft); color: #e9eef6; }
+html[data-theme="dark"] .home-hero-card:hover,
+html[data-theme="dark"] .home-hero-card:focus-visible { background: var(--surface-blue); }
+html[data-theme="dark"] .home-hero-btn-outline { background: var(--surface-soft); color: #e9eef6; border-color: rgba(215, 229, 248, .45); }
+html[data-theme="dark"] .home-hero-btn-outline:hover,
+html[data-theme="dark"] .home-hero-btn-outline:focus-visible { background: var(--surface-blue); border-color: #d7e5f8; }
+
+/* ---------- Home page: app-look layer (app-look.css, index only) ----------
+   The Verse of the Day photo card is already a navy gradient design and
+   the greeting bar is already navy — both are left exactly as designed.
+   Only the white phone chrome flips: tab bar, bell panel, More sheet. */
+@media (max-width: 900px) {
+  html[data-theme="dark"] .gh-tabbar { background: rgba(13, 24, 43, .97); border-top-color: var(--line); }
+  html[data-theme="dark"] .gh-tabbar a { color: #9dabbf; }
+  html[data-theme="dark"] .gh-tabbar a.active { color: #e9eef6; }
+
+  html[data-theme="dark"] .gh-bell-panel { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  html[data-theme="dark"] .gh-bell-panel p { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-bell-panel a { color: #d7e5f8; }
+
+  html[data-theme="dark"] .gh-sheet { background: var(--surface); }
+  html[data-theme="dark"] .gh-sheet-grip { background: #3d547a; }
+  html[data-theme="dark"] .gh-sheet a { color: var(--ink); }
+  html[data-theme="dark"] .gh-sheet a:hover,
+  html[data-theme="dark"] .gh-sheet a:focus-visible { background: var(--surface-blue); }
+  html[data-theme="dark"] .gh-sheet-row { border-top-color: var(--line); color: #b9c6d8; }
+  html[data-theme="dark"] .gh-sheet-textbtns button { background: var(--surface-soft); color: var(--ink); border-color: var(--line); }
+  html[data-theme="dark"] .gh-sheet-title { color: #e9eef6; }
+  html[data-theme="dark"] .gh-streak-card { border-color: var(--line); }
+  html[data-theme="dark"] .gh-streak-label, html[data-theme="dark"] .gh-streak-big,
+  html[data-theme="dark"] .gh-streak-weeks { color: #e9eef6; }
+  html[data-theme="dark"] .gh-streak-sub, html[data-theme="dark"] .gh-act-empty,
+  html[data-theme="dark"] .gh-act-meta, html[data-theme="dark"] .gh-badge-sub { color: #9dabbf; }
+  html[data-theme="dark"] .gh-wk-name, html[data-theme="dark"] .gh-wk-num { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-wk-num.today { background: #244c74; color: #fff; }
+  html[data-theme="dark"] .gh-why-btn { background: var(--surface-soft); color: var(--ink); border-color: var(--line); }
+  html[data-theme="dark"] .gh-why-text { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-act { border-top-color: var(--line); }
+  html[data-theme="dark"] .gh-act-title { color: #e9eef6; }
+  html[data-theme="dark"] .gh-pill { background: var(--surface-soft); color: var(--ink); border-color: var(--line); }
+  html[data-theme="dark"] .gh-pill.active { background: #244c74; border-color: #244c74; color: #fff; }
+  html[data-theme="dark"] .gh-act-count { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-sheet a.gh-act-row { border-bottom-color: var(--line); }
+  html[data-theme="dark"] .gh-act-text { color: var(--ink); }
+  html[data-theme="dark"] .gh-plan-head { color: var(--ink); }
+  html[data-theme="dark"] .gh-plan-head span { color: #9dabbf; }
+  html[data-theme="dark"] .gh-plan-bar { background: #22344f; }
+  html[data-theme="dark"] .gh-day-chip { background: var(--surface-blue); color: #b9c6d8; }
+  html[data-theme="dark"] .gh-badge-name { color: var(--ink); }
+  html[data-theme="dark"] .gh-badge.locked .gh-badge-name { color: #9dabbf; }
+  html[data-theme="dark"] .gh-badge.locked .gh-badge-img { background: #22344f; border-color: var(--line); }
+  html[data-theme="dark"] .gh-hl-card { background: var(--surface-soft); border-color: var(--line); }
+  html[data-theme="dark"] .gh-hl-who { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-hl-who b { color: var(--ink); }
+  html[data-theme="dark"] .gh-hl-when { color: #9dabbf; }
+  html[data-theme="dark"] .gh-hl-text, html[data-theme="dark"] .gh-hl-ref { color: var(--ink); }
+  html[data-theme="dark"] .gh-sheet a.gh-hl-icobtn, html[data-theme="dark"] .gh-hl-icobtn { color: var(--ink); }
+  html[data-theme="dark"] .gh-hl-menu, html[data-theme="dark"] .gh-hl-edit,
+  html[data-theme="dark"] .gh-hl-cmp { border-top-color: var(--line); }
+  html[data-theme="dark"] .gh-hl-menu button { color: var(--ink); }
+  html[data-theme="dark"] .gh-hl-menu button:hover,
+  html[data-theme="dark"] .gh-hl-menu button:focus-visible { background: var(--surface-blue); }
+  html[data-theme="dark"] .gh-hl-edit-label { color: #b9c6d8; }
+  html[data-theme="dark"] .gh-cmp-ver { background: var(--surface-blue); }
+  html[data-theme="dark"] .gh-cmp-ver b { color: var(--ink); }
+  html[data-theme="dark"] .gh-cmp-ver p { color: #b9c6d8; }
+}
+
+/* ---------- Standalone pages without styles.css ----------
+   privacy.html and swipe-test.html carry their own inline styles and have
+   no topbar (so no toggle button); theme.js still applies the stored /
+   system preference to them. privacy's own --ink variable is overridden
+   by the palette block above (html[data-theme] outranks its :root), its
+   navy header stays navy, and its headings/effective-date line flip here;
+   its in-text links keep their dark-gold color (readable, if dim).
+   swipe-test's stage flips; its result console is already navy + gold. */
+html[data-theme="dark"] .eff { color: #9dabbf; }
+html[data-theme="dark"] #stage { background: var(--surface); border-color: var(--line); }
+
+/* Listen bars injected by listen-bible.js (.lb-*) and listen-acts.js
+   (.gh-listen*): their own <style> blocks hard-code light colors, so the
+   player card stayed white in dark mode. These rules win on specificity
+   (html[data-theme] + class beats the injected single-class rules). */
+html[data-theme="dark"] .lb-bar,
+html[data-theme="dark"] .gh-listen { background: var(--surface); border-color: var(--line); }
+html[data-theme="dark"] .lb-kicker,
+html[data-theme="dark"] .gh-listen-kicker { color: var(--gold-300); }
+html[data-theme="dark"] .lb-btn,
+html[data-theme="dark"] .gh-listen-btn { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .lb-rate,
+html[data-theme="dark"] .gh-listen-rate { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+html[data-theme="dark"] .lb-track,
+html[data-theme="dark"] .gh-listen-track { background: #24344f; }
+html[data-theme="dark"] .lb-fill,
+html[data-theme="dark"] .gh-listen-fill { background: var(--gold-500); }
+html[data-theme="dark"] .lb-status,
+html[data-theme="dark"] .gh-listen-status { color: var(--ink); }
+html[data-theme="dark"] .lb-overall,
+html[data-theme="dark"] .lb-note,
+html[data-theme="dark"] .gh-listen-sub { color: var(--muted); }
+html[data-theme="dark"] .lb-resume button,
+html[data-theme="dark"] .lb-resume a { background: rgba(201,154,66,.16); color: var(--gold-300); border-color: var(--gold-500); }
+html[data-theme="dark"] .lb-done { color: #7fc784; }
+html[data-theme="dark"] .nt-verse.lb-now { background: #54450f; box-shadow: 0 0 0 7px #54450f; }
+html[data-theme="dark"] .gh-listen-current { background: #54450f !important; box-shadow: 0 0 0 3px #54450f; }
+html[data-theme="dark"] .gh-listen-resume button { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }

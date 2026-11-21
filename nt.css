@@ -23,3 +23,12 @@
 .verse-more { margin-top: .75rem; padding: .55rem .75rem; border: 1px solid #b9c8d7; border-radius: .4rem; background: var(--surface-blue); color: var(--navy-900); cursor: pointer; }
 .verse-more[hidden] { display: none; }
 @media (max-width: 620px) { .topbar .brand-title { font-size: .86rem; } .topbar .brand-subtitle { font-size: .63rem; } .top-link { padding: .35rem .45rem; font-size: .72rem; } .reader-inner { padding-top: 1.4rem; } .nt-verse { font-size: 1.04rem; } }
+
+/* Voice picker + "keep screen on" toggle in the Listen players
+   (listen-bible.js .lb-* bar, listen-acts.js .gh-listen bar).
+   Colours come from the theme variables so both themes work. */
+.lb-opts, .gh-listen-opts { margin-top: 10px; }
+.lb-voice-label, .gh-voice-label { font-size: .85rem; font-weight: 700; color: var(--ink); }
+.lb-voice, .gh-listen-voice { max-width: 15rem; padding: .45rem .5rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-soft); color: var(--ink); font-size: .9rem; }
+.lb-wake, .gh-listen-wake { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+.lb-wake input, .gh-listen-wake input { width: 1.05rem; height: 1.05rem; accent-color: var(--gold-500); cursor: pointer; }

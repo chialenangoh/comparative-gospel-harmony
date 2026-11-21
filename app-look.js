@@ -650,10 +650,18 @@
         if (real) real.click();
         return;
       }
+      var th = e.target.closest('[data-theme-toggle]');
+      if (th) {
+        if (window.GHTheme && window.GHTheme.toggle) window.GHTheme.toggle();
+        var sb = sheet.querySelector('.gh-sheet-body');
+        if (sb) sb.innerHTML = moreSheetHtml();
+        return;
+      }
       if (e.target.closest('a')) closeSheet();
     });
   }
   function moreSheetHtml() {
+    var darkOn = !!(window.GHTheme && window.GHTheme.get && window.GHTheme.get() === 'dark');
     return '' +
       '<a href="#" data-open-list>📖 Event list</a>' +
       '<a href="#" data-act="bookmarks">🔖 Bookmarks</a>' +
@@ -673,6 +681,8 @@
       '<div class="gh-sheet-row"><span>Scripture text size</span><span class="gh-sheet-textbtns">' +
       '<button type="button" data-text="decreaseText" aria-label="Decrease Scripture text size">A−</button>' +
       '<button type="button" data-text="increaseText" aria-label="Increase Scripture text size">A+</button></span></div>' +
+      '<div class="gh-sheet-row"><span>🌙 Dark mode</span><span class="gh-sheet-textbtns">' +
+      '<button type="button" data-theme-toggle aria-label="Toggle dark mode">' + (darkOn ? 'On' : 'Off') + '</button></span></div>' +
       '<a href="community.html">👤 Account &amp; sign in</a>';
   }
   function openSheet(html) {
