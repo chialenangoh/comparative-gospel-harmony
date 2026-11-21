@@ -27,7 +27,16 @@
 .hdr-menu-acct{border-top:1px solid #e3eaf2;margin-top:6px}
 .hdr-menu-acct .acct-bar{display:block;margin:0;padding:9px 6px 3px;border:0;background:transparent;font-size:.9rem}
 .hdr-menu-acct .acct-bar .grow{display:block;margin:0 0 8px;flex:none}
-.hdr-menu-acct .acct-btn{margin:0 6px 6px 0}</style><link rel="manifest" href="manifest.webmanifest"><meta property="og:type" content="website">
+.hdr-menu-acct .acct-btn{margin:0 6px 6px 0}</style><style id="gh-splash-style">/* First-paint loading splash: covers the hollow static skeleton while the app scripts load (e.g. first open after an update, cold cache). Removed by the inline script at the end of body the moment real content renders, with a 6s hard fallback so it can never get stuck. */
+#gh-splash{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;background:#0a1729;color:#e9eef6;font-family:Inter,ui-sans-serif,system-ui,sans-serif;text-align:center;transition:opacity .35s ease}
+#gh-splash img{width:72px;height:72px;border-radius:50%}
+.gh-splash-name{font:700 1.5rem Georgia,serif;color:#fff;letter-spacing:.01em}
+.gh-splash-sub{color:#c99a42;font-size:.9rem;font-weight:600;letter-spacing:.04em}
+.gh-splash-bar{width:9rem;height:4px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden}
+.gh-splash-bar span{display:block;height:100%;width:40%;border-radius:99px;background:#c99a42;animation:gh-splash-slide 1.1s ease-in-out infinite alternate}
+@keyframes gh-splash-slide{from{transform:translateX(-60%)}to{transform:translateX(280%)}}
+#gh-splash.gh-hide{opacity:0;pointer-events:none}</style>
+<link rel="manifest" href="manifest.webmanifest"><meta property="og:type" content="website">
 <meta property="og:site_name" content="Comparative Gospel Harmony">
 <meta property="og:title" content="Comparative Gospel Harmony — The Life of Jesus, Side by Side">
 <meta property="og:description" content="Read all four Gospels side by side: 185 events of Jesus’ life compared across Matthew, Mark, Luke and John — in the KJV, NKJV, NIV, WEB, ASV, Spanish and French, with audio narration, reading journeys, and films.">
@@ -48,6 +57,12 @@
 </script>
 <link rel="stylesheet" href="highlights.css?v=2"><link rel="stylesheet" href="welcome-home.css?v=1"><link rel="stylesheet" href="theme.css?v=1"></head>
 <body>
+  <div id="gh-splash" role="status" aria-label="Loading Gospel Harmony">
+    <img src="logo.svg" alt="" width="72" height="72">
+    <div class="gh-splash-name">Gospel Harmony</div>
+    <div class="gh-splash-sub">Opening the Scriptures…</div>
+    <div class="gh-splash-bar"><span></span></div>
+  </div>
   <a class="skip-link" href="#reader">Skip to event comparison</a>
   <header class="topbar">
     <div class="brand">
@@ -204,5 +219,5 @@
 <p style="margin:0 0 10px">The Comparative Gospel Harmony places the four Gospels &mdash; Matthew, Mark, Luke and John &mdash; side by side in the King James Version, arranging the life of Jesus Christ into 185 events in chronological order, so you can read every account of each event together and compare what each Gospel records. Listen to each event read aloud, walk the 30-day Life of Christ journey with daily discussion, test yourself with the Life of Christ Quiz, watch the Gospel story films, and bring your questions to Ask the Harmony &mdash; a Scripture chat that answers only from the Gospels themselves.</p>
 <p style="margin:0"><a href="/">The Harmony</a> &middot; <a href="journey.html" style="color:#7c5e10">30-Day Journey</a> &middot; <a href="chat.html" style="color:#7c5e10">Ask the Harmony</a> &middot; <a href="films.html" style="color:#7c5e10">Films</a> &middot; <a href="quiz.html">Life of Christ Quiz</a> &middot; <a href="listen.html">Listen</a> &middot; <a href="search.html">Search the Scriptures</a></p>
 </footer>
-<script src="highlights.js?v=5"></script></body>
+<script src="highlights.js?v=5"></script><script>(function(){var done=false;function hide(){if(done)return;done=true;var s=document.getElementById('gh-splash');if(!s)return;s.classList.add('gh-hide');setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},450)}var iv=setInterval(function(){if(document.querySelector('.gospel-card')){clearInterval(iv);hide()}},200);window.addEventListener('load',function(){setTimeout(hide,150)});setTimeout(function(){clearInterval(iv);hide()},6000)})();</script></body>
 </html>
