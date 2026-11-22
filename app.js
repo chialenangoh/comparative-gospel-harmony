@@ -82,17 +82,21 @@
 
   const glossary = window.GOSPEL_GLOSSARY || {};
   const study = window.GOSPEL_STUDY || { notes: {}, related: {} };
-  const classicCommentary = window.GOSPEL_CLASSIC_COMMENTARY || {};
-  const calvinCommentary = window.GOSPEL_CALVIN_COMMENTARY || {};
+  // Startup speed (2026-11-22): the big data stores — GOSPEL_VERSE_TEXT,
+  // GOSPEL_VERSE_REFERENCES, GOSPEL_CLASSIC_COMMENTARY, GOSPEL_CALVIN_COMMENTARY
+  // (~4.4 MB) — now load AFTER first paint (see the deferred loader in
+  // index.html), so they are read live from window at each use below, never
+  // captured here. When they land, the loader calls window.GHDataReady and
+  // the reader re-renders with the full data, exactly as before.
   const bookCodes = { Matthew: 'MAT', Mark: 'MAR', Luke: 'LUK', John: 'JOH' };
-  const verseReferences = window.GOSPEL_VERSE_REFERENCES || {};
-  const verseText = window.GOSPEL_VERSE_TEXT || {};
   const bookNames = window.GOSPEL_BOOK_NAMES || {};
   const formatVerse = (key) => {
     const [book, chapter, verse] = key.split(' ');
     return `${bookNames[book] || book} ${chapter}:${verse}`;
   };
   const scriptureHtml = (text, book, reference) => {
+    const verseText = window.GOSPEL_VERSE_TEXT || {};
+    const verseReferences = window.GOSPEL_VERSE_REFERENCES || {};
     const start = reference.match(/(\d+):(\d+)/);
     let chapter = start ? Number(start[1]) : 1;
     let previousVerse = start ? Number(start[2]) - 1 : 0;
@@ -191,6 +195,8 @@
   }
 
   function renderStudy(event) {
+    const classicCommentary = window.GOSPEL_CLASSIC_COMMENTARY || {};
+    const calvinCommentary = window.GOSPEL_CALVIN_COMMENTARY || {};
     const parallels = gospels.filter((g) => event.accounts[g].recorded).map((g) =>
       `<button type="button" class="reference-link" data-gospel="${g}"><strong>${g} ${escapeHtml(event.accounts[g].reference)}</strong><span>Read this account</span></button>`);
     const additional = event.supplemental.map((item) => `<span class="reference-text">${escapeHtml(item.book)} ${escapeHtml(item.reference)} <small>Supplemental witness below</small></span>`);
@@ -259,6 +265,8 @@
 
   let originVerse = '';
   function showVerse(key, keepOrigin = false) {
+    const verseText = window.GOSPEL_VERSE_TEXT || {};
+    const verseReferences = window.GOSPEL_VERSE_REFERENCES || {};
     if (!verseText[key]) return;
     if (!keepOrigin) originVerse = key;
     els.verseTitle.textContent = formatVerse(key);
@@ -493,4 +501,9 @@
     land();
     window.addEventListener('load', () => { land(); setTimeout(land, 500); setTimeout(land, 1500); });
   }
+  // The deferred loader in index.html calls this once the post-paint data
+  // stores have landed; re-render so commentary, verse links, share text
+  // and illustrations appear exactly as they did when all files were
+  // loaded synchronously.
+  window.GHDataReady = () => { try { renderReader(); } catch (_) {} };
 })();

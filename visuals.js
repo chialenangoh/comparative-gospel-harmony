@@ -1,22 +1,25 @@
 // Illustrations are artistic reconstructions. Maps show approximate relative geography.
+// Startup speed (2026-11-22): each image src is a lazy getter — the 2.4 MB
+// base64 store (images.js) now loads AFTER first paint, and src resolves
+// from window.GOSPEL_IMAGE_DATA whenever it is read after that file lands.
 window.GOSPEL_VISUALS = {
   images: {
-    'event-5': { src: window.GOSPEL_IMAGE_DATA['annunciation.png'], title: 'The announcement to Mary', alt: 'Artistic scene of Mary receiving the angel’s announcement.' },
-    'event-10': { src: window.GOSPEL_IMAGE_DATA['birth.png'], title: 'The birth of Jesus', alt: 'Artistic scene of Mary and Joseph beside the infant Jesus in a manger.' },
-    'event-24': { src: window.GOSPEL_IMAGE_DATA['baptism.png'], title: 'Jesus is baptized', alt: 'Artistic scene of John baptizing Jesus in the Jordan River.' },
-    'event-29': { src: window.GOSPEL_IMAGE_DATA['cana.png'], title: 'The wedding at Cana', alt: 'Artistic scene of the wedding feast at Cana with water jars.' },
-    'event-54': { src: window.GOSPEL_IMAGE_DATA['sermon.png'], title: 'The Sermon on the Mount', alt: 'Artistic scene of Jesus teaching listeners on a Galilean hillside.' },
-    'event-65': { src: window.GOSPEL_IMAGE_DATA['storm.png'], title: 'Jesus calms the storm', alt: 'Artistic scene of Jesus and the disciples in a boat on a stormy lake.' },
-    'event-72': { src: window.GOSPEL_IMAGE_DATA['feeding.png'], title: 'Feeding the five thousand', alt: 'Artistic scene of Jesus holding bread and fish before a crowd by the lake.' },
-    'event-85': { src: window.GOSPEL_IMAGE_DATA['transfiguration.png'], title: 'The Transfiguration', alt: 'Artistic scene of Jesus in radiant light with three disciples looking on.' },
-    'event-103': { src: window.GOSPEL_IMAGE_DATA['good-samaritan.png'], title: 'The parable of the Good Samaritan', alt: 'Illustration of a Samaritan tending to a wounded traveler beside a road.', kind: 'parable' },
-    'event-118': { src: window.GOSPEL_IMAGE_DATA['lazarus.png'], title: 'Jesus raises Lazarus', alt: 'Artistic scene of Lazarus emerging from a tomb near Bethany.' },
-    'event-128b': { src: window.GOSPEL_IMAGE_DATA['triumphal-entry.png'], title: 'The entry into Jerusalem', alt: 'Artistic scene of Jesus entering Jerusalem on a donkey as a crowd welcomes him.' },
-    'event-144': { src: window.GOSPEL_IMAGE_DATA['supper.png'], title: 'The Passover meal', alt: 'Artistic scene of Jesus sharing a meal with his disciples.' },
-    'event-152': { src: window.GOSPEL_IMAGE_DATA['gethsemane.png'], title: 'Jesus prays in Gethsemane', alt: 'Artistic scene of Jesus praying among olive trees at night.' },
-    'event-164': { src: window.GOSPEL_IMAGE_DATA['crucifixion.png'], title: 'The Crucifixion', alt: 'Artistic scene of three crosses on a hill near Jerusalem.' },
-    'event-171': { src: window.GOSPEL_IMAGE_DATA['empty-tomb.png'], title: 'The empty tomb', alt: 'Artistic scene of women approaching an open rock-cut tomb at dawn.' },
-    'event-176': { src: window.GOSPEL_IMAGE_DATA['emmaus.png'], title: 'The road to Emmaus', alt: 'Artistic scene of the risen Jesus walking with two disciples on a road.' },
+    'event-5': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['annunciation.png'] || ''; }, title: 'The announcement to Mary', alt: 'Artistic scene of Mary receiving the angel’s announcement.' },
+    'event-10': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['birth.png'] || ''; }, title: 'The birth of Jesus', alt: 'Artistic scene of Mary and Joseph beside the infant Jesus in a manger.' },
+    'event-24': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['baptism.png'] || ''; }, title: 'Jesus is baptized', alt: 'Artistic scene of John baptizing Jesus in the Jordan River.' },
+    'event-29': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['cana.png'] || ''; }, title: 'The wedding at Cana', alt: 'Artistic scene of the wedding feast at Cana with water jars.' },
+    'event-54': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['sermon.png'] || ''; }, title: 'The Sermon on the Mount', alt: 'Artistic scene of Jesus teaching listeners on a Galilean hillside.' },
+    'event-65': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['storm.png'] || ''; }, title: 'Jesus calms the storm', alt: 'Artistic scene of Jesus and the disciples in a boat on a stormy lake.' },
+    'event-72': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['feeding.png'] || ''; }, title: 'Feeding the five thousand', alt: 'Artistic scene of Jesus holding bread and fish before a crowd by the lake.' },
+    'event-85': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['transfiguration.png'] || ''; }, title: 'The Transfiguration', alt: 'Artistic scene of Jesus in radiant light with three disciples looking on.' },
+    'event-103': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['good-samaritan.png'] || ''; }, title: 'The parable of the Good Samaritan', alt: 'Illustration of a Samaritan tending to a wounded traveler beside a road.', kind: 'parable' },
+    'event-118': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['lazarus.png'] || ''; }, title: 'Jesus raises Lazarus', alt: 'Artistic scene of Lazarus emerging from a tomb near Bethany.' },
+    'event-128b': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['triumphal-entry.png'] || ''; }, title: 'The entry into Jerusalem', alt: 'Artistic scene of Jesus entering Jerusalem on a donkey as a crowd welcomes him.' },
+    'event-144': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['supper.png'] || ''; }, title: 'The Passover meal', alt: 'Artistic scene of Jesus sharing a meal with his disciples.' },
+    'event-152': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['gethsemane.png'] || ''; }, title: 'Jesus prays in Gethsemane', alt: 'Artistic scene of Jesus praying among olive trees at night.' },
+    'event-164': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['crucifixion.png'] || ''; }, title: 'The Crucifixion', alt: 'Artistic scene of three crosses on a hill near Jerusalem.' },
+    'event-171': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['empty-tomb.png'] || ''; }, title: 'The empty tomb', alt: 'Artistic scene of women approaching an open rock-cut tomb at dawn.' },
+    'event-176': { get src() { return (window.GOSPEL_IMAGE_DATA || {})['emmaus.png'] || ''; }, title: 'The road to Emmaus', alt: 'Artistic scene of the risen Jesus walking with two disciples on a road.' },
   },
   places: {
     nazareth: { name: 'Nazareth', lat: 32.70, lon: 35.30 },
