@@ -30,7 +30,10 @@
   if (!code || !Object.prototype.hasOwnProperty.call(BIBLES, code)) return;
   const bibleId = BIBLES[code];
   const TTL_MS = 13 * 24 * 60 * 60 * 1000; // 13 days; ABS licence: clear cache within 14 days
-  const CACHE_PREFIX = 'gh-apibible-' + code + '-' + bibleId + '-';
+  /* v2 prefix (2026-11-21): chapters cached by the old fragment-joining
+     parser contain joined words ("Andit", "flesh;Your"); the new prefix
+     orphans those entries so every chapter is re-fetched and re-parsed. */
+  const CACHE_PREFIX = 'gh-apibible-v2-' + code + '-' + bibleId + '-';
   const VERSE_SELECTOR = '.scripture-verse[data-scripture-key], #searchChapter p[data-scripture-key]';
   const chapters = new Map(); // "JOH 3" -> { state: 'loading'|'done'|'failed', verses: object|null }
   const queue = [];
@@ -76,7 +79,21 @@
       if (typeof attrs.verseId === 'string' && /^\S+\.\d+\.\d+$/.test(attrs.verseId)) verse = attrs.verseId;
       else if (typeof attrs.sid === 'string' && /^\S+\.\d+\.\d+$/.test(attrs.sid)) verse = attrs.sid;
       if (node.type === 'text' && typeof node.text === 'string' && verse) {
-        verses[verse] = (verses[verse] || '') + node.text;
+        /* The API splits a verse into many text fragments (poetry lines,
+           words-of-Christ spans, paragraph breaks) and the fragments do
+           NOT reliably carry the space between them — joining them raw
+           produced "Andit shall come to pass afterwardThat…" (Joel 2:28,
+           reported 2026-11-21). Insert the missing space at a fragment
+           boundary unless the next fragment opens with closing
+           punctuation or the previous one ends with an opening
+           quote/bracket; the cleanup pass below collapses doubles. */
+        const prev = verses[verse] || '';
+        let frag = node.text;
+        if (prev && frag && !/\s$/.test(prev) && !/^\s/.test(frag) &&
+            !/^[,.;:!?%)\]}”’«»]/.test(frag) && !/[([{“‘«]$/.test(prev)) {
+          frag = ' ' + frag;
+        }
+        verses[verse] = prev + frag;
       }
       if (Array.isArray(node.items)) for (const child of node.items) collect(child, verse);
     };
