@@ -102,6 +102,78 @@
   var pendingStart = -1;    // verse to start from after a chapter change
   var voice = null;
 
+  /* ---------- recorded chapter audio (real narrator voice) ----------
+     Chapters listed in chapter-audio.js (window.CHAPTER_AUDIO) play a
+     recorded KJV reading instead of the device voice; verse timing in
+     the recording drives the same highlighting, progress and resume. */
+  var CA = window.CHAPTER_AUDIO || {};
+  var audioEl = null;
+  var audioId = null;       // chapter id currently loaded in audioEl
+
+  function audioEntry() {
+    var info = chapterInfo();
+    return (info && CA[info.id]) ? CA[info.id] : null;
+  }
+  function inAudioMode() { return !!audioEntry(); }
+
+  function getAudio() {
+    if (audioEl) return audioEl;
+    audioEl = new Audio();
+    audioEl.preload = 'auto';
+    audioEl.addEventListener('timeupdate', onAudioTime);
+    audioEl.addEventListener('ended', function () { if (playing) chapterDone(); });
+    return audioEl;
+  }
+  function updateFillAudio() {
+    var e = audioEntry();
+    if (!e || !audioEl || !fillEl) return;
+    var d = audioEl.duration || e.dur || 0;
+    if (d > 0) fillEl.style.width = Math.min(100, (audioEl.currentTime / d) * 100) + '%';
+  }
+  function onAudioTime() {
+    var e = audioEntry();
+    if (!e || !audioEl) return;
+    var t = audioEl.currentTime;
+    var v = 0;
+    for (var i = 0; i < e.verses.length; i++) {
+      if (t >= e.verses[i] - 0.05) v = i; else break;
+    }
+    if (v !== idx) { idx = v; highlight(); updateUI(); savePosition(); }
+    updateFillAudio();
+  }
+  function startAudioAt(verseIndex, withIntro) {
+    var e = audioEntry();
+    var info = chapterInfo();
+    if (!e || !info || !verses.length) return;
+    token++;
+    if (synth) synth.cancel();
+    idx = Math.max(0, Math.min(verseIndex, verses.length - 1));
+    playing = true;
+    paused = false;
+    voiceChangedWhilePaused = false;
+    playbackStarted();
+    doneEl.hidden = true;
+    var a = getAudio();
+    if (audioId !== info.id) { a.src = e.src; audioId = info.id; }
+    a.playbackRate = rate();
+    var target = (withIntro && verseIndex === 0) ? 0 : (e.verses[idx] || 0);
+    var begin = function () {
+      try { a.currentTime = target; } catch (err) {}
+      var p = a.play();
+      if (p && typeof p.catch === 'function') p.catch(function () {});
+      highlight();
+      updateUI();
+      savePosition();
+    };
+    if (a.readyState >= 1) begin();
+    else a.addEventListener('loadedmetadata', function h() {
+      a.removeEventListener('loadedmetadata', h);
+      begin();
+    });
+    highlight();
+    updateUI();
+  }
+
   function pickVoice() {
     if (!synth) return;
     var vs = synth.getVoices();
@@ -209,7 +281,7 @@
       voiceSel.disabled = true;
       wakeBox.disabled = true;
     }
-    if (!synth) {
+    if (!synth && !Object.keys(CA).length) {
       playBtn.disabled = true;
       statusEl.textContent = 'Listening is not available in this browser.';
       return;
@@ -220,6 +292,7 @@
     nextVerseBtn.addEventListener('click', function () { jump(idx + 1); });
     rateSel.addEventListener('change', function () {
       try { localStorage.setItem(RATE_KEY, rateSel.value); } catch (e) {}
+      if (audioEl && inAudioMode()) audioEl.playbackRate = rate();
     });
   }
 
@@ -248,6 +321,7 @@
     prevBtn.disabled = idx <= 0;
     nextVerseBtn.disabled = idx >= total - 1;
     stopBtn.disabled = !playing && idx === 0;
+    if (inAudioMode() && audioEl) updateFillAudio();
   }
 
   function showResume() {
@@ -326,6 +400,7 @@
   }
 
   function startAt(verseIndex, withIntro) {
+    if (inAudioMode()) { startAudioAt(verseIndex, withIntro); return; }
     if (!synth || !verses.length) return;
     token++;
     synth.cancel();
@@ -357,6 +432,27 @@
   }
 
   function onPlayPause() {
+    if (inAudioMode()) {
+      var a = getAudio();
+      if (playing && !paused) {
+        paused = true;
+        a.pause();
+        if (window.GHVoice) GHVoice.releaseWakeLock();
+        updateUI();
+        return;
+      }
+      if (playing && paused) {
+        paused = false;
+        a.playbackRate = rate();
+        var p = a.play();
+        if (p && typeof p.catch === 'function') p.catch(function () {});
+        if (window.GHVoice) GHVoice.acquireWakeLock();
+        updateUI();
+        return;
+      }
+      startAt(idx, idx === 0);
+      return;
+    }
     if (!synth) return;
     if (playing && !paused) {
       paused = true;
@@ -393,6 +489,9 @@
   function stopAll(reset) {
     token++;
     if (synth) synth.cancel();
+    if (audioEl) {
+      try { audioEl.pause(); if (reset) audioEl.currentTime = 0; } catch (e) {}
+    }
     playing = false;
     paused = false;
     playbackEnded();
@@ -430,8 +529,23 @@
     }
   }
 
+  /* ---------- per-chapter mode UI ---------- */
+  function applyModeUI() {
+    if (!bar) return;
+    var e = audioEntry();
+    var note = bar.querySelector('.lb-note');
+    if (note) {
+      note.textContent = e
+        ? 'Read aloud by a real narrator voice, in the King James Version. When a chapter ends, the next one begins — keep listening through the whole Bible. Your place is saved on this device.'
+        : 'Read aloud verse by verse with your device\u2019s voice, in the version on screen. When a chapter ends, the next one begins — keep listening through the whole Bible. Your place is saved on this device.';
+    }
+    var opts = bar.querySelector('.lb-opts');
+    if (opts) opts.style.display = e ? 'none' : '';
+  }
+
   /* ---------- chapter changes ---------- */
   function refreshChapter() {
+    applyModeUI();
     verses = verseList();
     if (autoAdvance) {
       autoAdvance = false;
@@ -455,13 +569,17 @@
   /* ---------- init ---------- */
   buildBar();
   verses = verseList();
+  applyModeUI();
   updateUI();
   showResume();
 
   var mo = new MutationObserver(function () { refreshChapter(); });
   mo.observe(versesEl, { childList: true });
 
-  window.addEventListener('beforeunload', function () { if (synth) { token++; synth.cancel(); } });
+  window.addEventListener('beforeunload', function () {
+    if (synth) { token++; synth.cancel(); }
+    if (audioEl) { try { audioEl.pause(); } catch (e) {} }
+  });
 
   /* Returning to the app: if the system killed speech while the screen
      was locked / the app was backgrounded (common on iOS), pick the
@@ -470,6 +588,7 @@
     if (document.visibilityState !== 'visible') return;
     if (window.GHVoice && playing && !paused) GHVoice.acquireWakeLock();
     if (!synth || !playing || paused) return;
+    if (inAudioMode()) return;
     setTimeout(function () {
       if (playing && !paused && !autoAdvance && synth && !synth.speaking && !synth.pending) {
         startAt(idx, false);
@@ -479,7 +598,7 @@
 
   // Chrome can stall long speech sessions; a gentle resume keeps it going.
   setInterval(function () {
-    if (synth && playing && !paused) { try { synth.resume(); } catch (e) {} }
+    if (synth && playing && !paused && !inAudioMode()) { try { synth.resume(); } catch (e) {} }
   }, 10000);
 
   if ('mediaSession' in navigator) {
