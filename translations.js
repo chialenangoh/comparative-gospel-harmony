@@ -24,3 +24,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
+
+/* 2026-11-21: French (Louis Segond) version removed at the owners request - picker, loader and translation-FR.js all deleted; saved FR preferences fall back to KJV. */
