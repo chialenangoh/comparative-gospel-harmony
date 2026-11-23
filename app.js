@@ -63,9 +63,18 @@
     const saved = Number(localStorage.getItem('scriptureSize'));
     if (Number.isFinite(saved) && saved >= .9 && saved <= 1.35) savedScriptureSize = saved;
   } catch (_) {}
+  // Event ids are stored lowercase ("event-128b"), but links elsewhere on
+  // the site use the event number's printed case ("#event-128B" from a
+  // Journey day's Read button). Resolve ids case-insensitively so those
+  // links land on their own event instead of falling back to the first.
+  const resolveEventId = (id) => {
+    const match = data.events.find((event) => event.id.toLowerCase() === String(id || '').toLowerCase());
+    return match ? match.id : '';
+  };
+
   const state = {
-    selectedId: location.hash.slice(1) || data.events[0].id,
-    arrivedHash: location.hash.slice(1),
+    selectedId: resolveEventId(location.hash.slice(1)) || data.events[0].id,
+    arrivedHash: resolveEventId(location.hash.slice(1)),
     query: '',
     part: 'all',
     coverage: 'all',
@@ -354,8 +363,9 @@
   }
 
   function chooseEvent(id, { focus = true } = {}) {
-    if (!data.events.some((event) => event.id === id)) return;
-    state.selectedId = id;
+    const resolved = resolveEventId(id);
+    if (!resolved) return;
+    state.selectedId = resolved;
     renderEventList();
     renderReader({ focus });
     closeSidebar();
