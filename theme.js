@@ -90,3 +90,22 @@
     injectButton();
   }
 })();
+
+/* Voice search loader (owner request 2026-11-24): theme.js is the one
+   script loaded on every page, so it pulls in voice-search.js, which
+   adds a microphone button beside each Scripture search box where the
+   browser supports speech recognition. Kept separate so the feature
+   stays one removable module. */
+(function () {
+  'use strict';
+  function load() {
+    try {
+      var s = document.createElement('script');
+      s.src = 'voice-search.js?v=1';
+      s.defer = true;
+      document.head.appendChild(s);
+    } catch (e) { /* voice search is an enhancement, never a dependency */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load);
+  else load();
+})();
