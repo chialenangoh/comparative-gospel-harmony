@@ -141,6 +141,39 @@
     return st;
   }
 
+  /* Journey page, in place: when a day completes here (e.g. its inline audio
+     finishes), flip its card to done and reveal the "Talk it over" button as
+     the next step — without re-rendering, so a still-playing audio element
+     is never destroyed. */
+  function markCardDone(dayNum) {
+    var st = load();
+    var stats = document.getElementById('journeyStats');
+    if (stats) {
+      var cur = currentDay(st);
+      stats.innerHTML =
+        '<div class="journey-stat"><div class="n">🔥 ' + streakOf(st) + '</div><div class="l">Day streak</div></div>' +
+        '<div class="journey-stat"><div class="n">' + doneCount(st) + ' / 30</div><div class="l">Days completed</div></div>' +
+        '<div class="journey-stat"><div class="n">Day ' + cur + '</div><div class="l">' + (st.start ? 'Today\u2019s reading' : 'Not started yet') + '</div></div>';
+    }
+    var rowEl = document.querySelector('.journey-day[data-day="' + dayNum + '"]');
+    if (!rowEl) return;
+    rowEl.classList.add('done');
+    rowEl.classList.remove('today');
+    var chk = rowEl.querySelector('.jcheck');
+    if (chk) chk.setAttribute('aria-label', 'Day ' + dayNum + ' completed');
+    var body = rowEl.querySelector('.journey-body');
+    if (!body || body.querySelector('[data-talk]')) return;
+    var talkRow = document.createElement('div');
+    talkRow.className = 'journey-links';
+    talkRow.innerHTML = '<button type="button" class="jp-btn" data-talk="' + dayNum + '">💬 Talk it over with fellow readers</button>';
+    var hint = body.querySelector('.journey-talkhint-row');
+    if (hint) hint.parentNode.replaceChild(talkRow, hint);
+    else {
+      var box = body.querySelector('.journey-talkbox');
+      if (box) body.insertBefore(talkRow, box); else body.appendChild(talkRow);
+    }
+  }
+
   /* ---------- journey.html: full list ---------- */
   function renderJourneyPage() {
     var list = document.getElementById('journeyList');
@@ -196,6 +229,7 @@
     DAYS.forEach(function (d) {
       var done = !!st.done[d.day];
       var row = document.createElement('article');
+      row.setAttribute('data-day', d.day);
       row.className = 'journey-day' + (done ? ' done' : '') + (st.start && d.day === cur && !done ? ' today' : '');
       var links = '<a href="index.html#event-' + d.event + '">📖 Read — Event ' + d.event + '</a>' +
         '<a href="audio/event-' + d.event + '.mp3" data-listen="1">🔊 Listen</a>';
@@ -206,7 +240,9 @@
         '<div class="journey-refs">' + d.refs.join(' · ') + '</div>' +
         '<p class="journey-refl">' + d.reflection + '</p>' +
         '<div class="journey-links">' + links + '</div>' +
-        '<div class="journey-links"><button type="button" class="jp-btn" data-talk="' + d.day + '">💬 Talk it over with fellow readers</button></div>' +
+        (done
+          ? '<div class="journey-links"><button type="button" class="jp-btn" data-talk="' + d.day + '">💬 Talk it over with fellow readers</button></div>'
+          : '<div class="journey-links journey-talkhint-row"><span style="color:#7c8aa0;font-size:.86rem">💬 Talk it over with fellow readers — appears here next, once you have read or listened</span></div>') +
         '<div class="journey-talkbox" id="talkbox-' + d.day + '" hidden></div></div>' +
         '<div class="journey-check"><span class="jcheck" role="img" aria-label="' + (done ? 'Day ' + d.day + ' completed' : 'Day ' + d.day + ' not completed yet') + '">✓</span></div>';
       list.appendChild(row);
@@ -420,7 +456,26 @@
     slot.innerHTML = '<audio controls preload="none" style="width:100%;margin-top:8px" src="' + a.getAttribute('href') + '"></audio>';
     card.appendChild(slot);
     var au = slot.querySelector('audio');
-    if (au) au.play().catch(function () {});
+    if (au) {
+      /* Listening on the Journey page counts too (owner directive,
+         2026-11-26): hearing the event's audio through to the end
+         (>= 95% counts, same standard as the reader page) completes the
+         day, and the card then shows "Talk it over" as the next step. */
+      var mEv = /event-([A-Za-z0-9]+)\.mp3/.exec(a.getAttribute('href') || '');
+      var dEv = mEv ? dayByEvent(mEv[1]) : null;
+      if (dEv) {
+        var completeListen = function () {
+          if (load().done[dEv.day]) return;
+          autoCompleteDay(dEv.day);
+          markCardDone(dEv.day);
+        };
+        au.addEventListener('ended', completeListen);
+        au.addEventListener('timeupdate', function () {
+          if (au.duration && au.currentTime / au.duration >= 0.95) completeListen();
+        });
+      }
+      au.play().catch(function () {});
+    }
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
